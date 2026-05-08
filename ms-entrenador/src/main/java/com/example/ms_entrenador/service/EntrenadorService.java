@@ -46,7 +46,7 @@ public class EntrenadorService {
         entrenador1.setNombreCompleto(e.getNombreCompleto());
         entrenador1.setRun(e.getRun());
         entrenador1.setFechaNacimiento(e.getFechaNacimiento());
-        return entrenador1;
+        return repository.save(entrenador1);
     }
 
     public void delete(Long id){
