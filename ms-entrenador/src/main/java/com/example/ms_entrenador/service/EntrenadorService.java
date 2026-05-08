@@ -26,7 +26,7 @@ public class EntrenadorService {
         Entrenador entrenador1 = new Entrenador();
         entrenador1.setNombreCompleto(request.getNombreCompleto());
         entrenador1.setRun(request.getRun());
-        entrenador1.setFechaNacimiento(entrenador1.getFechaNacimiento());
+        entrenador1.setFechaNacimiento(request.getFechaNacimiento());
         return repository.save(entrenador1);
     }
     public Entrenador findById(Long id){
