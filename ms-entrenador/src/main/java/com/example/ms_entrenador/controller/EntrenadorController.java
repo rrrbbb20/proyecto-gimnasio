@@ -5,10 +5,10 @@ import com.example.ms_entrenador.dto.ApiResponse;
 import com.example.ms_entrenador.dto.EntrenadorRequest;
 import com.example.ms_entrenador.dto.EntrenadorResponse;
 import com.example.ms_entrenador.service.EntrenadorService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -19,8 +19,8 @@ public class EntrenadorController {
 
     private final EntrenadorService service;
 
-
-    public ResponseEntity<ApiResponse<EntrenadorResponse>> add(EntrenadorRequest e){
+    @PostMapping
+    public ResponseEntity<ApiResponse<EntrenadorResponse>> add(@Valid @RequestBody EntrenadorRequest e){
 
         return ResponseEntity.status(201).body(
             ApiResponse.<EntrenadorResponse>builder().success(true)
@@ -30,14 +30,14 @@ public class EntrenadorController {
         );
 
     }
-
-    public ResponseEntity<ApiResponse<EntrenadorResponse>> findById(Long id){
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<EntrenadorResponse>> findById(@PathVariable Long id){
         return ResponseEntity.status(200).body(
                 ApiResponse.<EntrenadorResponse>builder().success(true).message("Encontrado")
                         .data(service.findById(id)).build()
         );
     }
-
+    @GetMapping
     public ResponseEntity<ApiResponse<List<EntrenadorResponse>>> getAll(){
 
         return ResponseEntity.status(200).body(
@@ -46,8 +46,8 @@ public class EntrenadorController {
         );
 
     }
-
-    public ResponseEntity<ApiResponse<EntrenadorResponse>> update(Long id, EntrenadorRequest e) {
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<EntrenadorResponse>> update(@PathVariable Long id, @Valid @RequestBody EntrenadorRequest e) {
 
         return ResponseEntity.ok(
 
@@ -58,9 +58,9 @@ public class EntrenadorController {
 
     }
 
-
-    public ResponseEntity<ApiResponse<Void>> delete(Long id){
-
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id){
+        service.delete(id);
         return ResponseEntity.ok(
 
                 ApiResponse.<Void>builder().success(true).message("Entrenador Eliminado").build()
