@@ -14,60 +14,14 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
-@RequiredArgsConstructor
-@EnableMethodSecurity
+
 public class WebClientConfig {
-    private final JwtFilter jwtFilter;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
-        http
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        .anyRequest().authenticated()
-                )
-                .exceptionHandling(ex -> ex
-                        .accessDeniedHandler(accessDeniedHandler())
-                        .authenticationEntryPoint(authenticationEntryPoint())
-                )
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-
-        return http.build();
-    }
-
-    @Bean
-    public AccessDeniedHandler accessDeniedHandler() {
-        return (request, response, accessDeniedException) -> {
-
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.setContentType("application/json");
-
-            ApiResponse<Object> res = ApiResponse.builder()
-                    .success(false)
-                    .message("Acceso denegado")
-                    .build();
-
-            new ObjectMapper().writeValue(response.getOutputStream(), res);
-        };
-    }
-
-    @Bean
-    public AuthenticationEntryPoint authenticationEntryPoint() {
-        return (request, response, authException) -> {
-
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-
-            ApiResponse<Object> res = ApiResponse.builder()
-                    .success(false)
-                    .message("No autenticado o token inválido")
-                    .build();
-
-            new ObjectMapper().writeValue(response.getOutputStream(), res);
-        };
+    public WebClient webClient() {
+        return WebClient.builder().build();
     }
 }
