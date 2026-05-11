@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+
 import java.util.List;
 
 import static net.logstash.logback.argument.StructuredArguments.keyValue;
@@ -24,7 +25,11 @@ public class SedeService {
     private final SedeRepository sedeRepository;
 
     public Sede createSede(SedeDTO dto) {
+
         log.info("Crear Sede", keyValue("nombre", dto.getNombre()));
+
+        Sede sede = new Sede(null,dto.getNombre(),dto.getDireccion(),dto.getHoraApertura(), dto.getHoraCierre());
+        return sedeRepository.save(sede);
     }
 
     public List<Sede> listar() {
@@ -33,9 +38,24 @@ public class SedeService {
     }
 
     public Sede obtenerSede(Long id) {
-        log.info("Obtendendo Sede de ID {}", id);
+        log.info("Buscando Sede {}", keyValue("id",id));
         return sedeRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("Sede no encontrado"));
     }
 
+    public Sede actualizarSede(Long id, SedeDTO dto) {
+        log.info("Actualizando Sede de ID {}", keyValue("id", id));
+
+        Sede sede = obtenerSede(id);
+        sede.setNombre(dto.getNombre());
+        sede.setDireccion(dto.getDireccion());
+        sede.setHoraApertura(dto.getHoraApertura());
+        sede.setHoraCierre(dto.getHoraCierre());
+        return sedeRepository.save(sede);
+    }
+
+    public void eliminarSede(Long id) {
+        log.warn("Eliminando Sede de ID {}", keyValue("id", id));
+        sedeRepository.deleteById(id);
+    }
     //falta:Agregar, Actualizar y eliminar
 }
