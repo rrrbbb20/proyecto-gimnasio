@@ -31,7 +31,7 @@ public class ClaseService {
         clase1.setCupos(c.getCupos());
         clase1.setNivelDeClase(c.getNivelDeClase());
         clase1.setNombreClase(c.getNombreClase());
-        clase1.setEstado(c.isEstado());
+        clase1.setEstado(c.getEstado());
         clase1.setDescripcion(c.getDescripcion());
         clase1.setFechaRealizacion(c.getFechaRealizacion());
         clase1.setHoraRealizacion(c.getHoraRealizacion());
@@ -41,9 +41,10 @@ public class ClaseService {
     }
 
     public ClaseResponse findById(Long id,String token){
+        log.info("Buscar clase", keyValue("Id de la Clase", id));
         Clase clase = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Clase no encontrada"));
-
+        log.info("Clase Encontrada", keyValue("Nombre de Clase", clase.getNombreClase()));
         return mapToResponse(clase , token);
 
     }
@@ -61,7 +62,7 @@ public class ClaseService {
         clase1.setCupos(c.getCupos());
         clase1.setNivelDeClase(c.getNivelDeClase());
         clase1.setNombreClase(c.getNombreClase());
-        clase1.setEstado(c.isEstado());
+        clase1.setEstado(c.getEstado());
         clase1.setDescripcion(c.getDescripcion());
         clase1.setFechaRealizacion(c.getFechaRealizacion());
         clase1.setHoraRealizacion(c.getHoraRealizacion());
@@ -78,9 +79,12 @@ public class ClaseService {
         var entrenador1 = entrenadorClient.getEntrenador(c.getIdEntrenador(), token);
 
         return ClaseResponse.builder().nombreClase(c.getNombreClase()).
-                descripcion(c.getDescripcion()).nivelDeClase(c.getNivelDeClase()).
-                fechaRealizacion(c.getFechaRealizacion()).horaRealizacion(c.getHoraRealizacion()).
-                cupos(c.getCupos()).idEntrenador(entrenador1).
+                descripcion(c.getDescripcion()).
+                nivelDeClase(c.getNivelDeClase()).
+                fechaRealizacion(c.getFechaRealizacion()).
+                horaRealizacion(c.getHoraRealizacion()).
+                cupos(c.getCupos()).
+                idEntrenador(entrenador1).
                 estado(c.getEstado()).
                 build();
 

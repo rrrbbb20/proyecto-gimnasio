@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1/entrenadores")
+@RequestMapping("api/v1/clases")
 public class ClaseController {
 
     private final ClaseService service;
@@ -31,7 +31,7 @@ public class ClaseController {
         );
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','USER')")
     public ResponseEntity<ApiResponse<ClaseResponse>> findById(@PathVariable Long id,
                                                                @RequestHeader("Authorization")String token){
@@ -53,7 +53,7 @@ public class ClaseController {
         );
     }
 
-    @PutMapping("{id}")
+    @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<ClaseResponse>> update(@PathVariable Long id,
                                                              @Valid @RequestBody ClaseRequest c,
@@ -66,7 +66,7 @@ public class ClaseController {
                 .build()
         );
     }
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id){
         service.delete(id);
