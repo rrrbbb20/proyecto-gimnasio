@@ -69,7 +69,7 @@ public class ClaseService {
         return mapToResponse(repository.save(clase1),token);
     }
 
-    public void delete(Long id ,String token){
+    public void delete(Long id ){
         repository.deleteById(id);
 
     }
