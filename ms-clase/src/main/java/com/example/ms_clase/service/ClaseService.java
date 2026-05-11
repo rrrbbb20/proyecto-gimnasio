@@ -4,13 +4,14 @@ package com.example.ms_clase.service;
 import com.example.ms_clase.client.EntrenadorClient;
 import com.example.ms_clase.dto.ClaseRequest;
 import com.example.ms_clase.dto.ClaseResponse;
-import com.example.ms_clase.dto.EntrenadorResponse;
 import com.example.ms_clase.model.Clase;
 import com.example.ms_clase.repository.ClaseRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 import static net.logstash.logback.argument.StructuredArguments.keyValue;
 
@@ -19,7 +20,7 @@ import static net.logstash.logback.argument.StructuredArguments.keyValue;
 @Slf4j
 public class ClaseService {
 
-    private ClaseRepository repository;
+    private final ClaseRepository repository;
     private final EntrenadorClient entrenadorClient;
 
 
@@ -36,19 +37,42 @@ public class ClaseService {
         clase1.setHoraRealizacion(c.getHoraRealizacion());
         clase1.setIdEntrenador(c.getIdEntrenador());
         repository.save(clase1);
-        return mapToResponse(clase1,token);
+        return mapToResponse(repository.save(clase1),token);
     }
 
     public ClaseResponse findById(Long id,String token){
         Clase clase = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Entrenador no encontrado"));
+                .orElseThrow(() -> new EntityNotFoundException("Clase no encontrada"));
 
         return mapToResponse(clase , token);
 
     }
 
+    public List<ClaseResponse> getAll(String token){
 
+        return repository.findAll().stream()
+                .map(c -> mapToResponse(c,token))
+                .toList();
+    }
 
+    public ClaseResponse update(Long id,ClaseRequest c,String token){
+        Clase clase1 = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Clase no encontrada"));
+        clase1.setCupos(c.getCupos());
+        clase1.setNivelDeClase(c.getNivelDeClase());
+        clase1.setNombreClase(c.getNombreClase());
+        clase1.setEstado(c.isEstado());
+        clase1.setDescripcion(c.getDescripcion());
+        clase1.setFechaRealizacion(c.getFechaRealizacion());
+        clase1.setHoraRealizacion(c.getHoraRealizacion());
+        clase1.setIdEntrenador(c.getIdEntrenador());
+        return mapToResponse(repository.save(clase1),token);
+    }
+
+    public void delete(Long id ,String token){
+        repository.deleteById(id);
+
+    }
     private ClaseResponse mapToResponse(Clase c, String token) {
 
         var entrenador1 = entrenadorClient.getEntrenador(c.getIdEntrenador(), token);
