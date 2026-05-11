@@ -27,6 +27,7 @@ public class ClaseRequest {
     @NotNull(message="Obligatorio ingresar cupos")
     @Min(value =0, message ="Cupos Debe ser  igual o superior a 0")
     private Integer cupos;
-    private boolean estado;
+    @NotNull(message = "Debe ingresar estado de la clase")
+    private Boolean estado;
     private Long idEntrenador;
 }
