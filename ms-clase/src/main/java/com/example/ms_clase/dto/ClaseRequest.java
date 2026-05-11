@@ -15,7 +15,6 @@ public class ClaseRequest {
 
     @NotBlank(message = "nombre de clase obligatorio")
     private String nombreClase;
-    @NotBlank(message = "descripcion obligatoria")
     private String descripcion;
     @NotBlank(message = "debe definir el nivel de la clase")
     private String nivelDeClase;
@@ -29,5 +28,6 @@ public class ClaseRequest {
     private Integer cupos;
     @NotNull(message = "Debe ingresar estado de la clase")
     private Boolean estado;
+    @NotNull(message = "Debe ingresar id de entrenador")
     private Long idEntrenador;
 }

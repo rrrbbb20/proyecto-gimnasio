@@ -14,7 +14,7 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @Builder
 public class ClaseResponse {
-
+    private Long id;
     private String nombreClase;
     private String descripcion;
     private String nivelDeClase;
