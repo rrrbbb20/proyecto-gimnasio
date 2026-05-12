@@ -1,7 +1,8 @@
 package com.example.ms_planes.dto;
 
 
-import jakarta.persistence.Column;
+import com.example.ms_planes.model.Pagos;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,10 +14,8 @@ import lombok.NoArgsConstructor;
 @Builder
 public class PlanesResponse {
     private Long id;
-    private String tipoPago;
-    private Integer numeroTarjeta;
-    private String fechaCaducidad;
-    @Column(nullable = true)
-    private Integer cvc;
+    private String nombrePlan;
+    private Integer precioPlan;
+    private Pagos idPago;
 
 }
