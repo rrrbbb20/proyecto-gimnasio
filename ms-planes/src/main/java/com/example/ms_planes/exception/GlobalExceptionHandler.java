@@ -1,7 +1,7 @@
 package com.example.ms_planes.exception;
 
 
-import com.example.ms_cliente.dto.ApiResponse;
+import com.example.ms_planes.dto.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
