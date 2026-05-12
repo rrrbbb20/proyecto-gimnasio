@@ -1,7 +1,7 @@
 package com.example.ms_planes.config;
 
-import com.example.ms_cliente.dto.ApiResponse;
-import com.example.ms_cliente.security.JwtFilter;
+import com.example.ms_planes.dto.ApiResponse;
+import com.example.ms_planes.security.JwtFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
