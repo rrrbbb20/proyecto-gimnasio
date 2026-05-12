@@ -36,7 +36,7 @@ public class ClaseService {
         clase1.setFechaRealizacion(c.getFechaRealizacion());
         clase1.setHoraRealizacion(c.getHoraRealizacion());
         clase1.setIdEntrenador(c.getIdEntrenador());
-        repository.save(clase1);
+
         return mapToResponse(repository.save(clase1),token);
     }
 
@@ -78,7 +78,7 @@ public class ClaseService {
 
         var entrenador1 = entrenadorClient.getEntrenador(c.getIdEntrenador(), token);
 
-        return ClaseResponse.builder().nombreClase(c.getNombreClase()).
+        return ClaseResponse.builder().id(c.getId()).nombreClase(c.getNombreClase()).
                 descripcion(c.getDescripcion()).
                 nivelDeClase(c.getNivelDeClase()).
                 fechaRealizacion(c.getFechaRealizacion()).
