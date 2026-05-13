@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -66,6 +67,8 @@ public class RutinaService {
     public List<RutinaResponse> getAllRutinas(){
         return rutinaRepository.findAll().stream().map(rutina -> mapToResponseRutina(rutina)).toList();
     }
+    public List<EjercicioResponse> getAllEjercicios(){
+        return ejercicioRepository.findAll().stream().map(ejercicio -> mapToResponseEjercicio(ejercicio)).toList();}
     public RutinaResponse updateRutina(Long id , RutinaRequest r) {
         Rutina rutina1 = rutinaRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Rutina no Encontrada"));
@@ -78,9 +81,28 @@ public class RutinaService {
         rutinaRepository.save(rutina1);
         return mapToResponseRutina(rutina1);
     }
+    public EjercicioResponse updateEjercicio(Long idEjercicio , EjercicioRequest e) {
+        List<Ejercicio> ejercicios = new ArrayList<>(Collections.singletonList(ejercicioRepository.findById(idEjercicio)
+                .orElseThrow(() -> new EntityNotFoundException("Ejercicio no encontrado"))));
+        Ejercicio ejercicio1 = ejercicioRepository.findById(idEjercicio)
+                .orElseThrow(() -> new EntityNotFoundException("Ejercicio no Encontrado"));
+        log.info("Actualizar Rutina", keyValue("id", idEjercicio));
+        ejercicio1.setIdEjercicio(ejercicio1.getIdEjercicio());
+        ejercicio1.setNombreEjercicio(ejercicio1.getNombreEjercicio());
+        ejercicio1.setTipoEjercicio(ejercicio1.getTipoEjercicio());
+        ejercicio1.setZonaEjercitada(ejercicio1.getZonaEjercitada());
+        ejercicio1.setRepeticiones(ejercicio1.getRepeticiones());
+        ejercicioRepository.save(ejercicio1);
+        ejercicios.add(ejercicio1);
+        return mapToResponseEjercicio((Ejercicio) ejercicios);
+    }
     public void deleteRutina(Long id){
         log.info("Eliminar Rutina", keyValue("id", id));
         rutinaRepository.deleteById(id);
+    }
+    public void deleteEjercicio(Long idEjercicio){
+        log.info("Eliminar Rutina", keyValue("id", idEjercicio));
+        rutinaRepository.deleteById(idEjercicio);
     }
 
     private RutinaResponse mapToResponseRutina(Rutina r) {
