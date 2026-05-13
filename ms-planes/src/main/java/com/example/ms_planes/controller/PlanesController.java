@@ -12,49 +12,49 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 @RestController
-@RequestMapping("api/v1/planes")
+@RequestMapping("api/v2/planes")
 @RequiredArgsConstructor
 public class PlanesController {
 
     private final PlanesService planesService;
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<PlanesResponse>> add(@Valid @RequestBody PlanesRequest p){
+    public ResponseEntity<ApiResponse<PlanesResponse>> addPlan(@Valid @RequestBody PlanesRequest p){
 
         return ResponseEntity.status(201).body(
                 ApiResponse.<PlanesResponse>builder().success(true)
                         .message("Plan creado")
-                        .data(planesService.add(p)).build()
+                        .data(planesService.addPlan(p)).build()
 
         );
 
     }
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public ResponseEntity<ApiResponse<PlanesResponse>> findById(@PathVariable Long id){
+    public ResponseEntity<ApiResponse<PlanesResponse>> findByIdPlan(@PathVariable Long id){
         return ResponseEntity.status(200).body(
                 ApiResponse.<PlanesResponse>builder().success(true).message("Encontrado")
-                        .data(planesService.findById(id)).build()
+                        .data(planesService.findByIdPlan(id)).build()
         );
     }
     @GetMapping
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public ResponseEntity<ApiResponse<List<PlanesResponse>>> getAll(){
+    public ResponseEntity<ApiResponse<List<PlanesResponse>>> getAllPlanes(){
 
         return ResponseEntity.status(200).body(
                 ApiResponse.<List<PlanesResponse>>builder().success(true)
-                        .data(planesService.getAll()).build()
+                        .data(planesService.getAllPlanes()).build()
         );
 
     }
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<PlanesResponse>> update(@PathVariable Long id, @Valid @RequestBody PlanesRequest p) {
+    public ResponseEntity<ApiResponse<PlanesResponse>> updatePlan(@PathVariable Long id, @Valid @RequestBody PlanesRequest p) {
 
         return ResponseEntity.ok(
 
                 ApiResponse.<PlanesResponse>builder().success(true)
-                        .data(planesService.update(id,p)).build()
+                        .data(planesService.updatePlan(id,p)).build()
 
         );
 
@@ -62,8 +62,8 @@ public class PlanesController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id){
-        planesService.delete(id);
+    public ResponseEntity<ApiResponse<Void>> deletePlan(@PathVariable Long id){
+        planesService.deletePlan(id);
         return ResponseEntity.ok(
 
                 ApiResponse.<Void>builder().success(true).message("Plan Eliminado").build()
