@@ -9,9 +9,9 @@ import java.time.LocalTime;
 @Data
 @Builder
 public class InscripcionClaseResponse {
-    private Long id;
-    private ClaseResponse idClase;
-    private ClienteResponse idCliente;
+    private Long idInscripcion;
+    private ClaseResponse clase;
+    private ClienteResponse cliente;
     private LocalDate fechaInscripcion;
     private LocalTime horaInscripcion;
 }

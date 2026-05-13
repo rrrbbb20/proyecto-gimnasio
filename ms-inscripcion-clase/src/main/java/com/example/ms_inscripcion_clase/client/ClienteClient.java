@@ -13,7 +13,7 @@ public class ClienteClient {
 
     private final WebClient webClient;
 
-    private final String BASE_URL = "http://localhost:8083/api/v1/clientes/";
+    private final String BASE_URL = "http://localhost:8085/api/v1/clientes/";
 
     public ClienteResponse getCliente(Long id, String token) {
 

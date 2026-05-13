@@ -12,7 +12,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class ClaseClient {
     private final WebClient webClient;
 
-    private final String BASE_URL = "http://localhost:8083/api/v1/clases/";
+    private final String BASE_URL = "http://localhost:8084/api/v1/clases/";
 
     public ClaseResponse getClase(Long id, String token) {
 

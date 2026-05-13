@@ -58,8 +58,7 @@ public class InscripcionClaseService {
         verificarExistencia(ir,token);
         InscripcionClase insClase = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Inscripcion a clase no encontrada"));
-        insClase.setFechaInscripcion(ir.getFechaInscripcion());
-        insClase.setHoraInscripcion(ir.getHoraInscripcion());
+
         insClase.setIdClase(ir.getIdClase());
         insClase.setIdCliente(ir.getIdCliente());
         return mapToResponse(repository.save(insClase),token);
@@ -76,9 +75,9 @@ public class InscripcionClaseService {
 
         var cliente = clienteClient.getCliente(ic.getIdCliente(), token);
         return InscripcionClaseResponse.builder()
-                .id(ic.getId())
-                .idClase(insClase)
-                .idCliente(cliente)
+                .idInscripcion(ic.getId())
+                .clase(insClase)
+                .cliente(cliente)
                 .fechaInscripcion(ic.getFechaInscripcion())
                 .horaInscripcion(ic.getHoraInscripcion())
                 .build();

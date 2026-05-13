@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/incripcionclases")
+@RequestMapping("/api/v1/inscripcion-clases")
 public class InscripcionClaseController {
 
     private final InscripcionClaseService service;
@@ -37,7 +37,7 @@ public class InscripcionClaseController {
     @PreAuthorize("hasAnyRole('ADMIN','USER')")
     public ResponseEntity<ApiResponse<InscripcionClaseResponse>> findById(@PathVariable Long id,
                                                                           @RequestHeader("Authorization")String token){
-        return ResponseEntity.status(201).body
+        return ResponseEntity.status(200).body
                 (ApiResponse.<InscripcionClaseResponse>builder()
                         .success(true)
                         .message("Inscripcion Encontrada")
@@ -50,7 +50,7 @@ public class InscripcionClaseController {
     public ResponseEntity<ApiResponse<InscripcionClaseResponse>> update(@PathVariable Long id,
                                                                         @Valid @RequestBody InscripcionClaseRequest ir,
                                                                         @RequestHeader("Authorization")String token){
-        return ResponseEntity.status(201).body
+        return ResponseEntity.status(200).body
                 (ApiResponse.<InscripcionClaseResponse>builder()
                         .success(true)
                         .message("Inscripcion actualizada")

@@ -16,5 +16,5 @@ public class ClaseResponse {
     private LocalTime horaRealizacion;
     private Integer cupos;
     private Boolean estado;
-    private Long idEntrenador;
+    private Object idEntrenador;
 }
