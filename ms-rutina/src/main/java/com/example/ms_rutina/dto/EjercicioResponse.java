@@ -11,9 +11,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class EjercicioResponse {
-    private Long id;
-    private String nombreRutina;
-    private String duracion;
-    private Integer tiempoDescanso;
-    private Ejercicio ejercicio;
+    private Long idEjercicio;
+    private String nombreEjercicio;
+    private String tipoEjercicio;
+    private String zonaEjercitada;
+    private Integer repeticiones;
 }

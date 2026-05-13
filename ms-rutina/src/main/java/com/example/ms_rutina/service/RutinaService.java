@@ -1,7 +1,10 @@
 package com.example.ms_rutina.service;
 
+import com.example.ms_rutina.dto.EjercicioRequest;
+import com.example.ms_rutina.dto.EjercicioResponse;
 import com.example.ms_rutina.dto.RutinaRequest;
 import com.example.ms_rutina.dto.RutinaResponse;
+import com.example.ms_rutina.model.Ejercicio;
 import com.example.ms_rutina.model.Rutina;
 import com.example.ms_rutina.repository.EjercicioRepository;
 import com.example.ms_rutina.repository.RutinaRepository;
@@ -10,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -24,7 +28,7 @@ public class RutinaService {
 
     private EjercicioRepository ejercicioRepository;
 
-    public RutinaResponse add (RutinaRequest request){
+    public RutinaResponse addRutina (RutinaRequest request){
         log.info("Crear Rutina", keyValue("nombre", request.getNombreRutina()));
         Rutina rutina1 = new Rutina();
         rutina1.setNombreRutina(request.getNombreRutina());
@@ -32,18 +36,37 @@ public class RutinaService {
         rutina1.setTiempoDescanso(request.getTiempoDescanso());
         rutina1.setEjercicio(request.getEjercicio());
         rutinaRepository.save(rutina1);
-        return mapToResponse(rutina1);
+        return mapToResponseRutina(rutina1);
     }
-    public RutinaResponse findById(Long id){
+    public EjercicioResponse addEjercicio (EjercicioRequest ejercicioRequest){
+        log.info("Crear Ejercicio", keyValue("nombre", ejercicioRequest.getNombreEjercicio()));
+        List<Ejercicio> ejercicios = new ArrayList<>();
+        Ejercicio ejercicio1 = new Ejercicio();
+        ejercicio1.setNombreEjercicio(ejercicioRequest.getNombreEjercicio());
+        ejercicio1.setTipoEjercicio(ejercicioRequest.getTipoEjercicio());
+        ejercicio1.setZonaEjercitada(ejercicioRequest.getZonaEjercitada());
+        ejercicio1.setRepeticiones(ejercicioRequest.getRepeticiones());
+        ejercicioRepository.save(ejercicio1);
+        ejercicios.add(ejercicio1);
+        return mapToResponseEjercicio((Ejercicio) ejercicios);
+
+    }
+    public RutinaResponse findByIdRutina(Long id){
         log.info("Obtener Rutina", keyValue("id", id));
         Rutina rutina1 = rutinaRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Rutina no encontrada"));
-        return mapToResponse(rutina1);
+        return mapToResponseRutina(rutina1);
     }
-    public List<RutinaResponse> getAll(){
-        return rutinaRepository.findAll().stream().map(rutina -> mapToResponse(rutina)).toList();
+    public EjercicioResponse findByIdEjercicio(Long id){
+        log.info("Obtener Rutina", keyValue("id", id));
+        Ejercicio ejercicio1 = ejercicioRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Ejercicio no encontrado"));
+        return mapToResponseEjercicio(ejercicio1);
     }
-    public RutinaResponse update(Long id , RutinaRequest r) {
+    public List<RutinaResponse> getAllRutinas(){
+        return rutinaRepository.findAll().stream().map(rutina -> mapToResponseRutina(rutina)).toList();
+    }
+    public RutinaResponse updateRutina(Long id , RutinaRequest r) {
         Rutina rutina1 = rutinaRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Rutina no Encontrada"));
         log.info("Actualizar Rutina", keyValue("id", id));
@@ -53,20 +76,30 @@ public class RutinaService {
         rutina1.setTiempoDescanso(r.getTiempoDescanso());
         rutina1.setEjercicio(r.getEjercicio());
         rutinaRepository.save(rutina1);
-        return mapToResponse(rutina1);
+        return mapToResponseRutina(rutina1);
     }
-    public void delete(Long id){
+    public void deleteRutina(Long id){
         log.info("Eliminar Rutina", keyValue("id", id));
         rutinaRepository.deleteById(id);
     }
 
-    private RutinaResponse mapToResponse(Rutina r) {
+    private RutinaResponse mapToResponseRutina(Rutina r) {
         return RutinaResponse.builder()
                 .id(r.getId()) //
                 .nombreRutina(r.getNombreRutina())
                 .duracion(r.getDuracion())
                 .tiempoDescanso(r.getTiempoDescanso())
                 .ejercicio(r.getEjercicio())
+                .build();
+
+    }
+    private EjercicioResponse mapToResponseEjercicio(Ejercicio e) {
+        return EjercicioResponse.builder()
+                .idEjercicio(e.getIdEjercicio()) //
+                .nombreEjercicio(e.getNombreEjercicio())
+                .tipoEjercicio(e.getTipoEjercicio())
+                .zonaEjercitada(e.getZonaEjercitada())
+                .repeticiones(e.getRepeticiones())
                 .build();
 
     }

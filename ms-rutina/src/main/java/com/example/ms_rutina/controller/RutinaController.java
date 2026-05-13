@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 @RestController
-@RequestMapping("/api/v1/rutinas")
+@RequestMapping("/api/v2/rutinas")
 @RequiredArgsConstructor
 public class RutinaController {
     private final RutinaService rutinaService;
@@ -24,7 +24,7 @@ public class RutinaController {
         return ResponseEntity.status(201).body(
                 ApiResponse.<RutinaResponse>builder().success(true)
                         .message("Rutina creada")
-                        .data(rutinaService.add(r)).build()
+                        .data(rutinaService.addRutina(r)).build()
 
         );
 
@@ -34,7 +34,7 @@ public class RutinaController {
     public ResponseEntity<ApiResponse<RutinaResponse>> findById(@PathVariable Long id){
         return ResponseEntity.status(200).body(
                 ApiResponse.<RutinaResponse>builder().success(true).message("Encontrado")
-                        .data(rutinaService.findById(id)).build()
+                        .data(rutinaService.findByIdRutina(id)).build()
         );
     }
     @GetMapping
@@ -43,7 +43,7 @@ public class RutinaController {
 
         return ResponseEntity.status(200).body(
                 ApiResponse.<List<RutinaResponse>>builder().success(true)
-                        .data(rutinaService.getAll()).build()
+                        .data(rutinaService.getAllRutinas()).build()
         );
 
     }
@@ -54,7 +54,7 @@ public class RutinaController {
         return ResponseEntity.ok(
 
                 ApiResponse.<RutinaResponse>builder().success(true)
-                        .data(rutinaService.update(id,r)).build()
+                        .data(rutinaService.updateRutina(id,r)).build()
 
         );
 
@@ -63,7 +63,7 @@ public class RutinaController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id){
-        rutinaService.delete(id);
+        rutinaService.deleteRutina(id);
         return ResponseEntity.ok(
 
                 ApiResponse.<Void>builder().success(true).message("Entrenador Eliminado").build()
