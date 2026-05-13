@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class Pagos {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long idPago;
     private String tipoPago;
     private Integer numeroTarjeta;
     private String fechaCaducidad;

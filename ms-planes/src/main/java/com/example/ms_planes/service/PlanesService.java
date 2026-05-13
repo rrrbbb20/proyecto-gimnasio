@@ -47,9 +47,9 @@ public class PlanesService {
         Planes planes1 = planesRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Plan no Existe"));
         return mapToResponsePlan(planes1);
     }
-    public PagosResponse findByIdPago(Long id){
-        log.info("Obtener id de Planes", keyValue("id", id));
-        Pagos pagos1 = pagosRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Pago no Existente"));
+    public PagosResponse findByIdPago(Long idPago){
+        log.info("Obtener id de Planes", keyValue("id", idPago));
+        Pagos pagos1 = pagosRepository.findById(idPago).orElseThrow(() -> new EntityNotFoundException("Pago no Existente"));
         return mapToResponsePago(pagos1);
     }
     public List<PlanesResponse> getAllPlanes(){
@@ -68,10 +68,10 @@ public class PlanesService {
         planesRepository.save(planes1);
         return mapToResponsePlan(planes1);
     }
-    public PagosResponse updatePago (Long id, PagosRequest pa){
-        Pagos pagos1 = pagosRepository.findById(id).orElseThrow(()-> new EntityNotFoundException(("No se ha encontrado el pago")));
-        log.info("Actualizar Pago", keyValue("id", id));
-        pagos1.setId(id);
+    public PagosResponse updatePago (Long idPago, PagosRequest pa){
+        Pagos pagos1 = pagosRepository.findById(idPago).orElseThrow(()-> new EntityNotFoundException(("No se ha encontrado el pago")));
+        log.info("Actualizar Pago", keyValue("id", idPago));
+        pagos1.setIdPago(idPago);
         pagos1.setTipoPago(pa.getTipoPago());
         pagos1.setNumeroTarjeta(pa.getNumeroTarjeta());
         pagos1.setFechaCaducidad(pa.getFechaCaducidad());
@@ -83,12 +83,12 @@ public class PlanesService {
         log.info("Eliminar Plan",keyValue("id", id));
         planesRepository.deleteById(id);
     }
-    public void deletePago(Long id){
-        log.info("Eliminar Pago",keyValue("id", id));
-        pagosRepository.deleteById(id);}
+    public void deletePago(Long idPago){
+        log.info("Eliminar Pago",keyValue("id", idPago));
+        pagosRepository.deleteById(idPago);}
     private PlanesResponse mapToResponsePlan(Planes p) {
         return PlanesResponse.builder()
-                .id(p.getId()) //
+                .id(p.getId())
                 .nombrePlan(p.getNombrePlan())
                 .precioPlan(p.getPrecioPlan())
                 .idPago(p.getIdPago())
@@ -96,6 +96,7 @@ public class PlanesService {
     }
     private PagosResponse mapToResponsePago(Pagos pa){
         return PagosResponse.builder()
+                .idPago(pa.getIdPago())
                 .tipoPago(pa.getTipoPago())
                 .numeroTarjeta(pa.getNumeroTarjeta())
                 .fechaCaducidad(pa.getFechaCaducidad())
