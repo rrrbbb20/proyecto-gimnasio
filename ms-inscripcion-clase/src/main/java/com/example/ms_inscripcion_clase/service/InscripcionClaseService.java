@@ -65,6 +65,9 @@ public class InscripcionClaseService {
     }
 
     public void delete(Long id){
+        if (!repository.existsById(id)) {
+            throw new EntityNotFoundException("No se puede eliminar inscripcion no encontrada");
+        }
         repository.deleteById(id);
 
     }
