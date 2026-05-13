@@ -14,6 +14,6 @@ public class PlanesRequest {
     private Integer precioPlan;
     @Valid
     @NotNull(message = "El id debe ser valido")
-    private Pagos idPago;
+    private Pagos Pagos;
 
 }

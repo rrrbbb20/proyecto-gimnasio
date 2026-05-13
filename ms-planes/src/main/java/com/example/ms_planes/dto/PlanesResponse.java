@@ -16,6 +16,6 @@ public class PlanesResponse {
     private Long id;
     private String nombrePlan;
     private Integer precioPlan;
-    private Pagos idPago;
+    private Pagos Pagos;
 
 }

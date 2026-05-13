@@ -28,7 +28,7 @@ public class PlanesService {
         Planes planes1 = new Planes();
         planes1.setNombrePlan(planesRequest.getNombrePlan());
         planes1.setPrecioPlan(planesRequest.getPrecioPlan());
-        planes1.setIdPago(planesRequest.getIdPago());
+        planes1.setPagos(planesRequest.getPagos());
         planesRepository.save(planes1);
         return mapToResponsePlan(planes1);
     }
@@ -48,7 +48,7 @@ public class PlanesService {
         return mapToResponsePlan(planes1);
     }
     public PagosResponse findByIdPago(Long idPago){
-        log.info("Obtener id de Planes", keyValue("id", idPago));
+        log.info("Obtener id de Pagos", keyValue("id", idPago));
         Pagos pagos1 = pagosRepository.findById(idPago).orElseThrow(() -> new EntityNotFoundException("Pago no Existente"));
         return mapToResponsePago(pagos1);
     }
@@ -64,7 +64,7 @@ public class PlanesService {
         planes1.setId(id);
         planes1.setNombrePlan(p.getNombrePlan());
         planes1.setPrecioPlan(p.getPrecioPlan());
-        planes1.setIdPago(p.getIdPago());
+        planes1.setPagos(p.getPagos());
         planesRepository.save(planes1);
         return mapToResponsePlan(planes1);
     }
@@ -91,7 +91,7 @@ public class PlanesService {
                 .id(p.getId())
                 .nombrePlan(p.getNombrePlan())
                 .precioPlan(p.getPrecioPlan())
-                .idPago(p.getIdPago())
+                .Pagos(p.getPagos())
                 .build();
     }
     private PagosResponse mapToResponsePago(Pagos pa){
