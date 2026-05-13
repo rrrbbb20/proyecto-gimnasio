@@ -14,6 +14,5 @@ public class PagosRequest {
     private Integer numeroTarjeta;
     @NotNull(message = "Debe poner una fecha valida")
     private String fechaCaducidad;
-    @Null()
     private Integer cvc;
 }

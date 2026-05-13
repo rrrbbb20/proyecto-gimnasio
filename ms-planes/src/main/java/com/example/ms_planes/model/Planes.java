@@ -13,10 +13,14 @@ import lombok.NoArgsConstructor;
 public class Planes {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "planes_id")
     private Long id;
     private String nombrePlan;
     private Integer precioPlan;
-    @OneToOne
-    @JoinColumn(name = "id_pago")
-    private Pagos idPago;
+    @OneToOne(cascade = CascadeType.MERGE)
+    @JoinColumn(name = "pago_id", referencedColumnName = "pago_id")
+    private Pagos pagos;
+
+
+
 }

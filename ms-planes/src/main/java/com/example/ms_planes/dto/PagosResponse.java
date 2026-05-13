@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class PagosResponse {
-    private Long id;
+    private Long idPago;
     private String tipoPago;
     private Integer numeroTarjeta;
     private String fechaCaducidad;
