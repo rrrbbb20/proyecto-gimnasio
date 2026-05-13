@@ -1,7 +1,6 @@
 package com.example.ms_sede.service;
 
-import com.example.ms_sede.dto.ApiResponse;
-import com.example.ms_sede.dto.SedeDTO;
+import com.example.ms_sede.dto.SedeRequest;
 import com.example.ms_sede.model.Sede;
 import com.example.ms_sede.repository.SedeRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -24,7 +23,7 @@ public class SedeService {
 
     private final SedeRepository sedeRepository;
 
-    public Sede createSede(SedeDTO dto) {
+    public Sede createSede(SedeRequest dto) {
 
         log.info("Crear Sede", keyValue("nombre", dto.getNombre()));
 
@@ -42,7 +41,7 @@ public class SedeService {
         return sedeRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("Sede no encontrado"));
     }
 
-    public Sede actualizarSede(Long id, SedeDTO dto) {
+    public Sede actualizarSede(Long id, SedeRequest dto) {
         log.info("Actualizando Sede de ID {}", keyValue("id", id));
 
         Sede sede = obtenerSede(id);

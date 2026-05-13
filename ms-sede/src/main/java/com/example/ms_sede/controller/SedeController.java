@@ -2,7 +2,7 @@ package com.example.ms_sede.controller;
 
 
 import com.example.ms_sede.dto.ApiResponse;
-import com.example.ms_sede.dto.SedeDTO;
+import com.example.ms_sede.dto.SedeRequest;
 import com.example.ms_sede.model.Sede;
 import com.example.ms_sede.service.SedeService;
 import jakarta.validation.Valid;
@@ -22,7 +22,7 @@ public class SedeController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Sede>> agregarSede(@Valid @RequestBody SedeDTO dto) {
+    public ResponseEntity<ApiResponse<Sede>> agregarSede(@Valid @RequestBody SedeRequest dto) {
 
         Sede sede = sedeService.createSede(dto);
 
@@ -63,7 +63,7 @@ public class SedeController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Sede>> actualizarSede(@PathVariable Long id,
-                                                         @Valid @RequestBody SedeDTO dto) {
+                                                         @Valid @RequestBody SedeRequest dto) {
 
         Sede sede = sedeService.actualizarSede(id, dto);
 
