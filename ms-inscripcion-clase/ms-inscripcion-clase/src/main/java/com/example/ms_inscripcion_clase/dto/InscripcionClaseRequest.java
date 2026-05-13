@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Data
-public class IncripcionClaseRequest {
+public class InscripcionClaseRequest {
 
     @NotNull(message = "Debe ingresar id de la clase")
     private Long idClase;
