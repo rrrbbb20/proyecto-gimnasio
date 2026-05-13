@@ -15,6 +15,6 @@ public class Sede {
     private Long id;
     private String nombre;
     private String direccion;
-    private int horaApertura;
-    private int horaCierre;
+    private Integer horaApertura;
+    private Integer horaCierre;
 }
