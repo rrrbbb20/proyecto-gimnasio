@@ -1,11 +1,11 @@
 CREATE TABLE pagos
 (
-    id              BIGINT AUTO_INCREMENT NOT NULL,
+    id_pago         BIGINT NOT NULL,
     tipo_pago       VARCHAR(255) NULL,
     numero_tarjeta  INT NULL,
     fecha_caducidad VARCHAR(255) NULL,
     cvc             INT NULL,
-    CONSTRAINT pk_pagos PRIMARY KEY (id)
+    CONSTRAINT pk_pagos PRIMARY KEY (id_pago)
 );
 
 CREATE TABLE planes
@@ -21,4 +21,4 @@ ALTER TABLE planes
     ADD CONSTRAINT uc_planes_id_pago UNIQUE (id_pago);
 
 ALTER TABLE planes
-    ADD CONSTRAINT FK_PLANES_ON_ID_PAGO FOREIGN KEY (id_pago) REFERENCES pagos (id);
+    ADD CONSTRAINT FK_PLANES_ON_ID_PAGO FOREIGN KEY (id_pago) REFERENCES pagos (id_pago);
