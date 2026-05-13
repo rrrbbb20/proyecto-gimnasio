@@ -23,7 +23,7 @@ public class EjercicioController {
 
         return ResponseEntity.status(201).body(
                 ApiResponse.<EjercicioResponse>builder().success(true)
-                        .message("Rutina creada")
+                        .message("Ejercicio creada")
                         .data(ejercicioService.addEjercicio(e)).build()
 
         );
@@ -31,10 +31,10 @@ public class EjercicioController {
     }
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public ResponseEntity<ApiResponse<EjercicioResponse>> findById(@PathVariable Long id){
+    public ResponseEntity<ApiResponse<EjercicioResponse>> findById(@PathVariable Long idEjercicio){
         return ResponseEntity.status(200).body(
                 ApiResponse.<EjercicioResponse>builder().success(true).message("Encontrado")
-                        .data(ejercicioService.findByIdEjercicio(id)).build()
+                        .data(ejercicioService.findByIdEjercicio(idEjercicio)).build()
         );
     }
     @GetMapping
@@ -49,12 +49,12 @@ public class EjercicioController {
     }
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<EjercicioResponse>> update(@PathVariable Long id, @Valid @RequestBody EjercicioRequest e) {
+    public ResponseEntity<ApiResponse<EjercicioResponse>> update(@PathVariable Long idEjercicio, @Valid @RequestBody EjercicioRequest e) {
 
         return ResponseEntity.ok(
 
                 ApiResponse.<EjercicioResponse>builder().success(true)
-                        .data(ejercicioService.updateEjercicio(id,e)).build()
+                        .data(ejercicioService.updateEjercicio(idEjercicio,e)).build()
 
         );
 
@@ -62,11 +62,11 @@ public class EjercicioController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id){
-        ejercicioService.deleteEjercicio(id);
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long idEjercicio){
+        ejercicioService.deleteEjercicio(idEjercicio);
         return ResponseEntity.ok(
 
-                ApiResponse.<Void>builder().success(true).message("Entrenador Eliminado").build()
+                ApiResponse.<Void>builder().success(true).message("Ejercicio Eliminado").build()
         );
     }
 

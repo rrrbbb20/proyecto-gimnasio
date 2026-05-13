@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,11 +15,11 @@ import lombok.NoArgsConstructor;
 public class Rutina {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_rutina")
     private Long id;
     private String nombreRutina;
     private String duracion;
     private Integer tiempoDescanso;
-    @ManyToOne
-    @JoinColumn(name = "id_ejercicio")
-    private Ejercicio ejercicio;
+    @OneToMany(mappedBy = "rutina")
+    private Set<Ejercicio> ejercicios;
 }

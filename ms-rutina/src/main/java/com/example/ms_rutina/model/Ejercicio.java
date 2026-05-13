@@ -18,4 +18,8 @@ public class Ejercicio  {
     private String tipoEjercicio;
     private String zonaEjercitada;
     private Integer repeticiones;
+
+    @ManyToOne
+    @JoinColumn(name = "id_rutina")
+    private Rutina rutina;
 }

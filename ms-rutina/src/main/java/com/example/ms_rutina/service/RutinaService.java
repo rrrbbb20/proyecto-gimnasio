@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 
 import static net.logstash.logback.argument.StructuredArguments.keyValue;
@@ -25,9 +26,9 @@ import static net.logstash.logback.argument.StructuredArguments.keyValue;
 @Slf4j
 public class RutinaService {
 
-    private RutinaRepository rutinaRepository;
+    private final RutinaRepository rutinaRepository;
 
-    private EjercicioRepository ejercicioRepository;
+    private final EjercicioRepository ejercicioRepository;
 
     public RutinaResponse addRutina (RutinaRequest request){
         log.info("Crear Rutina", keyValue("nombre", request.getNombreRutina()));
@@ -35,7 +36,7 @@ public class RutinaService {
         rutina1.setNombreRutina(request.getNombreRutina());
         rutina1.setDuracion(request.getDuracion());
         rutina1.setTiempoDescanso(request.getTiempoDescanso());
-        rutina1.setEjercicio(request.getEjercicio());
+        rutina1.setEjercicios((Set<Ejercicio>) request.getEjercicio());
         rutinaRepository.save(rutina1);
         return mapToResponseRutina(rutina1);
     }
@@ -77,7 +78,7 @@ public class RutinaService {
         rutina1.setNombreRutina(r.getNombreRutina());
         rutina1.setDuracion(r.getDuracion());
         rutina1.setTiempoDescanso(r.getTiempoDescanso());
-        rutina1.setEjercicio(r.getEjercicio());
+        rutina1.setEjercicios((Set<Ejercicio>) r.getEjercicio());
         rutinaRepository.save(rutina1);
         return mapToResponseRutina(rutina1);
     }
@@ -111,7 +112,7 @@ public class RutinaService {
                 .nombreRutina(r.getNombreRutina())
                 .duracion(r.getDuracion())
                 .tiempoDescanso(r.getTiempoDescanso())
-                .ejercicio(r.getEjercicio())
+                .ejercicio((Ejercicio) r.getEjercicios())
                 .build();
 
     }
