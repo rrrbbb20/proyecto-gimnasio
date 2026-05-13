@@ -77,6 +77,9 @@ public class EntrenadorService {
     }
 
     public void delete(Long id){
+        if (!repository.existsById(id)) {
+            throw new EntityNotFoundException("No se puede eliminar entrenador no encontrado");
+        }
         log.info("Eliminar Entrenador", keyValue("id", id));
         repository.deleteById(id);
     }

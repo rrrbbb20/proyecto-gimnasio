@@ -80,6 +80,9 @@ public class ClaseService {
     }
 
     public void delete(Long id ){
+        if (!repository.existsById(id)) {
+            throw new EntityNotFoundException("No se puede eliminar clase no encontrada");
+        }
         repository.deleteById(id);
 
     }
