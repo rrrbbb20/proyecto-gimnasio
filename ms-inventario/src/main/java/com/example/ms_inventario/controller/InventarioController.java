@@ -35,7 +35,8 @@ public class InventarioController {
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<ApiResponse<InventarioResponse>> findById(@PathVariable Long id){
         return ResponseEntity.status(200).body(
-                ApiResponse.<InventarioResponse>builder().success(true).message("Encontrado")
+                ApiResponse.<InventarioResponse>builder().success(true)
+                        .message("Inventario encontrado")
                         .data(service.findById(id)).build()
         );
     }
@@ -46,6 +47,7 @@ public class InventarioController {
 
         return ResponseEntity.status(200).body(
                 ApiResponse.<List<InventarioResponse>>builder().success(true)
+                        .message("El inventario se muestra a continuación")
                         .data(service.getAll()).build()
         );
     }
@@ -56,6 +58,7 @@ public class InventarioController {
         return ResponseEntity.ok(
 
                 ApiResponse.<InventarioResponse>builder().success(true)
+                        .message("Inventario actualizado")
                         .data(service.update(id, i)).build()
 
         );
@@ -66,7 +69,7 @@ public class InventarioController {
         service.delete(id);
         return ResponseEntity.ok(
 
-                ApiResponse.<Void>builder().success(true).message("Inventario Eliminado").build()
+                ApiResponse.<Void>builder().success(true).message("Objeto del Inventario Eliminado").build()
         );
     }
 }
