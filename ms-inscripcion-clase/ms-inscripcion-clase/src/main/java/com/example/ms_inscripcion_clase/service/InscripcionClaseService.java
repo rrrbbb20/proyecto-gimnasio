@@ -24,27 +24,20 @@ import static net.logstash.logback.argument.StructuredArguments.keyValue;
 @RequiredArgsConstructor
 @Slf4j
 public class InscripcionClaseService {
-    private ClaseClient claseClient;
-    private ClienteClient clienteClient;
-    private InscripcionClaseRepository repository;
+
+    private final ClaseClient claseClient;
+    private final ClienteClient clienteClient;
+    private final InscripcionClaseRepository repository;
 
     public InscripcionClaseResponse add(InscripcionClaseRequest ir, String token){
 
-        ClaseResponse claseResponse1  = claseClient.getClase(ir.getIdClase(), token);
-        if (claseResponse1 == null) {
-            throw new EntityNotFoundException("Clase no encontrada");
-        }
-        ClienteResponse clienteResponse1  = clienteClient.getCliente(ir.getIdCliente(), token);
-
-        if (clienteResponse1 == null) {
-            throw new EntityNotFoundException("Cliente no encontrado");
-        }
-        InscripcionClase inscripcionClase1 = new InscripcionClase();
-        inscripcionClase1.setFechaInscripcion(LocalDate.now());
-        inscripcionClase1.setHoraInscripcion(LocalTime.now());
-        inscripcionClase1.setIdClase(ir.getIdClase());
-        inscripcionClase1.setIdCliente(ir.getIdCliente());
-        return mapToResponse(inscripcionClase1,token);
+        verificarExistencia(ir,token);
+        InscripcionClase insClase = new InscripcionClase();
+        insClase.setFechaInscripcion(LocalDate.now());
+        insClase.setHoraInscripcion(LocalTime.now());
+        insClase.setIdClase(ir.getIdClase());
+        insClase.setIdCliente(ir.getIdCliente());
+        return mapToResponse(repository.save(insClase),token);
     }
 
     public InscripcionClaseResponse findById(Long id,String token){
@@ -62,25 +55,30 @@ public class InscripcionClaseService {
     }
 
     public InscripcionClaseResponse update(Long id, InscripcionClaseRequest ir, String token ){
-        InscripcionClase ic = new InscripcionClase();
         verificarExistencia(ir,token);
-        InscripcionClase clase1 = repository.findById(id)
+        InscripcionClase insClase = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Inscripcion a clase no encontrada"));
-        clase1.setFechaInscripcion(ir.getFechaInscripcion());
-        clase1.setHoraInscripcion(ir.getHoraInscripcion());
-        clase1.setIdClase(ir.getIdClase());
-        clase1.setIdCliente(ir.getIdCliente());
-        return mapToResponse(repository.save(clase1),token);
+        insClase.setFechaInscripcion(ir.getFechaInscripcion());
+        insClase.setHoraInscripcion(ir.getHoraInscripcion());
+        insClase.setIdClase(ir.getIdClase());
+        insClase.setIdCliente(ir.getIdCliente());
+        return mapToResponse(repository.save(insClase),token);
+    }
+
+    public void delete(Long id){
+        repository.deleteById(id);
+
     }
 
     private InscripcionClaseResponse mapToResponse(InscripcionClase ic, String token) {
 
-        var clase1 = claseClient.getClase(ic.getIdClase(), token);
-        var cliente1 = clienteClient.getCliente(ic.getIdClase(), token);
+        var insClase = claseClient.getClase(ic.getIdClase(), token);
+
+        var cliente = clienteClient.getCliente(ic.getIdCliente(), token);
         return InscripcionClaseResponse.builder()
                 .id(ic.getId())
-                .idClase(ic.getIdClase())
-                .idCliente(ic.getIdCliente())
+                .idClase(insClase)
+                .idCliente(cliente)
                 .fechaInscripcion(ic.getFechaInscripcion())
                 .horaInscripcion(ic.getHoraInscripcion())
                 .build();
@@ -88,7 +86,7 @@ public class InscripcionClaseService {
 
 
 
-    public boolean verificarExistencia(InscripcionClaseRequest ir ,String token){
+    public void verificarExistencia(InscripcionClaseRequest ir ,String token){
         ClaseResponse claseResponse1  = claseClient.getClase(ir.getIdClase(), token);
         if (claseResponse1 == null) {
             throw new EntityNotFoundException("Clase no encontrada");
@@ -98,6 +96,6 @@ public class InscripcionClaseService {
         if (clienteResponse1 == null) {
             throw new EntityNotFoundException("Cliente no encontrado");
         }
-        return true;
+
     }
 }

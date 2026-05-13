@@ -10,8 +10,8 @@ import java.time.LocalTime;
 @Builder
 public class InscripcionClaseResponse {
     private Long id;
-    private Long idClase;
-    private Long idCliente;
+    private ClaseResponse idClase;
+    private ClienteResponse idCliente;
     private LocalDate fechaInscripcion;
     private LocalTime horaInscripcion;
 }
