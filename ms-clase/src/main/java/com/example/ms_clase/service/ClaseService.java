@@ -27,6 +27,9 @@ public class ClaseService {
     public ClaseResponse add(ClaseRequest c,String token){
         log.info("Anadir Clase", keyValue("Nombre de Clase", c.getNombreClase()));
         var entrenador = entrenadorClient.getEntrenador(c.getIdEntrenador(), token);
+        if(entrenador == null){
+            throw new EntityNotFoundException("Entrenador no encontrado");
+        }
         Clase clase1 = new Clase();
         clase1.setCupos(c.getCupos());
         clase1.setNivelDeClase(c.getNivelDeClase());
@@ -57,8 +60,14 @@ public class ClaseService {
     }
 
     public ClaseResponse update(Long id,ClaseRequest c,String token){
+
         Clase clase1 = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Clase no encontrada"));
+        var entrenador = entrenadorClient.getEntrenador(c.getIdEntrenador(), token);
+
+        if(entrenador == null){
+            throw new EntityNotFoundException("Entrenador no encontrado");
+        }
         clase1.setCupos(c.getCupos());
         clase1.setNivelDeClase(c.getNivelDeClase());
         clase1.setNombreClase(c.getNombreClase());
