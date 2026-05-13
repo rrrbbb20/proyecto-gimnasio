@@ -1,25 +1,19 @@
-package com.example.ms_rutina.model;
+package com.example.ms_rutina.dto;
 
-import jakarta.persistence.*;
+import com.example.ms_rutina.model.Ejercicio;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "ejercicios")
-public class Ejercicio  {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+@Builder
+public class EjercicioResponse {
     private Long idEjercicio;
     private String nombreEjercicio;
     private String tipoEjercicio;
     private String zonaEjercitada;
     private Integer repeticiones;
-
-    @ManyToOne
-    @JoinColumn(name = "id_rutina")
-    private Rutina rutina;
 }
