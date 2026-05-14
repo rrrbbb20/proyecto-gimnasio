@@ -38,7 +38,7 @@ public class GlobalExceptionHandler {
                         .build()
         );
     }
-    
+
     @ExceptionHandler(jakarta.persistence.EntityNotFoundException.class)
     public ResponseEntity<ApiResponse<Object>> handle404(Exception ex) {
         return ResponseEntity.status(404).body(
