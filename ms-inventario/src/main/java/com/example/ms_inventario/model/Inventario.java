@@ -22,5 +22,6 @@ public class Inventario {
     private String descripcion;
     private Double precio;
     private LocalDate fechaRegistro;
+    private Long idMantenimiento;
 
 }

@@ -22,44 +22,50 @@ public class InventarioController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<InventarioResponse>> add(@Valid @RequestBody InventarioRequest i){
+    public ResponseEntity<ApiResponse<InventarioResponse>> add(
+            @Valid @RequestBody InventarioRequest i,
+            @RequestHeader("Authorization")String token) {
 
         return ResponseEntity.status(201).body(
                 ApiResponse.<InventarioResponse>builder().success(true)
                         .message("Entrenador creado")
-                        .data(service.add(i)).build()
+                        .data(service.add(i,token)).build()
 
         );
     }
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public ResponseEntity<ApiResponse<InventarioResponse>> findById(@PathVariable Long id){
+    public ResponseEntity<ApiResponse<InventarioResponse>> findById(
+            @PathVariable Long id,
+            @RequestHeader("Authorization") String token) {
         return ResponseEntity.status(200).body(
                 ApiResponse.<InventarioResponse>builder().success(true)
                         .message("Inventario encontrado")
-                        .data(service.findById(id)).build()
+                        .data(service.findById(id,token)).build()
         );
     }
 
     @GetMapping
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public ResponseEntity<ApiResponse<List<InventarioResponse>>> getAll(){
+    public ResponseEntity<ApiResponse<List<InventarioResponse>>> getAll(
+    @RequestHeader("Authorization") String token) {
 
         return ResponseEntity.status(200).body(
                 ApiResponse.<List<InventarioResponse>>builder().success(true)
                         .message("El inventario se muestra a continuación")
-                        .data(service.getAll()).build()
+                        .data(service.getAll(token)).build()
         );
     }
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<InventarioResponse>> update(@PathVariable Long id, @Valid @RequestBody InventarioRequest i) {
+    public ResponseEntity<ApiResponse<InventarioResponse>> update(@PathVariable Long id, @Valid @RequestBody InventarioRequest i,
+                                                                  @RequestHeader("Authorization") String token) {
 
         return ResponseEntity.ok(
 
                 ApiResponse.<InventarioResponse>builder().success(true)
                         .message("Inventario actualizado")
-                        .data(service.update(id, i)).build()
+                        .data(service.update(id, i, token)).build()
 
         );
     }
