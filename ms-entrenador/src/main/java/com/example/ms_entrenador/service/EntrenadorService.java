@@ -35,8 +35,11 @@ public class EntrenadorService {
         entrenador1.setNombreCompleto(request.getNombreCompleto());
         entrenador1.setRun(request.getRun());
         entrenador1.setFechaNacimiento(request.getFechaNacimiento());
-        repository.save(entrenador1);
-        return mapToResponse(entrenador1);
+        Entrenador saveEntrenador = repository.save(entrenador1);
+        log.info("Entrenador creado correctamente",
+                keyValue("id", saveEntrenador.getId())
+        );
+        return mapToResponse(saveEntrenador);
 
 
     }
@@ -50,6 +53,10 @@ public class EntrenadorService {
         log.info("Obtener Entrenador", keyValue("id", id));
         Entrenador entrenador1 = repository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException("Entrenador no encontrado"));
+        log.info("Entrenador encontrado",
+                keyValue("id", entrenador1.getId()),
+                keyValue("nombre", entrenador1.getNombreCompleto())
+        );
         return mapToResponse(entrenador1);
     }
 
@@ -58,6 +65,7 @@ public class EntrenadorService {
         return repository.findAll();
     }*/
     public List<EntrenadorResponse> getAll(){
+        log.info("Listando entrenadores");
         return repository.findAll()
                 .stream()
                 .map(e -> mapToResponse(e))
@@ -65,15 +73,20 @@ public class EntrenadorService {
 
     }
     public EntrenadorResponse update(Long id , EntrenadorRequest e){
+
         Entrenador entrenador1 = repository.findById(id)
-                                .orElseThrow(() -> new EntityNotFoundException("Entrenador no Encontrado"));;
+                                .orElseThrow(() -> new EntityNotFoundException("Entrenador no Encontrado"));
         log.info("Actualizar Entrenador", keyValue("id", id));
         entrenador1.setId(id);
         entrenador1.setNombreCompleto(e.getNombreCompleto());
         entrenador1.setRun(e.getRun());
         entrenador1.setFechaNacimiento(e.getFechaNacimiento());
-        repository.save(entrenador1);
-        return mapToResponse(entrenador1);
+        Entrenador updateEntrenador = repository.save(entrenador1);
+        log.info("Entrenador actualizado correctamente",
+                keyValue("id", updateEntrenador.getId())
+        );
+
+        return mapToResponse(updateEntrenador);
     }
 
     public void delete(Long id){
@@ -82,11 +95,16 @@ public class EntrenadorService {
         }
         log.info("Eliminar Entrenador", keyValue("id", id));
         repository.deleteById(id);
+        log.info("Entrenador eliminado correctamente",
+                keyValue("id", id));
     }
 
     private EntrenadorResponse mapToResponse(Entrenador e) {
+        log.info("Mapeando entrenador",
+                keyValue("id", e.getId())
+        );
         return EntrenadorResponse.builder()
-                .id(e.getId()) //
+                .id(e.getId())
                 .nombreCompleto(e.getNombreCompleto())
                 .run(e.getRun())
                 .fechaNacimiento(e.getFechaNacimiento())

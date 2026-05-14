@@ -29,6 +29,8 @@ public class ClaseService {
         log.info("Anadir Clase", keyValue("Nombre de Clase", c.getNombreClase()));
         var entrenador = entrenadorClient.getEntrenador(c.getIdEntrenador(), token);
         if(entrenador == null){
+            log.warn("Entrenador no encontrado",
+                    keyValue("idEntrenador", c.getIdEntrenador()));
             throw new EntityNotFoundException("Entrenador no encontrado");
         }
         Clase clase1 = new Clase();
@@ -40,8 +42,12 @@ public class ClaseService {
         clase1.setFechaRealizacion(c.getFechaRealizacion());
         clase1.setHoraRealizacion(c.getHoraRealizacion());
         clase1.setIdEntrenador(c.getIdEntrenador());
+        Clase saveClase =repository.save(clase1);
+        log.info("Clase creada correctamente",
+                keyValue("idClase", saveClase.getId())
+        );
 
-        return mapToResponse(repository.save(clase1),token);
+        return mapToResponse(saveClase,token);
     }
 
     public ClaseResponse findById(Long id,String token){
@@ -54,19 +60,24 @@ public class ClaseService {
     }
 
     public List<ClaseResponse> getAll(String token){
-
+        log.info("Listando clases");
         return repository.findAll().stream()
                 .map(c -> mapToResponse(c,token))
                 .toList();
     }
 
     public ClaseResponse update(Long id,ClaseRequest c,String token){
-
+        log.info("Actualizando clase",
+                keyValue("idClase", id)
+        );
         Clase clase1 = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Clase no encontrada"));
         var entrenador = entrenadorClient.getEntrenador(c.getIdEntrenador(), token);
 
         if(entrenador == null){
+            log.warn("Entrenador no encontrado",
+                    keyValue("idEntrenador", c.getIdEntrenador())
+            );
             throw new EntityNotFoundException("Entrenador no encontrado");
         }
         clase1.setCupos(c.getCupos());
@@ -77,18 +88,33 @@ public class ClaseService {
         clase1.setFechaRealizacion(c.getFechaRealizacion());
         clase1.setHoraRealizacion(c.getHoraRealizacion());
         clase1.setIdEntrenador(c.getIdEntrenador());
-        return mapToResponse(repository.save(clase1),token);
+        Clase updateClase = repository.save(clase1);
+        log.info("Clase actualizada correctamente",
+                keyValue("idClase", updateClase.getId())
+        );
+        return mapToResponse(updateClase,token);
     }
 
     public void delete(Long id ){
+        log.info("Eliminando clase",
+                keyValue("idClase", id)
+        );
+
         if (!repository.existsById(id)) {
+            log.warn("clase a eliminar inexistente",
+                    keyValue("idClase", id)
+            );
             throw new EntityNotFoundException("No se puede eliminar clase no encontrada");
         }
         repository.deleteById(id);
-
+        log.info("Clase eliminada correctamente",
+                keyValue("idClase", id)
+        );
     }
     private ClaseResponse mapToResponse(Clase c, String token) {
-
+        log.info("Mapeando clase",
+                keyValue("idClase", c.getId())
+        );
         var entrenador1 = entrenadorClient.getEntrenador(c.getIdEntrenador(), token);
 
         return ClaseResponse.builder().id(c.getId()).nombreClase(c.getNombreClase()).
@@ -120,10 +146,16 @@ public class ClaseService {
         int filasAfectadas = repository.restarCupo(id);
 
         if (filasAfectadas == 0) {
+            log.warn("No se pudo restar cupo",
+                    keyValue("idClase", id)
+            );
+
             throw new RuntimeException("No se pudo restar el cupo: Clase no encontrada o llena.");
         }
 
-        log.info("Cupo actualizado");
+        log.info("Cupo actualizado correctamente",
+                keyValue("idClase", id)
+        );
 
     }
     @Transactional
@@ -134,15 +166,23 @@ public class ClaseService {
         clase.setCupos(clase.getCupos() + 1 );
         log.info("Cupo actualizado", keyValue("idClase", clase.getId()));
         repository.save(clase);*/
-        log.info("resta de cupo ", keyValue("idClase", id));
+        log.info("Sumando cupo de clase",
+                keyValue("idClase", id)
+        );
 
         int filasAfectadas = repository.sumarCupo(id);
 
         if (filasAfectadas == 0) {
+            log.warn("No se pudo sumar cupo",
+                    keyValue("idClase", id)
+            );
+
             throw new RuntimeException("No se pudo restar el cupo: Clase no encontrada o llena.");
         }
 
-        log.info("Cupo actualizado");
+        log.info("Cupo restaurado correctamente",
+                keyValue("idClase", id)
+        );
     }
 
 }

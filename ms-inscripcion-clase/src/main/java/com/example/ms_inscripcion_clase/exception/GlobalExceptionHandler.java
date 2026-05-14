@@ -38,15 +38,7 @@ public class GlobalExceptionHandler {
                         .build()
         );
     }
-    @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<ApiResponse<Object>> handleConflict(IllegalStateException ex) {
-        return ResponseEntity.status(409).body(
-                ApiResponse.builder()
-                        .success(false)
-                        .message(ex.getMessage())
-                        .build()
-        );
-    }
+    
     @ExceptionHandler(jakarta.persistence.EntityNotFoundException.class)
     public ResponseEntity<ApiResponse<Object>> handle404(Exception ex) {
         return ResponseEntity.status(404).body(
