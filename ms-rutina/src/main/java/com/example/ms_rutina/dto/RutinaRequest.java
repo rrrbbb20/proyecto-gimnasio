@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class RutinaRequest {
     @NotBlank(message = "El nombre de la rutina no puede estar en blanco")
@@ -13,6 +15,5 @@ public class RutinaRequest {
     private String duracion;
     @NotNull(message = "Debe poner un tiempo de descanso")
     private Integer tiempoDescanso;
-    @NotBlank(message = "Debe ingresar el nombre de almenos un ejercicio")
-    private Ejercicio ejercicio;
+    private List<Long > ejerciciosId;
 }

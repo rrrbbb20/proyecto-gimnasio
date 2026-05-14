@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/ejercicios")
+@RequestMapping("/api/v2/ejercicios")
 @RequiredArgsConstructor
 public class EjercicioController {
     private final RutinaService ejercicioService;
@@ -23,7 +23,7 @@ public class EjercicioController {
 
         return ResponseEntity.status(201).body(
                 ApiResponse.<EjercicioResponse>builder().success(true)
-                        .message("Ejercicio creada")
+                        .message("Ejercicio creado")
                         .data(ejercicioService.addEjercicio(e)).build()
 
         );
@@ -31,7 +31,7 @@ public class EjercicioController {
     }
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public ResponseEntity<ApiResponse<EjercicioResponse>> findById(@PathVariable Long idEjercicio){
+    public ResponseEntity<ApiResponse<EjercicioResponse>> findById(@PathVariable("id") Long idEjercicio){
         return ResponseEntity.status(200).body(
                 ApiResponse.<EjercicioResponse>builder().success(true).message("Encontrado")
                         .data(ejercicioService.findByIdEjercicio(idEjercicio)).build()
@@ -49,7 +49,7 @@ public class EjercicioController {
     }
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<EjercicioResponse>> update(@PathVariable Long idEjercicio, @Valid @RequestBody EjercicioRequest e) {
+    public ResponseEntity<ApiResponse<EjercicioResponse>> update(@PathVariable("id") Long idEjercicio, @Valid @RequestBody EjercicioRequest e) {
 
         return ResponseEntity.ok(
 
@@ -62,7 +62,7 @@ public class EjercicioController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long idEjercicio){
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable("id") Long idEjercicio){
         ejercicioService.deleteEjercicio(idEjercicio);
         return ResponseEntity.ok(
 

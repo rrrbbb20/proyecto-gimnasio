@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,8 +21,6 @@ public class Ejercicio  {
     private String tipoEjercicio;
     private String zonaEjercitada;
     private Integer repeticiones;
-
-    @ManyToOne
-    @JoinColumn(name = "id_rutina")
-    private Rutina rutina;
+    @ManyToMany(mappedBy = "ejercicios")
+    private Set<Rutina> rutinas = new HashSet<>();
 }
