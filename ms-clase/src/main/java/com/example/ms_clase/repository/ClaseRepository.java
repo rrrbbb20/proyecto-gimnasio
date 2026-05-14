@@ -13,11 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 public interface ClaseRepository extends JpaRepository<Clase, Long> {
 
     @Modifying
-    @Transactional // Se requiere para consultas de actualización
+    @Transactional
     @Query("UPDATE Clase c SET c.cupos = c.cupos - 1 WHERE c.id = :id AND c.cupos > 0")
     int restarCupo(Long id);
     @Modifying
-    @Transactional // Se requiere para consultas de actualización
+    @Transactional
     @Query("UPDATE Clase c SET c.cupos = c.cupos + 1 WHERE c.id = :id ")
     int sumarCupo(Long id);
 }
