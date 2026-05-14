@@ -2,6 +2,7 @@ package com.example.ms_inscripcion_clase.controller;
 
 
 import com.example.ms_inscripcion_clase.dto.ApiResponse;
+import com.example.ms_inscripcion_clase.dto.ClaseResponse;
 import com.example.ms_inscripcion_clase.dto.InscripcionClaseRequest;
 import com.example.ms_inscripcion_clase.dto.InscripcionClaseResponse;
 import com.example.ms_inscripcion_clase.service.InscripcionClaseService;
@@ -81,4 +82,16 @@ public class InscripcionClaseController {
         );
     }
 
+    @GetMapping("/buscar-clase-por-nombre/{nombre}")
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    public ResponseEntity<ApiResponse<List<ClaseResponse>>> findClasePorNombre(@PathVariable String nombre,
+                                                                               @RequestHeader("Authorization")String token){
+        return ResponseEntity.status(200).body
+                (ApiResponse.<List<ClaseResponse>>builder()
+                        .success(true)
+                        .message("Clase Encontrada")
+                        .data(service.buscarClasePorNombre(nombre,token))
+                        .build());
+
+    }
 }

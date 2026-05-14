@@ -150,7 +150,7 @@ public class ClaseService {
                     keyValue("idClase", id)
             );
 
-            throw new RuntimeException("No se pudo restar el cupo: Clase no encontrada o llena.");
+            throw new RuntimeException("No se pudo restar el cupo");
         }
 
         log.info("Cupo actualizado correctamente",
@@ -177,12 +177,22 @@ public class ClaseService {
                     keyValue("idClase", id)
             );
 
-            throw new RuntimeException("No se pudo restar el cupo: Clase no encontrada o llena.");
+            throw new RuntimeException("No se pudo sumar el cupo");
         }
 
         log.info("Cupo restaurado correctamente",
                 keyValue("idClase", id)
         );
+    }
+
+
+    public List<ClaseResponse> buscarPorNombre(String nombre,String token){
+        log.info("buscando clases por nombre ",keyValue("nombre",nombre));
+        List<Clase> clases = repository.findByNombreClase(nombre);
+        log.info("Se devuelve lista de clases por nombre",keyValue("nombre",nombre));
+        return clases.stream()
+                .map(c -> mapToResponse(c,token))
+                .toList();
     }
 
 }

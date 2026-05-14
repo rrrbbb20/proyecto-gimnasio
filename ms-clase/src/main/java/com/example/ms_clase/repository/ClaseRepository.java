@@ -9,6 +9,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Optional;
+
 @Repository
 public interface ClaseRepository extends JpaRepository<Clase, Long> {
 
@@ -20,4 +23,6 @@ public interface ClaseRepository extends JpaRepository<Clase, Long> {
     @Transactional
     @Query("UPDATE Clase c SET c.cupos = c.cupos + 1 WHERE c.id = :id ")
     int sumarCupo(Long id);
+
+    List<Clase> findByNombreClase(String nombreClase);
 }

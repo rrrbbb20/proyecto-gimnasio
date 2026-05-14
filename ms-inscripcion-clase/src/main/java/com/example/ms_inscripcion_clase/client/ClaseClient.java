@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class ClaseClient {
@@ -48,5 +50,16 @@ public class ClaseClient {
 
         return response != null ? response.getData() : null;
     }
+    public List<ClaseResponse> buscarPorNombre(String nombre, String token){
 
+        ApiResponse< List<ClaseResponse>> response = webClient.get()
+                .uri(BASE_URL +"buscar-por-nombre/"+nombre)
+                .header("Authorization", token)
+                .retrieve()
+                .bodyToMono(new org.springframework.core.ParameterizedTypeReference<ApiResponse< List<ClaseResponse>>>() {})
+                .block();
+
+        return (response != null && response.getData() != null) ? response.getData() : java.util.Collections.emptyList();
+
+    }
 }
