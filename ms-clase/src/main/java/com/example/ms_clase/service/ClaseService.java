@@ -7,6 +7,7 @@ import com.example.ms_clase.dto.ClaseResponse;
 import com.example.ms_clase.model.Clase;
 import com.example.ms_clase.repository.ClaseRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -101,4 +102,47 @@ public class ClaseService {
                 build();
 
     }
+
+    @Transactional
+    public void personaInscrita(Long id){
+        /*Clase clase = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Clase no encontrada"));;
+        if (clase.getCupos() <= 0) {
+            throw new RuntimeException("No quedan cupos disponibles para esta clase");
+        }
+
+        clase.setCupos(clase.getCupos() - 1 );
+        log.info("Cupo actualizado", keyValue("idClase", clase.getId()));
+        repository.save(clase);*/
+
+        log.info("resta de cupo ", keyValue("idClase", id));
+
+        int filasAfectadas = repository.restarCupo(id);
+
+        if (filasAfectadas == 0) {
+            throw new RuntimeException("No se pudo restar el cupo: Clase no encontrada o llena.");
+        }
+
+        log.info("Cupo actualizado");
+
+    }
+    @Transactional
+    public void removerInscripcion(Long id){
+        /*Clase clase = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Clase no encontrada"));;
+
+        clase.setCupos(clase.getCupos() + 1 );
+        log.info("Cupo actualizado", keyValue("idClase", clase.getId()));
+        repository.save(clase);*/
+        log.info("resta de cupo ", keyValue("idClase", id));
+
+        int filasAfectadas = repository.sumarCupo(id);
+
+        if (filasAfectadas == 0) {
+            throw new RuntimeException("No se pudo restar el cupo: Clase no encontrada o llena.");
+        }
+
+        log.info("Cupo actualizado");
+    }
+
 }

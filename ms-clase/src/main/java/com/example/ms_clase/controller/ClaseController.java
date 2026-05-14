@@ -76,4 +76,30 @@ public class ClaseController {
                 .build()
         );
     }
+
+    @PatchMapping("/restar-cupo/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> personaInscrita(@PathVariable Long id,String token){
+        service.personaInscrita(id);
+        return ResponseEntity.ok(
+                ApiResponse.<Void>builder().message("Se Resta cupo").success(true)
+
+                        .build()
+
+        );
+
+    }
+
+    @PatchMapping("/sumar-cupo/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> removerInscripcion(@PathVariable Long id,String token){
+        service.removerInscripcion(id);
+        return ResponseEntity.ok(
+                ApiResponse.<Void>builder().message("Se suma cupo").success(true)
+
+                        .build()
+
+        );
+
+    }
 }

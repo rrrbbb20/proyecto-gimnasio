@@ -72,8 +72,8 @@ public class InscripcionClaseController {
     }
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id){
-        service.delete(id);
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id,@RequestHeader("Authorization") String token){
+        service.delete(id,token);
         return ResponseEntity.ok(ApiResponse.<Void>builder()
                 .success(true)
                 .message("Inscripcion a Clase eliminada")

@@ -26,4 +26,27 @@ public class ClaseClient {
         return response != null ? response.getData() : null;
     }
 
+    public ClaseResponse restarCupo(Long id, String token) {
+
+        ApiResponse<ClaseResponse> response = webClient.patch()
+                .uri(BASE_URL +"restar-cupo/" +id)
+                .header("Authorization", token)
+                .retrieve()
+                .bodyToMono(new org.springframework.core.ParameterizedTypeReference<ApiResponse<ClaseResponse>>() {})
+                .block();
+
+        return response != null ? response.getData() : null;
+    }
+    public ClaseResponse sumarCupo(Long id, String token) {
+
+        ApiResponse<ClaseResponse> response = webClient.patch()
+                .uri(BASE_URL +"sumar-cupo/"+id)
+                .header("Authorization", token)
+                .retrieve()
+                .bodyToMono(new org.springframework.core.ParameterizedTypeReference<ApiResponse<ClaseResponse>>() {})
+                .block();
+
+        return response != null ? response.getData() : null;
+    }
+
 }

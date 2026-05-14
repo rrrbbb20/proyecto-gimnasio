@@ -37,7 +37,9 @@ public class InscripcionClaseService {
         insClase.setHoraInscripcion(LocalTime.now());
         insClase.setIdClase(ir.getIdClase());
         insClase.setIdCliente(ir.getIdCliente());
-        return mapToResponse(repository.save(insClase),token);
+        InscripcionClase claseResp = repository.save(insClase);
+        claseClient.restarCupo(claseResp.getIdClase(),token);
+        return mapToResponse(claseResp,token);
     }
 
     public InscripcionClaseResponse findById(Long id,String token){
@@ -64,10 +66,13 @@ public class InscripcionClaseService {
         return mapToResponse(repository.save(insClase),token);
     }
 
-    public void delete(Long id){
+    public void delete(Long id,String token){
         if (!repository.existsById(id)) {
             throw new EntityNotFoundException("No se puede eliminar inscripcion no encontrada");
         }
+        InscripcionClase clase = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Inscripcion a clase no encontrada"));;
+        claseClient.sumarCupo(clase.getIdClase(),token);
         repository.deleteById(id);
 
     }
