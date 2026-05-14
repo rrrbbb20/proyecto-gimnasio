@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/entrenadores")
+@RequestMapping("/api/v1/entrenadores")
 @RequiredArgsConstructor
 public class EntrenadorController {
 
@@ -33,7 +33,7 @@ public class EntrenadorController {
 
     }
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<EntrenadorResponse>> findById(@PathVariable Long id){
         return ResponseEntity.status(200).body(
                 ApiResponse.<EntrenadorResponse>builder().success(true).message("Encontrado")
@@ -41,7 +41,7 @@ public class EntrenadorController {
         );
     }
     @GetMapping
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<List<EntrenadorResponse>>> getAll(){
 
         return ResponseEntity.status(200).body(

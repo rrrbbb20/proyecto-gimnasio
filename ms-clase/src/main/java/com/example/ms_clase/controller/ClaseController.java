@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1/clases")
+@RequestMapping("/api/v1/clases")
 public class ClaseController {
 
     private final ClaseService service;
@@ -75,5 +75,31 @@ public class ClaseController {
                 .message("Clase eliminada")
                 .build()
         );
+    }
+
+    @PatchMapping("/restar-cupo/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> personaInscrita(@PathVariable Long id,String token){
+        service.personaInscrita(id);
+        return ResponseEntity.ok(
+                ApiResponse.<Void>builder().message("Se Resta cupo").success(true)
+
+                        .build()
+
+        );
+
+    }
+
+    @PatchMapping("/sumar-cupo/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> removerInscripcion(@PathVariable Long id,String token){
+        service.removerInscripcion(id);
+        return ResponseEntity.ok(
+                ApiResponse.<Void>builder().message("Se suma cupo").success(true)
+
+                        .build()
+
+        );
+
     }
 }
