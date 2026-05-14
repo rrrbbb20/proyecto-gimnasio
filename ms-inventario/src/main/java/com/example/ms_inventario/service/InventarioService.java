@@ -23,14 +23,19 @@ public class InventarioService {
 
 
     public InventarioResponse add(InventarioRequest request){
-        log.info("Crear Entrenador", keyValue("nombre", request.getNombre()));
+
+        log.info("Agregar equipamiento al inventario", keyValue("nombre", request.getNombre()));
+
         Inventario inventario1 = new Inventario();
+
         inventario1.setNombre(request.getNombre());
         inventario1.setDescripcion(request.getDescripcion());
         inventario1.setPrecio(request.getPrecio());
-        inventario1.setFecha_registro(request.getFechaRegistro());
-        repository.save(inventario1);
-        return mapToResponse(inventario1);
+        inventario1.setFechaRegistro(request.getFechaRegistro());
+
+        Inventario guardado = repository.save(inventario1);
+
+        return mapToResponse(guardado);
 
 
     }
@@ -56,7 +61,7 @@ public class InventarioService {
         inventario1.setNombre(i.getNombre());
         inventario1.setDescripcion(i.getDescripcion());
         inventario1.setPrecio(i.getPrecio());
-        inventario1.setFecha_registro(i.getFechaRegistro());
+        inventario1.setFechaRegistro(i.getFechaRegistro());
         repository.save(inventario1);
         return mapToResponse(inventario1);
     }
@@ -68,10 +73,11 @@ public class InventarioService {
 
     private InventarioResponse mapToResponse(Inventario i) {
         return InventarioResponse.builder()
+                .id(i.getId())
                 .nombre(i.getNombre())
                 .descripcion(i.getDescripcion())
                 .precio(i.getPrecio())
-                .fechaRegistro(i.getFecha_registro())
+                .fechaRegistro(i.getFechaRegistro())
                 .build();
     }
 }

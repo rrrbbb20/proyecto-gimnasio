@@ -1,5 +1,4 @@
-package com.example.ms_inventario.model;
-
+package com.example.ms_mantenimiento.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -12,15 +11,15 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name="inventario")
-public class Inventario {
+@Table(name = "mantenimiento")
+public class Mantenimiento {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String nombre;
-    private String descripcion;
+    private String empresa;
+    private String descripcionMantenimiento;
+    private LocalDate fechaMantenimiento;
     private Double precio;
-    private LocalDate fechaRegistro;
 
 }

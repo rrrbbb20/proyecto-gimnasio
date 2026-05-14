@@ -1,10 +1,9 @@
-package com.example.ms_inventario.controller;
+package com.example.ms_mantenimiento.controller;
 
-
-import com.example.ms_inventario.dto.ApiResponse;
-import com.example.ms_inventario.dto.InventarioRequest;
-import com.example.ms_inventario.dto.InventarioResponse;
-import com.example.ms_inventario.service.InventarioService;
+import com.example.ms_mantenimiento.dto.ApiResponse;
+import com.example.ms_mantenimiento.dto.MantenimientoRequest;
+import com.example.ms_mantenimiento.dto.MantenimientoResponse;
+import com.example.ms_mantenimiento.service.MantenimientoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,28 +13,28 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v2/inventario")
+@RequestMapping("api/v1/mantenimiento")
 @RequiredArgsConstructor
-public class InventarioController {
+public class MantenimientoController {
 
-    private final InventarioService service;
+    private final MantenimientoService service;
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<InventarioResponse>> add(@Valid @RequestBody InventarioRequest i){
+    public ResponseEntity<ApiResponse<MantenimientoResponse>> add(@Valid @RequestBody MantenimientoRequest m){
 
         return ResponseEntity.status(201).body(
-                ApiResponse.<InventarioResponse>builder().success(true)
+                ApiResponse.<MantenimientoResponse>builder().success(true)
                         .message("Entrenador creado")
-                        .data(service.add(i)).build()
+                        .data(service.add(m)).build()
 
         );
     }
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public ResponseEntity<ApiResponse<InventarioResponse>> findById(@PathVariable Long id){
+    public ResponseEntity<ApiResponse<MantenimientoResponse>> findById(@PathVariable Long id){
         return ResponseEntity.status(200).body(
-                ApiResponse.<InventarioResponse>builder().success(true)
+                ApiResponse.<MantenimientoResponse>builder().success(true)
                         .message("Inventario encontrado")
                         .data(service.findById(id)).build()
         );
@@ -43,22 +42,22 @@ public class InventarioController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public ResponseEntity<ApiResponse<List<InventarioResponse>>> getAll(){
+    public ResponseEntity<ApiResponse<List<MantenimientoResponse>>> getAll(){
 
         return ResponseEntity.status(200).body(
-                ApiResponse.<List<InventarioResponse>>builder().success(true)
-                        .message("El inventario se muestra a continuación")
+                ApiResponse.<List<MantenimientoResponse>>builder().success(true)
+                        .message("Los mantenimiento se muestra a continuación")
                         .data(service.getAll()).build()
         );
     }
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<InventarioResponse>> update(@PathVariable Long id, @Valid @RequestBody InventarioRequest i) {
+    public ResponseEntity<ApiResponse<MantenimientoResponse>> update(@PathVariable Long id, @Valid @RequestBody MantenimientoRequest i) {
 
         return ResponseEntity.ok(
 
-                ApiResponse.<InventarioResponse>builder().success(true)
-                        .message("Inventario actualizado")
+                ApiResponse.<MantenimientoResponse>builder().success(true)
+                        .message("Mantenimiento actualizado")
                         .data(service.update(id, i)).build()
 
         );
