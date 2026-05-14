@@ -56,7 +56,7 @@ public class InscripcionClaseService {
                 .toList();
     }
 
-    public InscripcionClaseResponse update(Long id, InscripcionClaseRequest ir, String token ){
+    /*public InscripcionClaseResponse update(Long id, InscripcionClaseRequest ir, String token ){
         verificarExistencia(ir,token);
         InscripcionClase insClase = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Inscripcion a clase no encontrada"));
@@ -64,7 +64,7 @@ public class InscripcionClaseService {
         insClase.setIdClase(ir.getIdClase());
         insClase.setIdCliente(ir.getIdCliente());
         return mapToResponse(repository.save(insClase),token);
-    }
+    }*/
 
     public void delete(Long id,String token){
         if (!repository.existsById(id)) {

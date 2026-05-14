@@ -45,7 +45,7 @@ public class InscripcionClaseController {
                         .build());
 
     }
-    @PutMapping("/{id}")
+    /*@PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<InscripcionClaseResponse>> update(@PathVariable Long id,
                                                                         @Valid @RequestBody InscripcionClaseRequest ir,
@@ -59,7 +59,7 @@ public class InscripcionClaseController {
 
 
 
-    }
+    }*/
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN','USER')")
     public ResponseEntity<ApiResponse<List<InscripcionClaseResponse>>> getAll(@RequestHeader("Authorization") String token){
