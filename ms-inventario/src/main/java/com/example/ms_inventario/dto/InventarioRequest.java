@@ -17,4 +17,6 @@ public class InventarioRequest {
     private double precio;
     @NotNull
     private LocalDate fechaRegistro;
+    @NotNull
+    private Long idMantenimiento;
 }

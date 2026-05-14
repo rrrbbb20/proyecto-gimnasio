@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Data
@@ -20,6 +21,8 @@ public class Rutina {
     private String nombreRutina;
     private String duracion;
     private Integer tiempoDescanso;
-    @OneToMany(mappedBy = "rutina")
-    private Set<Ejercicio> ejercicios;
+    @ManyToMany
+    @JoinTable(name="rutina_ejercicio", joinColumns = @JoinColumn(name = "id_rutina"),
+            inverseJoinColumns = @JoinColumn(name = "id_ejercicio"))
+    private Set<Ejercicio> ejercicios = new HashSet<>();
 }

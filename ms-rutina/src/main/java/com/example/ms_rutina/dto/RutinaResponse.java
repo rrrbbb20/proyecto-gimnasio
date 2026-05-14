@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,6 +17,6 @@ public class RutinaResponse {
     private String nombreRutina;
     private String duracion;
     private Integer tiempoDescanso;
-    private Ejercicio ejercicio;
+    private List<EjercicioResponse> ejercicios;
 
 }
