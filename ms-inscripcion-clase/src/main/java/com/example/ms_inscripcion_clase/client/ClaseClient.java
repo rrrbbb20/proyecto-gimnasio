@@ -14,7 +14,7 @@ import java.util.List;
 public class ClaseClient {
     private final WebClient webClient;
 
-    private final String BASE_URL = "http://localhost:8084/api/v1/clases/";
+    private final String BASE_URL = "http://localhost:8094/api/v1/clases/";
 
     public ClaseResponse getClase(Long id, String token) {
 
