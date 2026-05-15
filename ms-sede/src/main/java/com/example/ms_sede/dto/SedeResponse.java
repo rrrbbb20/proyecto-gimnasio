@@ -11,7 +11,9 @@ import lombok.NoArgsConstructor;
 @Builder
 public class SedeResponse {
     private Long id;
+    private String nombre;
     private String direccion;
     private Integer horaApertura;
     private Integer horaCierre;
+    private EncargadoResponse infoEncargado;
 }

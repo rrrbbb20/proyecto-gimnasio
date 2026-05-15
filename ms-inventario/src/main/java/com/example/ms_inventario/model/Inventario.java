@@ -21,6 +21,7 @@ public class Inventario {
     private String nombre;
     private String descripcion;
     private Double precio;
-    private LocalDate fecha_registro;
+    private LocalDate fechaRegistro;
+    private Long idMantenimiento;
 
 }

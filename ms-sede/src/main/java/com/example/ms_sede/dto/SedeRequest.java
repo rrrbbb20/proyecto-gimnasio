@@ -20,4 +20,7 @@ public class SedeRequest {
     @Min(0)
     @Max(2359)
     private Integer horaCierre;
+
+    @NotNull
+    private Long idEncargado;
 }   
