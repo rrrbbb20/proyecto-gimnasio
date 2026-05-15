@@ -3,6 +3,7 @@ package com.example.ms_sede.controller;
 
 import com.example.ms_sede.dto.ApiResponse;
 import com.example.ms_sede.dto.SedeRequest;
+import com.example.ms_sede.dto.SedeResponse;
 import com.example.ms_sede.model.Sede;
 import com.example.ms_sede.service.SedeService;
 import jakarta.validation.Valid;
@@ -22,57 +23,49 @@ public class SedeController {
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Sede>> agregarSede(@Valid @RequestBody SedeRequest dto) {
-
-        Sede sede = sedeService.createSede(dto);
+    public ResponseEntity<ApiResponse<SedeResponse>> agregarSede(@Valid @RequestBody SedeRequest dto,
+                                                                 @RequestHeader("Authorization")String token) {
 
         return ResponseEntity.status(201).body(
-                ApiResponse.<Sede>builder()
-                        .success(true)
+                ApiResponse.<SedeResponse>builder().success(true)
                         .message("Sede agregada")
-                        .data(sede)
-                        .build()
+                        .data(sedeService.createSede(dto,token)).build()
         );
     }
     @GetMapping
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public ResponseEntity<ApiResponse<List<Sede>>> listar() {
+    public ResponseEntity<ApiResponse<List<SedeResponse>>> listar(@RequestHeader("Authorization") String token) {
 
-        return ResponseEntity.ok(
-                ApiResponse.<List<Sede>>builder()
-                        .success(true)
-                        .message("Listado obtenido")
-                        .data(sedeService.listar())
-                        .build()
+        return ResponseEntity.status(200).body(
+                ApiResponse.<List<SedeResponse>>builder().success(true)
+                        .message("Las sedes se muestra a continuación")
+                        .data(sedeService.listar(token)).build()
         );
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public ResponseEntity<ApiResponse<Sede>> obtener(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<SedeResponse>> obtener(@PathVariable Long id,
+                                                     @RequestHeader("Authorization") String token) {
 
-        return ResponseEntity.ok(
-                ApiResponse.<Sede>builder()
-                        .success(true)
-                        .message("Autor obtenido")
-                        .data(sedeService.obtenerSede(id))
-                        .build()
+        return ResponseEntity.status(200).body(
+                ApiResponse.<SedeResponse>builder().success(true)
+                        .message("Sede encontrada")
+                        .data(sedeService.obtenerSede(id,token)).build()
         );
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Sede>> actualizarSede(@PathVariable Long id,
-                                                         @Valid @RequestBody SedeRequest dto) {
-
-        Sede sede = sedeService.actualizarSede(id, dto);
+    public ResponseEntity<ApiResponse<SedeResponse>> actualizarSede(@PathVariable Long id,
+                                                         @Valid @RequestBody SedeRequest dto,
+                                                                    @RequestHeader("Authorization") String token) {
 
         return ResponseEntity.ok(
-                ApiResponse.<Sede>builder()
-                        .success(true)
-                        .message("Autor actualizado")
-                        .data(sede)
-                        .build()
+
+                ApiResponse.<SedeResponse>builder().success(true)
+                        .message("Sede actualizada")
+                        .data(sedeService.actualizarSede(id, dto, token)).build()
         );
     }
     @DeleteMapping("/{id}")
@@ -84,7 +77,7 @@ public class SedeController {
         return ResponseEntity.ok(
                 ApiResponse.<Void>builder()
                         .success(true)
-                        .message("Autor eliminado")
+                        .message("Sede eliminada con exito")
                         .build()
         );
     }

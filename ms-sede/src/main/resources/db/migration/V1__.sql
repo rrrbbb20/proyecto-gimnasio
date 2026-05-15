@@ -5,5 +5,6 @@ CREATE TABLE sede
     direccion     VARCHAR(255) NULL,
     hora_apertura INT NULL,
     hora_cierre   INT NULL,
+    id_encargado  BIGINT NULL,
     CONSTRAINT pk_sede PRIMARY KEY (id)
 );
