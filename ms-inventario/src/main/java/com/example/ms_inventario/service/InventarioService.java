@@ -45,9 +45,9 @@ public class InventarioService {
     }
 
     public InventarioResponse findById(Long id, String token) {
-        log.info("Obtener Entrenador", keyValue("id", id));
+        log.info("Obtener Inventario", keyValue("id", id));
         Inventario inventario1 = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Entrenador no encontrado"));
+                .orElseThrow(() -> new EntityNotFoundException("Inventario no encontrado"));
         return mapToResponse(inventario1, token);
     }
 
@@ -64,8 +64,8 @@ public class InventarioService {
             throw new RuntimeException("mantenimiento no existe");
         }
         Inventario inventario1 = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Entrenador no Encontrado"));;
-        log.info("Actualizar Entrenador", keyValue("id", id));
+                .orElseThrow(() -> new EntityNotFoundException("Inventario no Encontrado"));;
+        log.info("Actualizar Inventario", keyValue("id", id));
         inventario1.setNombre(i.getNombre());
         inventario1.setDescripcion(i.getDescripcion());
         inventario1.setPrecio(i.getPrecio());
@@ -75,7 +75,7 @@ public class InventarioService {
     }
 
     public void delete(Long id){
-        log.info("Eliminar Entrenador", keyValue("id", id));
+        log.info("Eliminar Inventario", keyValue("id", id));
         repository.deleteById(id);
     }
 

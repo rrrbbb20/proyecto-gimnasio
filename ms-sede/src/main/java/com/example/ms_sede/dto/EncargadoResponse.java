@@ -5,15 +5,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class SedeResponse {
+public class EncargadoResponse {
     private Long id;
-    private String nombre;
-    private String direccion;
-    private Integer horaApertura;
-    private Integer horaCierre;
-    private EncargadoResponse infoEncargado;
+    private String nombreCompleto;
 }

@@ -17,4 +17,5 @@ public class Sede {
     private String direccion;
     private Integer horaApertura;
     private Integer horaCierre;
+    private Long idEncargado;
 }
