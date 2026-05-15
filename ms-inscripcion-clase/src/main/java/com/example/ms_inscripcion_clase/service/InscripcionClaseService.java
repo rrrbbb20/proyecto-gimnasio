@@ -128,4 +128,16 @@ public class InscripcionClaseService {
         }
         log.info("Validacion completada correctamente");
     }
+
+
+    public List<ClaseResponse> buscarClasePorNombre(String nombre , String token){
+        log.info("Buscando clases por nombre ",keyValue("nombre:",nombre));
+        List<ClaseResponse> clase = claseClient.buscarPorNombre(nombre,token);
+        if (clase.isEmpty()){
+            log.info("No se encontraron clases por ese nombre",keyValue("nombre:",nombre));
+            throw new EntityNotFoundException("No se encontro la clase que buscabas");
+        }
+        log.info("se encontraron clases por ese nombre",keyValue("nombre:",nombre));
+        return clase;
+    }
 }

@@ -102,4 +102,16 @@ public class ClaseController {
         );
 
     }
+
+    @GetMapping("/buscar-por-nombre/{nombre}")
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    public ResponseEntity<ApiResponse<List<ClaseResponse>>> buscarPorNombre(@PathVariable String nombre,@RequestHeader("Authorization")
+                                                                   String token){
+
+        return ResponseEntity.ok(ApiResponse.<List<ClaseResponse>>builder()
+                .success(true)
+                .data(service.buscarPorNombre(nombre,token))
+                .build()
+        );
+    }
 }
