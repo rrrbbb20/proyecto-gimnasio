@@ -48,6 +48,16 @@ public class GlobalExceptionHandler {
                         .build()
         );
     }
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ApiResponse<Object>> handleConflict(IllegalStateException ex) {
+        return ResponseEntity.status(409).body(
+                ApiResponse.builder()
+                        .success(false)
+                        .message(ex.getMessage())
+                        .build()
+        );
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleGeneral(Exception ex) {
         return ResponseEntity.status(500).body(
