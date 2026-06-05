@@ -73,7 +73,7 @@ public class EntrenadorController {
     }
     @Operation(
             summary = "actualizar a un entrenador",
-            description = "permite actualizar datos de un entrenador mediante su busqueda por id "
+            description = "permite actualizar datos de un entrenador mediante su id "
     )
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")

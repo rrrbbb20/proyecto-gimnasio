@@ -14,9 +14,9 @@ public class OpenApiConfig {
         final String securitySchemeName = "bearerAuth";
         return new OpenAPI()
                 .info(new Info()
-                        .title("ms-Entrenador API")
+                        .title("ms-Incripcion-Clase API")
                         .version("1.0")
-                        .description("Documentación del microservicio de Entrenadores"))
+                        .description("Documentación del microservicio de Inscripcion-Clases"))
                 .addSecurityItem(new
                         SecurityRequirement().addList(securitySchemeName))
                 .components(new Components()
