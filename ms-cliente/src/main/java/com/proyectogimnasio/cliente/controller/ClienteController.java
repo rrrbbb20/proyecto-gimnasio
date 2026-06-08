@@ -25,4 +25,14 @@ public class ClienteController {
                         .data(service.add(c,token)).build()
         );
     }
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    public ResponseEntity<ApiResponse<ClienteResponse>> findById(@PathVariable Long id,
+                                                               @RequestHeader("Authorization")String token){
+        return ResponseEntity.ok(ApiResponse.<ClienteResponse>builder().success(true)
+                .message("Clase Encontrada")
+                .data(service.findById(id,token))
+                .build()
+        );
+    }
 }
