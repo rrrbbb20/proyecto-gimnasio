@@ -52,6 +52,29 @@ public class ClienteService {
                 .map(c -> mapToResponse(c,token))
                 .toList();
     }
+    public ClienteResponse update(Long id, ClienteRequest c, String token){
+        log.info("Actualizando Cliente",
+                keyValue("idCliente", id));
+        //aca solo verifica que el cliente ya existe para poder actualizarlo
+        Cliente cliente1 = repo.findById(id).orElseThrow(()->new EntityNotFoundException("Cliente no encontrado"));
+        var plan = client.getPlan(c.getIdPlan(),token);
+
+        if(plan == null){
+            log.warn("Plan no encontrado",
+                    keyValue("idPlan", c.getIdPlan()));
+            throw new EntityNotFoundException("Plan no encontrado");
+        }
+        cliente1.setNombres(c.getNombres());
+        cliente1.setApellidos(c.getApellidos());
+        cliente1.setRun(c.getRun());
+        cliente1.setCorreo(c.getCorreo());
+        cliente1.setIdPlan(c.getIdPlan());
+        Cliente updateCliente = repo.save(cliente1);
+        log.info("Cliente actualizado correctamente",
+                keyValue("idCliente", updateCliente.getId()));
+        return mapToResponse(updateCliente,token);
+
+    }
 
 
 
