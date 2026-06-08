@@ -38,6 +38,7 @@ public class ClienteService {
         cliente1.setRun(c.getRun());
         cliente1.setCorreo(c.getCorreo());
         cliente1.setIdPlan(c.getIdPlan());
+        cliente1.setFechaNac(c.getFechaNac());
         Cliente saveCliente = repo.save(cliente1);
         log.info("Cliente creado correctamente",
                 keyValue("idCliente", saveCliente.getId()));
@@ -78,6 +79,7 @@ public class ClienteService {
         cliente1.setRun(c.getRun());
         cliente1.setCorreo(c.getCorreo());
         cliente1.setIdPlan(c.getIdPlan());
+        cliente1.setFechaNac(c.getFechaNac());
         Cliente updateCliente = repo.save(cliente1);
         log.info("Cliente actualizado correctamente",
                 keyValue("idCliente", updateCliente.getId()));

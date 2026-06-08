@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.time.LocalDate;
+
 @Data
 public class ClienteRequest {
     @NotBlank(message = "El nombre no debe quedar en blanco")
@@ -14,6 +16,8 @@ public class ClienteRequest {
     private String run;
     @NotNull(message = "El correo es obligatorio")
     private String correo;
+    @NotBlank(message = "La fecha de nacimiento es obligatoria")
+    private LocalDate fechaNac;
     @NotNull(message = "Debe ingresar el id del plan")
     private Long idPlan;
 }

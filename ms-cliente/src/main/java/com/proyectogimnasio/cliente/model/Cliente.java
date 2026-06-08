@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,5 +21,6 @@ public class Cliente {
     private String apellidos;
     private String run;
     private String correo;
+    private LocalDate fechaNac;
     private Long idPlan;
 }
