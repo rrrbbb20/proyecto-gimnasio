@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v3/clientes")
@@ -35,4 +37,16 @@ public class ClienteController {
                 .build()
         );
     }
+    @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN','USER')")
+    public ResponseEntity<ApiResponse<List<ClienteResponse>>> getAll(@RequestHeader("Authorization")
+                                                                   String token){
+
+        return ResponseEntity.ok(ApiResponse.<List<ClienteResponse>>builder()
+                .success(true)
+                .data(service.getAll(token))
+                .build()
+        );
+    }
+
 }
