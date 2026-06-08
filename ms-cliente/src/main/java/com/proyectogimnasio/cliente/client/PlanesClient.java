@@ -9,7 +9,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Component
 @RequiredArgsConstructor
-public class ClienteClient {
+public class PlanesClient {
     private final WebClient webClient;
 
     private final String BASE_URL = "http://localhost:8087/api/v2/planes/";
