@@ -45,6 +45,15 @@ public class ClienteService {
 
 
     }
+    public ClienteResponse findById(Long id, String token){
+        log.info("Buscar cliente",
+                keyValue("idCliente", id));
+        Cliente cliente = repo.findById(id)
+                .orElseThrow(()-> new EntityNotFoundException("Cliente no encontrado"));
+        log.info("Cliente encontrado",
+                keyValue("Nombres", cliente.getNombres()));
+        return mapToResponse(cliente,token);
+    }
     public List<ClienteResponse> getAll(String token){
         log.info("Listando clientes");
         //esto es para que retorne todos los clientes en base a la estructura del maptoresponse
@@ -82,7 +91,7 @@ public class ClienteService {
         if(!repo.existsById(id)){
             log.warn("Cliente a eliminar inexistente",
                     keyValue("idCliente", id));
-            throw new EntityNotFoundException("No se puede eliminar un cliente inexistente")
+            throw new EntityNotFoundException("No se puede eliminar un cliente inexistente");
         }
         repo.deleteById(id);
         log.info("Cliente eliminado correctamente",
