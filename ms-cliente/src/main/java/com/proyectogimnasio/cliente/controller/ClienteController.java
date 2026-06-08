@@ -32,7 +32,7 @@ public class ClienteController {
     public ResponseEntity<ApiResponse<ClienteResponse>> findById(@PathVariable Long id,
                                                                @RequestHeader("Authorization")String token){
         return ResponseEntity.ok(ApiResponse.<ClienteResponse>builder().success(true)
-                .message("Clase Encontrada")
+                .message("Cliente Encontrado")
                 .data(service.findById(id,token))
                 .build()
         );
@@ -45,6 +45,16 @@ public class ClienteController {
         return ResponseEntity.ok(ApiResponse.<List<ClienteResponse>>builder()
                 .success(true)
                 .data(service.getAll(token))
+                .build()
+        );
+    }
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id){
+        service.delete(id);
+        return ResponseEntity.ok(ApiResponse.<Void>builder()
+                .success(true)
+                .message("Cliente eliminado")
                 .build()
         );
     }
