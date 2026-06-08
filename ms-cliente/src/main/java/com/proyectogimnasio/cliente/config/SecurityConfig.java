@@ -1,8 +1,10 @@
 package com.proyectogimnasio.cliente.config;
 
-import com.example.ms_clase.dto.ApiResponse;
-import com.example.ms_clase.security.JwtFilter;
+
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.proyectogimnasio.cliente.dto.ApiResponse;
+import com.proyectogimnasio.cliente.security.JwtFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
