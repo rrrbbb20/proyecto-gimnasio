@@ -5,6 +5,8 @@ import com.example.ms_inventario.dto.ApiResponse;
 import com.example.ms_inventario.dto.InventarioRequest;
 import com.example.ms_inventario.dto.InventarioResponse;
 import com.example.ms_inventario.service.InventarioService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -45,6 +47,16 @@ public class InventarioController {
         );
     }
 
+    @Operation(
+            summary = "Obtener lista de equipamientos",
+            description = "Obtiene la lista completa de los equipamientos. Requiere rol ADMIN o USER."
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Equipamientos encontrados"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "No autenticado o token inválido"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Lista no encontada"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado")
+    })
     @GetMapping
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<ApiResponse<List<InventarioResponse>>> getAll(
@@ -56,6 +68,16 @@ public class InventarioController {
                         .data(service.getAll(token)).build()
         );
     }
+    @Operation(
+            summary = "Actualizar atributos del equipamiento de la id ingresada",
+            description = "Actualiza atributos del inventario de id ingresado. Requiere rol ADMIN."
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Equipamiento Actualizado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "No autenticado o token inválido"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Equipamiento no enfcontrado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado")
+    })
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<InventarioResponse>> update(@PathVariable Long id, @Valid @RequestBody InventarioRequest i,
@@ -69,6 +91,16 @@ public class InventarioController {
 
         );
     }
+    @Operation(
+            summary = "Elimina un equipamiento por id",
+            description = "Elimina un equipamiento del id ingresado respectivamente. Requiere rol ADMIN."
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Equipamiento eliminado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "No autenticado o token inválido"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Equipamiento no encontrada"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado")
+    })
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id){
