@@ -8,10 +8,13 @@ import com.example.ms_entrenador.service.EntrenadorService;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
+import static
+        org.springframework.hateoas.server.mvc
+                .WebMvcLinkBuilder.*;
 import java.util.List;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -40,14 +43,27 @@ public class EntrenadorController {
     })
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<EntrenadorResponse>> add(@Valid @RequestBody EntrenadorRequest e){
+    public ResponseEntity<EntityModel<ApiResponse<EntrenadorResponse>>> add(@Valid @RequestBody EntrenadorRequest e){
 
-        return ResponseEntity.status(201).body(
-            ApiResponse.<EntrenadorResponse>builder().success(true)
-                    .message("Entrenador creado")
-                    .data(service.add(e)).build()
+        EntrenadorResponse entrenador = service.add(e);
 
-        );
+        ApiResponse<EntrenadorResponse> respuestaBase =
+                ApiResponse.<EntrenadorResponse>builder()
+                        .success(true)
+                        .message("Entrenador creado")
+                        .data(entrenador)
+                        .build();
+
+        EntityModel<ApiResponse<EntrenadorResponse>> recurso =
+                EntityModel.of(respuestaBase);
+
+        recurso.add(linkTo(methodOn(EntrenadorController.class)
+                .findById(entrenador.getId())).withSelfRel());
+
+        recurso.add(linkTo(methodOn(EntrenadorController.class)
+                .getAll()).withRel("all"));
+
+        return ResponseEntity.status(201).body(recurso);
 
     }
     @Operation(
@@ -62,15 +78,33 @@ public class EntrenadorController {
     })
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<EntrenadorResponse>> findById(
+    public ResponseEntity<EntityModel<ApiResponse<EntrenadorResponse>>> findById(
                     @Parameter(description = "id del entrenador a consultar", example = "1", required = true)
                     @PathVariable Long id){
 
-        return ResponseEntity.status(200).body(
-                ApiResponse.<EntrenadorResponse>builder().success(true).message("Encontrado")
-                        .data(service.findById(id)).build()
-        );
+        ApiResponse<EntrenadorResponse> base =
+                ApiResponse.<EntrenadorResponse>builder()
+                        .success(true)
+                        .message("Encontrado")
+                        .data(service.findById(id))
+                        .build();
+
+        EntityModel<ApiResponse<EntrenadorResponse>> recurso =
+                EntityModel.of(base);
+
+        recurso.add(linkTo(methodOn(EntrenadorController.class)
+                .findById(id)).withSelfRel());
+
+        recurso.add(linkTo(methodOn(EntrenadorController.class)
+                .getAll()).withRel("all"));
+        recurso.add(linkTo(methodOn(EntrenadorController.class).
+                update(id, null)).withRel("update")); // puede ser sin withrel
+        recurso.add(linkTo(methodOn(EntrenadorController.class)
+                .delete(id)).withRel("delete"));
+
+        return ResponseEntity.ok(recurso);
     }
+
     @Operation(
             summary = "obtener a todos los entrenadores registrados ",
             description = "permite retornar una lista de todos los entrenadores que se encuentran registrados "
@@ -82,12 +116,25 @@ public class EntrenadorController {
     })
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<List<EntrenadorResponse>>> getAll(){
+    public ResponseEntity<EntityModel<ApiResponse<List<EntrenadorResponse>>>> getAll(){
 
-        return ResponseEntity.status(200).body(
-                ApiResponse.<List<EntrenadorResponse>>builder().success(true)
-                        .data(service.getAll()).build()
-        );
+        ApiResponse<List<EntrenadorResponse>> base =
+                ApiResponse.<List<EntrenadorResponse>>builder()
+                        .success(true)
+                        .message("Listado obtenido")
+                        .data(service.getAll())
+                        .build();
+
+        EntityModel<ApiResponse<List<EntrenadorResponse>>> recurso =
+                EntityModel.of(base);
+
+        recurso.add(linkTo(methodOn(EntrenadorController.class)
+                .getAll()).withSelfRel());
+
+        recurso.add(linkTo(methodOn(EntrenadorController.class)
+                .add(null)).withRel("create"));
+
+        return ResponseEntity.ok(recurso);
 
     }
     @Operation(
@@ -103,16 +150,32 @@ public class EntrenadorController {
     })
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<EntrenadorResponse>> update(
+    public ResponseEntity<EntityModel<ApiResponse<EntrenadorResponse>>> update(
             @Parameter(description = "id del entrenador que se desea modificar", example = "1", required = true)
             @PathVariable Long id, @Valid @RequestBody EntrenadorRequest e) {
 
-        return ResponseEntity.ok(
+        EntrenadorResponse entrenador = service.update(id, e);
 
-                ApiResponse.<EntrenadorResponse>builder().success(true)
-                        .data(service.update(id,e)).build()
+        ApiResponse<EntrenadorResponse> respuestaBase =
+                ApiResponse.<EntrenadorResponse>builder()
+                        .success(true)
+                        .message("Entrenador actualizado")
+                        .data(entrenador)
+                        .build();
 
-        );
+        EntityModel<ApiResponse<EntrenadorResponse>> recurso =
+                EntityModel.of(respuestaBase);
+
+        recurso.add(linkTo(methodOn(EntrenadorController.class)
+                .findById(id)).withSelfRel());
+
+        recurso.add(linkTo(methodOn(EntrenadorController.class)
+                .getAll()).withRel("all"));
+
+        recurso.add(linkTo(methodOn(EntrenadorController.class)
+                .delete(id)).withRel("delete"));
+
+        return ResponseEntity.ok(recurso);
 
     }
     @Operation(
@@ -127,14 +190,11 @@ public class EntrenadorController {
     })
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> delete(
+    public ResponseEntity<Void> delete(
             @Parameter(description = "id del entrenador a eliminar ", example = "1", required = true)
             @PathVariable Long id){
         service.delete(id);
-        return ResponseEntity.ok(
-
-                ApiResponse.<Void>builder().success(true).message("Entrenador Eliminado").build()
-        );
+        return ResponseEntity.noContent().build();
     }
     @Operation(
             summary = "encontrar entrenador proporcionando su run",
@@ -148,15 +208,33 @@ public class EntrenadorController {
     })
     @GetMapping("/buscar-por-run/{run}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<EntrenadorResponse>> buscarPorRun(
+    public ResponseEntity<EntityModel<ApiResponse<EntrenadorResponse>>> buscarPorRun(
             @Parameter(description = "Run del entrenador a buscar", example = "111-1", required = true)
             @PathVariable String run){
 
-        return ResponseEntity.ok(ApiResponse.<EntrenadorResponse>builder()
-                .success(true)
-                .data(service.buscarPorRun(run))
-                .build()
-        );
+        EntrenadorResponse entrenador = service.buscarPorRun(run);
+
+        ApiResponse<EntrenadorResponse> respuestaBase =
+                ApiResponse.<EntrenadorResponse>builder()
+                        .success(true)
+                        .message("Entrenador encontrado")
+                        .data(entrenador)
+                        .build();
+
+        EntityModel<ApiResponse<EntrenadorResponse>> recurso =
+                EntityModel.of(respuestaBase);
+
+        recurso.add(linkTo(methodOn(EntrenadorController.class)
+                .buscarPorRun(run)).withSelfRel());
+
+        recurso.add(linkTo(methodOn(EntrenadorController.class)
+                .findById(entrenador.getId())).withRel("findById"));
+
+        recurso.add(linkTo(methodOn(EntrenadorController.class)
+                .getAll()).withRel("all"));
+
+        return ResponseEntity.ok(recurso);
+
     }
 
 }

@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -48,7 +49,27 @@ public class GlobalExceptionHandler {
                         .build()
         );
     }
+    @ExceptionHandler(WebClientResponseException.class)
+    public ResponseEntity<ApiResponse<Object>> handleWebClientException(WebClientResponseException ex) {
 
+        int statusCode = ex.getStatusCode().value();
+
+        String mensajePersonalizado;
+        if (statusCode == 403) {
+            mensajePersonalizado = "no tienes permisos suficientes en el microservicio externo ";
+        } else if (statusCode == 404) {
+            mensajePersonalizado = "Clase o Cliente no Existen";
+        } else {
+            mensajePersonalizado = "Error al comunicarse con el servicio externo: " ;
+        }
+
+        return ResponseEntity.status(statusCode).body(
+                ApiResponse.builder()
+                        .success(false)
+                        .message(mensajePersonalizado)
+                        .build()
+        );
+    }
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handle(Exception ex) {
         return ResponseEntity.status(500).body(

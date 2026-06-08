@@ -11,10 +11,12 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
+import static org.springframework.hateoas.server.mvc
+        .WebMvcLinkBuilder.*;
 import java.util.List;
 import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(
@@ -42,15 +44,28 @@ public class InscripcionClaseController {
     })
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<InscripcionClaseResponse>> add
+    public ResponseEntity<EntityModel<ApiResponse<InscripcionClaseResponse>>> add
             (@Valid @RequestBody InscripcionClaseRequest ic ,@Parameter(hidden = true)@RequestHeader("Authorization") String token){
 
-        return ResponseEntity.status(201).body
-                (ApiResponse.<InscripcionClaseResponse>builder()
-                .success(true)
-                .message("Creado correctamente")
-                .data(service.add(ic,token))
-                .build());
+        InscripcionClaseResponse inscripcion = service.add(ic, token);
+
+        ApiResponse<InscripcionClaseResponse> base =
+                ApiResponse.<InscripcionClaseResponse>builder()
+                        .success(true)
+                        .message("Inscripción creada")
+                        .data(inscripcion)
+                        .build();
+
+        EntityModel<ApiResponse<InscripcionClaseResponse>> recurso =
+                EntityModel.of(base);
+
+        recurso.add(linkTo(methodOn(InscripcionClaseController.class)
+                .findById(inscripcion.getIdInscripcion(), null)).withSelfRel()); //cambie token por null
+
+        recurso.add(linkTo(methodOn(InscripcionClaseController.class)
+                .getAll(null)).withRel("all")); //cambie token por null
+
+        return ResponseEntity.status(201).body(recurso);
     }
     @Operation(
             summary = "encontrar una inscripcion proporcionando su id ",
@@ -64,16 +79,30 @@ public class InscripcionClaseController {
     })
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','USER')")
-    public ResponseEntity<ApiResponse<InscripcionClaseResponse>> findById(
+    public ResponseEntity<EntityModel<ApiResponse<InscripcionClaseResponse>>> findById(
             @Parameter(description = "id de la inscripcion a buscar", example = "1", required = true)
             @PathVariable Long id,
             @Parameter(hidden = true)@RequestHeader("Authorization")String token){
-        return ResponseEntity.status(200).body
-                (ApiResponse.<InscripcionClaseResponse>builder()
+        ApiResponse<InscripcionClaseResponse> base =
+                ApiResponse.<InscripcionClaseResponse>builder()
                         .success(true)
-                        .message("Inscripcion Encontrada")
-                        .data(service.findById(id,token))
-                        .build());
+                        .message("Inscripción encontrada")
+                        .data(service.findById(id, token))
+                        .build();
+
+        EntityModel<ApiResponse<InscripcionClaseResponse>> recurso =
+                EntityModel.of(base);
+
+        recurso.add(linkTo(methodOn(InscripcionClaseController.class)
+                .findById(id, null)).withSelfRel()); //token por null
+
+        recurso.add(linkTo(methodOn(InscripcionClaseController.class)
+                .getAll(null)).withRel("all"));//cambie token por null
+
+        recurso.add(linkTo(methodOn(InscripcionClaseController.class)
+                .delete(id, null)).withRel("delete"));//cambie token por null
+
+        return ResponseEntity.ok(recurso);
 
     }
     /*@PutMapping("/{id}")
@@ -102,13 +131,25 @@ public class InscripcionClaseController {
     })
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN','USER')")
-    public ResponseEntity<ApiResponse<List<InscripcionClaseResponse>>> getAll(@Parameter(hidden = true)@RequestHeader("Authorization") String token){
+    public ResponseEntity<EntityModel<ApiResponse<List<InscripcionClaseResponse>>>> getAll(@Parameter(hidden = true)@RequestHeader("Authorization") String token){
 
-        return ResponseEntity.ok(ApiResponse.<List<InscripcionClaseResponse>>builder()
-                .success(true)
-                .data(service.getAll(token))
-                .build()
-        );
+        ApiResponse<List<InscripcionClaseResponse>> base =
+                ApiResponse.<List<InscripcionClaseResponse>>builder()
+                        .success(true)
+                        .message("Listado de inscripciones")
+                        .data(service.getAll(token))
+                        .build();
+
+        EntityModel<ApiResponse<List<InscripcionClaseResponse>>> recurso =
+                EntityModel.of(base);
+
+        recurso.add(linkTo(methodOn(InscripcionClaseController.class)
+                .getAll(null)).withSelfRel()); //cambie token por null
+
+        recurso.add(linkTo(methodOn(InscripcionClaseController.class)
+                .add(null, null)).withRel("create"));
+
+        return ResponseEntity.ok(recurso);
     }
     @Operation(
             summary = "eliminar una inscripcion a clase registrada",
@@ -122,16 +163,14 @@ public class InscripcionClaseController {
     })
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> delete(
+    public ResponseEntity<Void> delete(
             @Parameter(description = "id de la inscripcion a clase que se desea eliminar", example = "1", required = true)
             @PathVariable Long id,
             @Parameter(hidden = true) @RequestHeader("Authorization") String token){
-        service.delete(id,token);
-        return ResponseEntity.ok(ApiResponse.<Void>builder()
-                .success(true)
-                .message("Inscripcion a Clase eliminada")
-                .build()
-        );
+        service.delete(id, token);
+
+
+        return ResponseEntity.noContent().build();
     }
     @Operation(
             summary = "retornar una lista de clases almacenadas proporcionando su nombre",
@@ -145,16 +184,27 @@ public class InscripcionClaseController {
     })
     @GetMapping("/buscar-clase-por-nombre/{nombre}")
     @PreAuthorize("hasAnyRole('ADMIN','USER')")
-    public ResponseEntity<ApiResponse<List<ClaseResponse>>> findClasePorNombre(
+    public ResponseEntity<EntityModel<ApiResponse<List<ClaseResponse>>>> findClasePorNombre(
             @Parameter(description = "nombre de la clase a buscar", example = "tenis", required = true)
             @PathVariable String nombre,
             @Parameter(hidden = true)@RequestHeader("Authorization")String token){
-        return ResponseEntity.status(200).body
-                (ApiResponse.<List<ClaseResponse>>builder()
+        ApiResponse<List<ClaseResponse>> base =
+                ApiResponse.<List<ClaseResponse>>builder()
                         .success(true)
-                        .message("Clase Encontrada")
-                        .data(service.buscarClasePorNombre(nombre,token))
-                        .build());
+                        .message("Clases encontradas")
+                        .data(service.buscarClasePorNombre(nombre, token))
+                        .build();
+
+        EntityModel<ApiResponse<List<ClaseResponse>>> recurso =
+                EntityModel.of(base);
+
+        recurso.add(linkTo(methodOn(InscripcionClaseController.class)
+                .findClasePorNombre(nombre, null)).withSelfRel());//cambie token por null
+
+        recurso.add(linkTo(methodOn(InscripcionClaseController.class)
+                .getAll(token)).withRel("all"));
+
+        return ResponseEntity.ok(recurso);
 
     }
 }
