@@ -3,16 +3,19 @@ package com.proyectogimnasio.cliente.controller;
 import com.proyectogimnasio.cliente.dto.ApiResponse;
 import com.proyectogimnasio.cliente.dto.ClienteRequest;
 import com.proyectogimnasio.cliente.dto.ClienteResponse;
+import com.proyectogimnasio.cliente.model.Cliente;
 import com.proyectogimnasio.cliente.service.ClienteService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
+import org.springframework.hateoas.EntityModel;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 import java.util.List;
 @Tag(name = "Clientes", description = "Operaciones relacionadas con clientes")
 @RestController
@@ -20,6 +23,9 @@ import java.util.List;
 @RequestMapping("/api/v3/clientes")
 public class ClienteController {
     private final ClienteService service;
+
+
+
     @Operation(
             summary = "Agregar un Autor",
             description = "Agrega un autor. Requiere rol ADMIN."
@@ -57,6 +63,56 @@ public class ClienteController {
                 .message("Cliente Encontrado")
                 .data(service.findById(id,token))
                 .build()
+        );
+
+    }
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<ClienteResponse>> update(@PathVariable Long id,
+                                                             @Valid @RequestBody ClienteRequest c,
+                                                             @RequestHeader("Authorization")String token){
+
+        return ResponseEntity.ok(ApiResponse.<ClienteResponse>builder()
+                .success(true)
+                .message("Clase Actualizada")
+                .data(service.update(id,c,token))
+                .build()
+        );
+    }
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    public ResponseEntity<ApiResponse<EntityModel<Cliente>>> obtener(@PathVariable Long id, String token) {
+
+        Cliente cliente = service.findById(id, token);
+
+        EntityModel<Cliente> recurso = EntityModel.of(cliente);
+
+        recurso.add(
+                linkTo(methodOn(ClienteController.class).obtener(id, token))
+                        .withSelfRel()
+        );
+
+        recurso.add(
+                linkTo(methodOn(ClienteController.class).getAll(token))
+                        .withRel("all")
+        );
+
+        recurso.add(
+                linkTo(methodOn(ClienteController.class).update(id, null, token))
+                        .withRel("update")
+        );
+
+        recurso.add(
+                linkTo(methodOn(ClienteController.class).delete(id))
+                        .withRel("delete")
+        );
+
+        return ResponseEntity.ok(
+                ApiResponse.<EntityModel<Cliente>>builder()
+                        .success(true)
+                        .message("Autor obtenido")
+                        .data(recurso)
+                        .build()
         );
     }
     @Operation(
