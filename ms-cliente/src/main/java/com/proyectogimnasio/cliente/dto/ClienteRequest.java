@@ -2,6 +2,7 @@ package com.proyectogimnasio.cliente.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -16,7 +17,8 @@ public class ClienteRequest {
     private String run;
     @NotNull(message = "El correo es obligatorio")
     private String correo;
-    @NotBlank(message = "La fecha de nacimiento es obligatoria")
+    @NotNull(message = "La fecha de nacimiento es obligatoria")
+    @Past(message = "La fecha de nacimiento debe ser una fecha pasada")
     private LocalDate fechaNac;
     @NotNull(message = "Debe ingresar el id del plan")
     private Long idPlan;

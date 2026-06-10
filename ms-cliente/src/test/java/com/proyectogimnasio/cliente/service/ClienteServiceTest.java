@@ -27,7 +27,7 @@ public class ClienteServiceTest {
     private ClienteRepository repo;
 
     @Mock
-    private PlanesClient client;
+    private com.proyectogimnasio.cliente.client.PlanesClient client;
 
     @InjectMocks
     private ClienteService service;
@@ -76,6 +76,8 @@ public class ClienteServiceTest {
         // Arrange
         Cliente cliente = new Cliente(1L, "vicentito", "garcia", "7.435.565-9", "vicentito.garcia1@gmail.com", LocalDate.of(2007, 12, 1), 1L);
         when(repo.findAll()).thenReturn(List.of(cliente));
+        var planMock = new PlanesResponse(1L, "Plan Mensual", 29990, null);
+        when(client.getPlan(anyLong(), anyString())).thenReturn(planMock);
 
         // Act
         List<ClienteResponse> resultado = service.getAll("s");
