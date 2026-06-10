@@ -77,8 +77,8 @@ public class PagosController {
         );
     }
     @Operation(
-            summary = "Listar clientes",
-            description = "Retorna todos los clientes registrados. Requiere rol USER o ADMIN."
+            summary = "Listar metodos de pago",
+            description = "Retorna todos los metodos de pago registrados. Requiere rol USER o ADMIN."
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Listado obtenido"),
