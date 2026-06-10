@@ -45,8 +45,8 @@ public class ClienteController {
     }
 
     @Operation(
-            summary = "Obtener cliente por ID (HATEOAS)",
-            description = "Busca un cliente usando su identificador con enlaces hipermedia. Requiere rol USER o ADMIN."
+            summary = "Obtener cliente por ID",
+            description = "Busca un cliente usando su id. Requiere rol USER o ADMIN."
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Cliente obtenido"),
@@ -75,7 +75,16 @@ public class ClienteController {
                         .build()
         );
     }
-
+    @Operation(
+            summary = "Actualizar cliente por ID ",
+            description = "Busca un cliente usando su id. Requiere rol USER o ADMIN."
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Cliente Actualizado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Cliente no encontrado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "No autenticado o token inválido"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado")
+    })
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<ClienteResponse>> update(@PathVariable Long id,
