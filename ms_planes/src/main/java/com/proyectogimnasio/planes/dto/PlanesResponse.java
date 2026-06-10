@@ -13,6 +13,6 @@ public class PlanesResponse {
     private Integer precioPlan;
     private String descripcionPlan;
     private String beneficios;
-    private Pagos Pagos;
+    private Pagos tipoPago;
 
 }

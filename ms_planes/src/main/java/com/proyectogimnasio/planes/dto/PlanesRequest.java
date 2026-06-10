@@ -18,5 +18,5 @@ public class PlanesRequest {
     private String beneficios;
     @Valid
     @NotNull(message = "El id debe ser valido")
-    private Pagos Pago;
+    private Pagos tipoPago;
 }
