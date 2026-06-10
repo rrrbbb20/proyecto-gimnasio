@@ -25,5 +25,5 @@ public class Pagos {
     private String codigoPostal;
     @OneToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "nombre_cliente_id")
-    private Cliente nombreCliente;
+    private Cliente cliente;
 }
