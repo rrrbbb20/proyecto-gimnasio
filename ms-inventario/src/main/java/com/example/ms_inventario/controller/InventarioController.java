@@ -22,6 +22,16 @@ public class InventarioController {
 
     private final InventarioService service;
 
+    @Operation(
+            summary = "Agregar equipamiento",
+            description = "Agrega equipamiento a la lista. Requiere rol ADMIN."
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Equipamiento agregaedo"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "No autenticado o token inválido"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Equipamiento no encontrado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado")
+    })
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<InventarioResponse>> add(
@@ -35,6 +45,16 @@ public class InventarioController {
 
         );
     }
+    @Operation(
+            summary = "Obtener lista de equipamientos por id",
+            description = "Obtiene la lista del equipamiento con el id ingresado. Requiere rol ADMIN o USER."
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Equipamiento encontrado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "No autenticado o token inválido"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Equipamiento no encontrado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado")
+    })
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<ApiResponse<InventarioResponse>> findById(
