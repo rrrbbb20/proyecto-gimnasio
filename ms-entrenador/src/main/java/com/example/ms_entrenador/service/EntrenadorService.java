@@ -20,15 +20,7 @@ import static net.logstash.logback.argument.StructuredArguments.keyValue;
 public class EntrenadorService {
 
     private final EntrenadorRepository repository;
-    //despues ver si cual dejar
-    /*public Entrenador add(EntrenadorRequest request){
-        log.info("Crear Entrenador", keyValue("nombre", request.getNombreCompleto()));
-        Entrenador entrenador1 = new Entrenador();
-        entrenador1.setNombreCompleto(request.getNombreCompleto());
-        entrenador1.setRun(request.getRun());
-        entrenador1.setFechaNacimiento(request.getFechaNacimiento());
-        return repository.save(entrenador1);
-    }*/
+
     public EntrenadorResponse add(EntrenadorRequest request){
         log.info("Crear Entrenador", keyValue("nombre", request.getNombreCompleto()));
         Entrenador entrenador1 = new Entrenador();
@@ -51,11 +43,7 @@ public class EntrenadorService {
 
     }
 
-    /*public Entrenador findById(Long id){
-        log.info("Obtener Entrenador", keyValue("id", id));
-        return repository.findById(id)
-        .orElseThrow(() -> new EntityNotFoundException("Entrenador no encontrado"));
-    }*/
+
     public EntrenadorResponse findById(Long id){
         log.info("Obtener Entrenador", keyValue("id", id));
         Entrenador entrenador1 = repository.findById(id)
@@ -67,10 +55,7 @@ public class EntrenadorService {
         return mapToResponse(entrenador1);
     }
 
-    /*public List<Entrenador> getAll(){
-        log.info("Listar Entrenadores");
-        return repository.findAll();
-    }*/
+
     public List<EntrenadorResponse> getAll(){
         log.info("Listando entrenadores");
         return repository.findAll()
