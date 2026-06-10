@@ -12,7 +12,7 @@ public class PagosRequest {
     @NotBlank(message = "Debe poner un tipo de pago valido")
     private String tipoPago;
     @NotNull(message="El campo del numero no puede ser vacio")
-    private Double numeroTarjeta;
+    private Double numTarjeta;
     @NotNull(message = "Debe poner una fecha valida")
     private String fechaVencimiento;
     @NotNull(message = "El cvc es obligatorio")

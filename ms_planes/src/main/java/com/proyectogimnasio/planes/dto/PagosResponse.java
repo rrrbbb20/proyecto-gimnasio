@@ -10,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class PagosResponse {
-    private Long idPago;
+    private Long id;
     private String tipoPago;
     private Double numTarjeta;
     private String fechaVencimiento;
