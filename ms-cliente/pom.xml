@@ -117,8 +117,8 @@
 			<artifactId>spring-webflux</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.example</groupId>
-			<artifactId>ms-planes</artifactId>
+			<groupId>com.proyectogimnasio</groupId>
+			<artifactId>planes</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
