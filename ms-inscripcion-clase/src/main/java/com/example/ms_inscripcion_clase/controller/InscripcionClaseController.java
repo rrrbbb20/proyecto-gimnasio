@@ -105,21 +105,7 @@ public class InscripcionClaseController {
         return ResponseEntity.ok(recurso);
 
     }
-    /*@PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<InscripcionClaseResponse>> update(@PathVariable Long id,
-                                                                        @Valid @RequestBody InscripcionClaseRequest ir,
-                                                                        @RequestHeader("Authorization")String token){
-        return ResponseEntity.status(200).body
-                (ApiResponse.<InscripcionClaseResponse>builder()
-                        .success(true)
-                        .message("Inscripcion actualizada")
-                        .data(service.update(id, ir,token))
-                        .build());
-
-
-
-    }*/
+    
     @Operation(
             summary = "obtener a todas las inscripciones a clases registradas ",
             description = "permite retornar una lista de todos las inscripciones a clases que se encuentran registradas "
@@ -172,39 +158,5 @@ public class InscripcionClaseController {
 
         return ResponseEntity.noContent().build();
     }
-    @Operation(
-            summary = "retornar una lista de clases almacenadas proporcionando su nombre",
-            description = "si la clase buscada existe retornara una lista de las clases encontradas por ese nombre "
-    )
-    @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Clases coincidentes localizadas con éxito"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "No autenticado o token inválido"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado. Rol no autorizado"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "No se localizó ninguna clase activa que coincida con el nombre proporcionado")
-    })
-    @GetMapping("/buscar-clase-por-nombre/{nombre}")
-    @PreAuthorize("hasAnyRole('ADMIN','USER')")
-    public ResponseEntity<EntityModel<ApiResponse<List<ClaseResponse>>>> findClasePorNombre(
-            @Parameter(description = "nombre de la clase a buscar", example = "tenis", required = true)
-            @PathVariable String nombre,
-            @Parameter(hidden = true)@RequestHeader("Authorization")String token){
-        ApiResponse<List<ClaseResponse>> base =
-                ApiResponse.<List<ClaseResponse>>builder()
-                        .success(true)
-                        .message("Clases encontradas")
-                        .data(service.buscarClasePorNombre(nombre, token))
-                        .build();
 
-        EntityModel<ApiResponse<List<ClaseResponse>>> recurso =
-                EntityModel.of(base);
-
-        recurso.add(linkTo(methodOn(InscripcionClaseController.class)
-                .findClasePorNombre(nombre, null)).withSelfRel());//cambie token por null
-
-        recurso.add(linkTo(methodOn(InscripcionClaseController.class)
-                .getAll(token)).withRel("all"));
-
-        return ResponseEntity.ok(recurso);
-
-    }
 }
