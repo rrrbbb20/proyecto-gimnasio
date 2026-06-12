@@ -1,10 +1,10 @@
-package com.example.ms_rutina;
+package com.proyectogimnasio.rutina;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class MsRutinaApplicationTests {
+class RutinaApplicationTests {
 
 	@Test
 	void contextLoads() {
