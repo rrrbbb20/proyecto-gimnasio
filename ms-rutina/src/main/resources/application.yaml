@@ -9,6 +9,6 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
 server:
-  port: 8083
+  port: 8088
 jwt:
   secret: 1234567890123456789012345678901234567890
