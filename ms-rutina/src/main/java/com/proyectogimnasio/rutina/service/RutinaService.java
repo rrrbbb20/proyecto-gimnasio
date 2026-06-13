@@ -11,10 +11,13 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import static net.logstash.logback.argument.StructuredArguments.e;
 import static net.logstash.logback.argument.StructuredArguments.keyValue;
 
 @Service
@@ -25,223 +28,184 @@ public class RutinaService {
     private final RutinaRepository rutinaRepository;
     private final DetallesEjercicioRepository detallesEjercicioRepository;
 
-
-    public RutinaResponse addRutina (RutinaRequest request, String token){
+    @Transactional
+    public RutinaResponse addRutina(RutinaRequest request, String token) {
         log.info("Crear Rutina", keyValue("nombre", request.getNombreRutina()));
-        Rutina rutina1 = new Rutina();
-        rutina1.setNombreRutina(request.getNombreRutina());
-        rutina1.setDescripcionRutina(request.getDescripcionRutina());
-        rutina1.setDetalles(request.getDetalles());
-        Rutina saveRutina = rutinaRepository.save(rutina1);
-        log.info("Rutina creada exitosamente",
-                keyValue("idRutina", saveRutina.getId()));
+
+        Rutina rutina = new Rutina();
+        rutina.setNombreRutina(request.getNombreRutina());
+        rutina.setDescripcionRutina(request.getDescripcionRutina());
+
+        Rutina saveRutina = rutinaRepository.save(rutina);
+
+        if (request.getDetalles() != null && !request.getDetalles().isEmpty()) {
+            Set<DetallesEjercicio> detallesSet = procesarDetallesRequest(request.getDetalles(), saveRutina);
+            saveRutina.setDetalles(detallesSet);
+            saveRutina = rutinaRepository.save(saveRutina);
+        }
+
+        log.info("Rutina creada exitosamente", keyValue("idRutina", saveRutina.getId()));
         return mapToResponseRutina(saveRutina, token);
-
     }
-    public EjercicioResponse addEjercicio (EjercicioRequest request,String token){
+
+    @Transactional
+    public EjercicioResponse addEjercicio(EjercicioRequest request, String token) {
         log.info("Crear Ejercicio", keyValue("nombre", request.getNombreEjercicio()));
-        Ejercicio ejercicio1 = new Ejercicio();
-        ejercicio1.setNombreEjercicio(request.getNombreEjercicio());
-        ejercicio1.setZonaEjercitada(request.getZonaEjercitada());
-        ejercicio1.setRepeticiones(request.getRepeticiones());
-        ejercicio1.setDetalles(request.getDetalles());
-        Ejercicio saveEjercicio= ejercicioRepository.save(ejercicio1);
-        log.info("Ejercicio creado exitosamente",
-                keyValue("idRutina", saveEjercicio.getId()));
+
+        Ejercicio ejercicio = new Ejercicio();
+        ejercicio.setNombreEjercicio(request.getNombreEjercicio());
+        ejercicio.setZonaEjercitada(request.getZonaEjercitada());
+        ejercicio.setRepeticiones(request.getRepeticiones());
+
+        Ejercicio saveEjercicio = ejercicioRepository.save(ejercicio);
+        log.info("Ejercicio creado exitosamente", keyValue("idEjercicio", saveEjercicio.getId()));
         return mapToResponseEjercicio(saveEjercicio, token);
-
-
     }
-    public DetallesEjercicioResponse addDetalles(DetallesEjercicioRequest request, String token){
-        log.info("Crear detalles", keyValue("detalles",request.getEjercicio(), String.valueOf(request.getRutina())));
-        DetallesEjercicio detalles1 = new DetallesEjercicio();
-        detalles1.setRutina(request.getRutina());
-        detalles1.setEjercicio(request.getEjercicio());
-        detalles1.setDuracionRutina(request.getDuracionRutina());
-        detalles1.setTiempoDescanso(request.getTiempoDescanso());
-        detalles1.setNumeroEjercicios(request.getNumeroEjercicios());
-        DetallesEjercicio saveDetalles = detallesEjercicioRepository.save(detalles1);
-        log.info("Detalles creados exitosamente",
-                keyValue("idDetalles", saveDetalles.getId()));
-        return mapToResponseDetalles(saveDetalles,token);
 
-    }
-    public RutinaResponse findRutina (Long id, String token){
-        log.info("Buscar rutina",
-                keyValue("idRutina", id));
+    @Transactional(readOnly = true)
+    public RutinaResponse findRutina(Long id, String token) {
+        log.info("Buscar rutina", keyValue("idRutina", id));
         Rutina rutina = rutinaRepository.findById(id)
-                .orElseThrow(()-> new EntityNotFoundException("Rutina no encontrada"));
-        log.info("Rutina encontrada",
-                keyValue("NombreRutina", rutina.getNombreRutina()));
-        return mapToResponseRutina(rutina,token);
-
+                .orElseThrow(() -> new EntityNotFoundException("Rutina no encontrada"));
+        return mapToResponseRutina(rutina, token);
     }
-    public EjercicioResponse findEjercicio (Long id, String token){
-        log.info("Buscar ejercicio",
-                keyValue("idEjercicio", id));
+
+    @Transactional(readOnly = true)
+    public EjercicioResponse findEjercicio(Long id, String token) {
+        log.info("Buscar ejercicio", keyValue("idEjercicio", id));
         Ejercicio ejercicio = ejercicioRepository.findById(id)
-                .orElseThrow(()-> new EntityNotFoundException("Ejercicio no encontrado"));
-        log.info("Ejercicio encontrado",
-                keyValue("NombreEjercicio", ejercicio.getNombreEjercicio()));
-        return mapToResponseEjercicio(ejercicio,token);
-
+                .orElseThrow(() -> new EntityNotFoundException("Ejercicio no encontrado"));
+        return mapToResponseEjercicio(ejercicio, token);
     }
-    public DetallesEjercicioResponse findDetalles (Long id, String token){
-        log.info("Buscar detalles",
-                keyValue("idDetalles", id));
-        DetallesEjercicio detalles = detallesEjercicioRepository.findById(id)
-                .orElseThrow(()-> new EntityNotFoundException("Detalles no encontrados"));
-        log.info("Detalles encontrados",
-                keyValue("detalles", detalles.getEjercicio(), String.valueOf(detalles.getRutina())));
-        return mapToResponseDetalles(detalles,token);
 
-    }
-    public List<RutinaResponse> getRutinas (String token){
+    @Transactional(readOnly = true)
+    public List<RutinaResponse> getRutinas(String token) {
         log.info("Listando rutinas");
         return rutinaRepository.findAll().stream()
-                .map(rutina -> mapToResponseRutina(rutina,token))
+                .map(rutina -> mapToResponseRutina(rutina, token))
                 .toList();
-
     }
-    public List<EjercicioResponse> getEjercicios(String token){
-        log.info("Listando ejercicio");
+
+    @Transactional(readOnly = true)
+    public List<EjercicioResponse> getEjercicios(String token) {
+        log.info("Listando ejercicios del catálogo global");
         return ejercicioRepository.findAll().stream()
-                .map(ejercicio -> mapToResponseEjercicio(ejercicio,token))
+                .map(ejercicio -> mapToResponseEjercicio(ejercicio, token))
                 .toList();
-
     }
-    public List<DetallesEjercicioResponse> getDetalles (String token){
-        log.info("Listando detalles");
-        return detallesEjercicioRepository.findAll().stream()
-                .map(detalles -> mapToResponseDetalles(detalles,token))
-                .toList();
 
-    }
-    public RutinaResponse updateRutina(Long id, RutinaRequest request, String token){
-        log.info("Actualizando rutina",
-                keyValue("idRutina", id));
-        Rutina rutina1 = rutinaRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("Rutina no encontrada"));
-        rutina1.setNombreRutina(request.getNombreRutina());
-        rutina1.setDescripcionRutina(request.getDescripcionRutina());
-        rutina1.setDetalles(request.getDetalles());
-        Rutina saveRutina = rutinaRepository.save(rutina1);
-        log.info("Rutina creada exitosamente",
-                keyValue("idRutina", saveRutina.getId()));
+    @Transactional
+    public RutinaResponse updateRutina(Long id, RutinaRequest request, String token) {
+        log.info("Actualizando rutina", keyValue("idRutina", id));
+        Rutina rutina = rutinaRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Rutina no encontrada"));
+
+        rutina.setNombreRutina(request.getNombreRutina());
+        rutina.setDescripcionRutina(request.getDescripcionRutina());
+
+        // Limpiamos los detalles anteriores para evitar inconsistencias o duplicados en la actualización
+        if (rutina.getDetalles() != null) {
+            rutina.getDetalles().clear();
+            rutinaRepository.saveAndFlush(rutina);
+        }
+
+        if (request.getDetalles() != null && !request.getDetalles().isEmpty()) {
+            Set<DetallesEjercicio> nuevosDetalles = procesarDetallesRequest(request.getDetalles(), rutina);
+            rutina.setDetalles(nuevosDetalles);
+        }
+
+        Rutina saveRutina = rutinaRepository.save(rutina);
+        log.info("Rutina actualizada exitosamente", keyValue("idRutina", saveRutina.getId()));
         return mapToResponseRutina(saveRutina, token);
-
     }
-    public EjercicioResponse updateEjercicio(Long id, EjercicioRequest request, String token){
-        log.info("Actualizando ejercicio",
-                keyValue("idEjercicio", id));
-        Ejercicio ejercicio1 = ejercicioRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("Ejercicio no encontrado"));
 
-        ejercicio1.setNombreEjercicio(request.getNombreEjercicio());
-        ejercicio1.setZonaEjercitada(request.getZonaEjercitada());
-        ejercicio1.setRepeticiones(request.getRepeticiones());
-        ejercicio1.setDetalles(request.getDetalles());
-        Ejercicio saveEjercicio= ejercicioRepository.save(ejercicio1);
-        log.info("Ejercicio creado exitosamente",
-                keyValue("idEjercicio", saveEjercicio.getId()));
+    @Transactional
+    public EjercicioResponse updateEjercicio(Long id, EjercicioRequest request, String token) {
+        log.info("Actualizando ejercicio", keyValue("idEjercicio", id));
+        Ejercicio ejercicio = ejercicioRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Ejercicio no encontrado"));
+
+        ejercicio.setNombreEjercicio(request.getNombreEjercicio());
+        ejercicio.setZonaEjercitada(request.getZonaEjercitada());
+        ejercicio.setRepeticiones(request.getRepeticiones());
+
+        Ejercicio saveEjercicio = ejercicioRepository.save(ejercicio);
+        log.info("Ejercicio actualizado exitosamente", keyValue("idEjercicio", saveEjercicio.getId()));
         return mapToResponseEjercicio(saveEjercicio, token);
-
     }
-    public DetallesEjercicioResponse updateDetalles(Long id, DetallesEjercicioRequest request, String token){
-        log.info("Actualizando detalles",
-                keyValue("idDetalles", id));
-        DetallesEjercicio detalles1 = detallesEjercicioRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("Detalles no encontrados"));
 
-        detalles1.setRutina(request.getRutina());
-        detalles1.setEjercicio(request.getEjercicio());
-        detalles1.setDuracionRutina(request.getDuracionRutina());
-        detalles1.setTiempoDescanso(request.getTiempoDescanso());
-        detalles1.setNumeroEjercicios(request.getNumeroEjercicios());
-        DetallesEjercicio saveDetalles = detallesEjercicioRepository.save(detalles1);
-        log.info("Detalles creados exitosamente",
-                keyValue("idDetalles", saveDetalles.getId()));
-        return mapToResponseDetalles(saveDetalles,token);
-
-    }
-    public void deleteRutina(Long id){
-        log.info("Eliminando Rutina",
-                keyValue("idRutina", id));
-        //esto es una validacion de que realmente existe el cliente que se quiere eliminar
-        if(!rutinaRepository.existsById(id)){
-            log.warn("Rutina a eliminar inexistente",
-                    keyValue("idRutina", id));
+    @Transactional
+    public void deleteRutina(Long id) {
+        log.info("Eliminando Rutina", keyValue("idRutina", id));
+        if (!rutinaRepository.existsById(id)) {
+            log.warn("Rutina a eliminar inexistente", keyValue("idRutina", id));
             throw new EntityNotFoundException("No se puede eliminar una rutina inexistente");
         }
         rutinaRepository.deleteById(id);
-        log.info("Rutina eliminado correctamente",
-                keyValue("idRutina",id));
-
+        log.info("Rutina eliminada correctamente", keyValue("idRutina", id));
     }
-    public void deleteEjercicio(Long id){
-        log.info("Eliminando ejercicio",
-                keyValue("idEjercicio", id));
-        //esto es una validacion de que realmente existe el cliente que se quiere eliminar
-        if(!ejercicioRepository.existsById(id)){
-            log.warn("Ejercicio a eliminar inexistente",
-                    keyValue("idEjercicio", id));
+
+    @Transactional
+    public void deleteEjercicio(Long id) {
+        log.info("Eliminando ejercicio", keyValue("idEjercicio", id));
+        if (!ejercicioRepository.existsById(id)) {
+            log.warn("Ejercicio a eliminar inexistente", keyValue("idEjercicio", id));
             throw new EntityNotFoundException("No se puede eliminar un ejercicio inexistente");
         }
         ejercicioRepository.deleteById(id);
-        log.info("Ejercicio eliminado correctamente",
-                keyValue("idEjercicio",id));
-
+        log.info("Ejercicio eliminado correctamente", keyValue("idEjercicio", id));
     }
-    public void deleteDetalles(Long id){
-        log.info("Eliminando detalles",
-                keyValue("idDetalles", id));
-        //esto es una validacion de que realmente existe el cliente que se quiere eliminar
-        if(!detallesEjercicioRepository.existsById(id)){
-            log.warn("Detalles a eliminar inexistentes",
-                    keyValue("idDetalles", id));
-            throw new EntityNotFoundException("No se puede eliminar unos detalles inexistentes");
-        }
-        detallesEjercicioRepository.deleteById(id);
-        log.info("Detalles eliminados correctamente",
-                keyValue("idDetalle",id));
+    
 
+    private Set<DetallesEjercicio> procesarDetallesRequest(List<DetallesEjercicioRequest> detallesList, Rutina rutina) {
+        return detallesList.stream().map(detReq -> {
+            Ejercicio ejercicio = ejercicioRepository.findById(detReq.getEjercicioId())
+                    .orElseThrow(() -> new EntityNotFoundException("Ejercicio global no encontrado con ID: " + detReq.getEjercicioId()));
+
+            DetallesEjercicio detalle = new DetallesEjercicio();
+            detalle.setRutina(rutina);
+            detalle.setEjercicio(ejercicio);
+            detalle.setNumeroEjercicios(detReq.getNumeroEjercicios());
+            detalle.setDuracionRutina(detReq.getDuracionRutina());
+            detalle.setTiempoDescanso(detReq.getTiempoDescanso());
+            return detalle;
+        }).collect(Collectors.toSet());
     }
+
     private RutinaResponse mapToResponseRutina(Rutina rutina, String token) {
-        log.info("Mapeando rutina",
-                keyValue("idRutina", rutina.getId())
-        );
-
-
-        return RutinaResponse.builder().id(rutina.getId()).
-                nombreRutina(rutina.getNombreRutina()).
-                descripcionRutina(rutina.getDescripcionRutina()).
-                detalles(rutina.getDetalles()).
-                build();
-
+        List<DetallesEjercicioResponse> detallesMapped = List.of();
+        if (rutina.getDetalles() != null) {
+            detallesMapped = rutina.getDetalles().stream()
+                    .map(this::mapToResponseDetalles)
+                    .toList();
+        }
+        return RutinaResponse.builder()
+                .id(rutina.getId())
+                .nombreRutina(rutina.getNombreRutina())
+                .descripcionRutina(rutina.getDescripcionRutina())
+                .detalles(detallesMapped)
+                .build();
     }
+
     private EjercicioResponse mapToResponseEjercicio(Ejercicio ejercicio, String token) {
-        log.info("Mapeando ejercicio",
-                keyValue("idEjercicio", ejercicio.getId())
-        );
-
-
-        return EjercicioResponse.builder().id(ejercicio.getId()).
-                nombreEjercicio(ejercicio.getNombreEjercicio()).
-                zonaEjercitada(ejercicio.getZonaEjercitada()).
-                repeticiones(ejercicio.getRepeticiones()).
-                detalles(ejercicio.getDetalles()).
-                build();
-
+        return EjercicioResponse.builder()
+                .id(ejercicio.getId())
+                .nombreEjercicio(ejercicio.getNombreEjercicio())
+                .zonaEjercitada(ejercicio.getZonaEjercitada())
+                .repeticiones(ejercicio.getRepeticiones())
+                .build();
     }
-    private DetallesEjercicioResponse mapToResponseDetalles(DetallesEjercicio detalles, String token) {
-        log.info("Mapeando detalles",
-                keyValue("idDetalles", detalles.getId())
-        );
 
-        return DetallesEjercicioResponse.builder().id(detalles.getId()).
-                ejercicio(detalles.getEjercicio()).
-                rutina(detalles.getRutina()).
-                numeroEjercicios(detalles.getNumeroEjercicios()).
-                duracionRutina(detalles.getDuracionRutina()).
-                tiempoDescanso(detalles.getTiempoDescanso()).
-                build();
-
+    private DetallesEjercicioResponse mapToResponseDetalles(DetallesEjercicio detalles) {
+        return DetallesEjercicioResponse.builder()
+                .id(detalles.getId())
+                .ejercicioId(detalles.getEjercicio().getId())
+                .nombreEjercicio(detalles.getEjercicio().getNombreEjercicio())
+                .zonaEjercitada(detalles.getEjercicio().getZonaEjercitada())
+                .repeticiones(detalles.getEjercicio().getRepeticiones())
+                .numeroEjercicios(detalles.getNumeroEjercicios())
+                .duracionRutina(detalles.getDuracionRutina())
+                .tiempoDescanso(detalles.getTiempoDescanso())
+                .build();
     }
 }

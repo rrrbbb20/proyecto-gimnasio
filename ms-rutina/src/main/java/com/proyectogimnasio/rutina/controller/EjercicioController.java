@@ -62,7 +62,6 @@ public class EjercicioController {
 
         recurso.add(linkTo(methodOn(EjercicioController.class).findEjercicios(id, token)).withSelfRel());
         recurso.add(linkTo(methodOn(EjercicioController.class).getEjercicios(token)).withRel("all"));
-        recurso.add(linkTo(methodOn(EjercicioController.class).updateEjercicios(id, null, token)).withRel("update"));
         recurso.add(linkTo(methodOn(EjercicioController.class).deleteEjercicios(id)).withRel("delete"));
 
         return ResponseEntity.ok(
