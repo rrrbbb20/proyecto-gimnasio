@@ -88,7 +88,7 @@ public class RutinaService {
     }
     public DetallesEjercicioResponse findDetalles (Long id, String token){
         log.info("Buscar detalles",
-                keyValue("idCliente", id));
+                keyValue("idDetalles", id));
         DetallesEjercicio detalles = detallesEjercicioRepository.findById(id)
                 .orElseThrow(()-> new EntityNotFoundException("Detalles no encontrados"));
         log.info("Detalles encontrados",
@@ -105,15 +105,13 @@ public class RutinaService {
     }
     public List<EjercicioResponse> getEjercicios(String token){
         log.info("Listando ejercicio");
-        //esto es para que retorne todos los clientes en base a la estructura del maptoresponse
         return ejercicioRepository.findAll().stream()
                 .map(ejercicio -> mapToResponseEjercicio(ejercicio,token))
                 .toList();
 
     }
     public List<DetallesEjercicioResponse> getDetalles (String token){
-        log.info("Listando clientes");
-        //esto es para que retorne todos los clientes en base a la estructura del maptoresponse
+        log.info("Listando detalles");
         return detallesEjercicioRepository.findAll().stream()
                 .map(detalles -> mapToResponseDetalles(detalles,token))
                 .toList();
