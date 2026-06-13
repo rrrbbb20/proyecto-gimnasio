@@ -39,6 +39,12 @@ public class InscripcionClaseService {
         insClase.setHoraInscripcion(LocalTime.now());
         insClase.setIdClase(ir.getIdClase());
         insClase.setIdCliente(ir.getIdCliente());
+        if(repository.existsByIdClaseAndIdCliente(insClase.getIdClase(), insClase.getIdCliente() )){
+            log.info("cliente ya se encuentra inscrito en la clase",
+                    keyValue("idcliente",insClase.getIdCliente() )
+            );
+            throw new IllegalStateException("Cliente ya se encuentra inscrito en la clase");
+        }
         InscripcionClase claseResp = repository.save(insClase);
         log.info("Inscripción guardada",
                 keyValue("idInscripcion", claseResp.getId())
@@ -64,15 +70,7 @@ public class InscripcionClaseService {
                 .toList();
     }
 
-    /*public InscripcionClaseResponse update(Long id, InscripcionClaseRequest ir, String token ){
-        verificarExistencia(ir,token);
-        InscripcionClase insClase = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Inscripcion a clase no encontrada"));
 
-        insClase.setIdClase(ir.getIdClase());
-        insClase.setIdCliente(ir.getIdCliente());
-        return mapToResponse(repository.save(insClase),token);
-    }*/
 
     public void delete(Long id,String token){
         log.info("Eliminando inscripción",
@@ -130,14 +128,5 @@ public class InscripcionClaseService {
     }
 
 
-    public List<ClaseResponse> buscarClasePorNombre(String nombre , String token){
-        log.info("Buscando clases por nombre ",keyValue("nombre:",nombre));
-        List<ClaseResponse> clase = claseClient.buscarPorNombre(nombre,token);
-        if (clase.isEmpty()){
-            log.info("No se encontraron clases por ese nombre",keyValue("nombre:",nombre));
-            throw new EntityNotFoundException("No se encontro la clase que buscabas");
-        }
-        log.info("se encontraron clases por ese nombre",keyValue("nombre:",nombre));
-        return clase;
-    }
+
 }

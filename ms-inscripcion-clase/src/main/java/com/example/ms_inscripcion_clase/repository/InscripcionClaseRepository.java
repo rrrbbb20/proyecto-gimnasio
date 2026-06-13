@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface InscripcionClaseRepository extends JpaRepository<InscripcionClase,Long> {
 
-
+    boolean existsByIdClaseAndIdCliente(Long idClase , Long IdCliente);
 }

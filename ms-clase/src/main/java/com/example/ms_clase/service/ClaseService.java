@@ -123,7 +123,7 @@ public class ClaseService {
                 fechaRealizacion(c.getFechaRealizacion()).
                 horaRealizacion(c.getHoraRealizacion()).
                 cupos(c.getCupos()).
-                idEntrenador(entrenador1).
+                entrenador(entrenador1).
                 estado(c.getEstado()).
                 build();
 

@@ -57,7 +57,17 @@ public class GlobalExceptionHandler {
                         .build()
         );
     }
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<Object>> handleAccessDenied(
+            org.springframework.security.access.AccessDeniedException ex) {
 
+        return ResponseEntity.status(403).body(
+                ApiResponse.builder()
+                        .success(false)
+                        .message("no tienes acceso")
+                        .build()
+        );
+    }
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleGeneral(Exception ex) {
         return ResponseEntity.status(500).body(

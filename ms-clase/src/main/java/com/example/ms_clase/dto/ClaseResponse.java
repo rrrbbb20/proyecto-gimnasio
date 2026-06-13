@@ -21,7 +21,7 @@ public class ClaseResponse {
     private LocalDate fechaRealizacion;
     private LocalTime horaRealizacion;
     private Integer cupos;
-    private EntrenadorResponse idEntrenador;
+    private EntrenadorResponse entrenador;
     private Boolean estado;
 
 }

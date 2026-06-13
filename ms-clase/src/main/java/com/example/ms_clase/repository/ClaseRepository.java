@@ -15,11 +15,11 @@ import java.util.Optional;
 @Repository
 public interface ClaseRepository extends JpaRepository<Clase, Long> {
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Transactional
     @Query("UPDATE Clase c SET c.cupos = c.cupos - 1 WHERE c.id = :id AND c.cupos > 0")
     int restarCupo(Long id);
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Transactional
     @Query("UPDATE Clase c SET c.cupos = c.cupos + 1 WHERE c.id = :id ")
     int sumarCupo(Long id);
