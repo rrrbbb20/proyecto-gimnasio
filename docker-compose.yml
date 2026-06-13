@@ -16,32 +16,7 @@ services:
       timeout: 20s
       retries: 10
 
-  auth:
-    build: ./ms-auth
-    container_name: auth
-    ports:
-      - "8082:8082"
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/db_auth?allowPublicKeyRetrieval=true&useSSL=false
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
-      JWT_SECRET: 1234567890123456789012345678901234567890
-  clase:
-    build: ./ms-clase
-    container_name: clase
-    ports:
-      - "8094:8094"
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/db_clase?allowPublicKeyRetrieval=true&useSSL=false
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
-      JWT_SECRET: 1234567890123456789012345678901234567890
+
   cliente:
     build: ./ms-cliente
     container_name: cliente
@@ -55,6 +30,9 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
       JWT_SECRET: 1234567890123456789012345678901234567890
+    networks:
+      - backend-network
+
   encargado:
     build: ./ms-encargado
     container_name: encargado
@@ -68,32 +46,8 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
       JWT_SECRET: 1234567890123456789012345678901234567890
-  entrenador:
-    build: ./ms-entrenador
-    container_name: entrenador
-    ports:
-      - "8093:8093"
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/db_entrenador?allowPublicKeyRetrieval=true&useSSL=false
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
-      JWT_SECRET: 1234567890123456789012345678901234567890
-  inscripcion-clase:
-    build: ./ms-inscripcion-clase
-    container_name: inscripcion-clase
-    ports:
-      - "8092:8092"
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/db_inscripcionclase?allowPublicKeyRetrieval=true&useSSL=false
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
-      JWT_SECRET: 1234567890123456789012345678901234567890
+    networks:
+      - backend-network
   inventario:
     build: ./ms-inventario
     container_name: inventario
@@ -107,6 +61,9 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
       JWT_SECRET: 1234567890123456789012345678901234567890
+    networks:
+      - backend-network
+
   mantenimiento:
     build: ./ms-mantenimiento
     container_name: mantenimiento
@@ -120,6 +77,9 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
       JWT_SECRET: 1234567890123456789012345678901234567890
+    networks:
+      - backend-network
+
   rutina:
     build: ./ms-rutina
     container_name: rutina
@@ -133,6 +93,8 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
       JWT_SECRET: 1234567890123456789012345678901234567890
+    networks:
+      - backend-network
   sede:
     build: ./ms-sede
     container_name: sede
@@ -146,6 +108,8 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
       JWT_SECRET: 1234567890123456789012345678901234567890
+    networks:
+      - backend-network
   planes:
     build: ./ms_planes
     container_name: planes
@@ -159,9 +123,171 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
       JWT_SECRET: 1234567890123456789012345678901234567890
+    networks:
+      - backend-network
 
+  auth:
+    build: ./ms-auth
+    container_name: auth
+    restart: unless-stopped
+    ports:
+      - "8082:8082"
+    environment:
+      DB_HOST: mysql-auth
+      DB_PORT: 3306
+      DB_NAME: ms-user
+      DB_USER: root
+      DB_PASSWORD: root
+      JWT_SECRET: "1234567890123456789012345678901234567890"
+      EUREKA_URL: http://ms-eureka:8761/eureka/
+    depends_on:
+      - mysql-auth
+      - ms-eureka
+    networks:
+      - backend-network
 
+  clase:
+    build: ./ms-clase
+    container_name: clase
+    restart: unless-stopped
+    ports:
+      - "8094:8094"
+    environment:
+      DB_HOST: mysql-clase
+      DB_PORT: 3306
+      DB_NAME: ms-clase
+      DB_USER: root
+      DB_PASSWORD: root
+      JWT_SECRET: "1234567890123456789012345678901234567890"
+      EUREKA_URL: http://ms-eureka:8761/eureka/
+    depends_on:
+      - mysql-clase
+      - ms-eureka
+    networks:
+      - backend-network
 
+  entrenador:
+    build: ./ms-entrenador
+    container_name: entrenador
+    restart: unless-stopped
+    ports:
+      - "8093:8093"
+    environment:
+      DB_HOST: mysql-entrenador
+      DB_PORT: 3306
+      DB_NAME: db_entrenador
+      DB_USER: root
+      DB_PASSWORD: root
+      JWT_SECRET: "1234567890123456789012345678901234567890"
+      EUREKA_URL: http://ms-eureka:8761/eureka/
+    depends_on:
+      - mysql-entrenador
+      - ms-eureka
+    networks:
+      - backend-network
 
+  inscripcion-clase:
+    build: ./ms-inscripcion-clase
+    container_name: inscripcion-clase
+    restart: unless-stopped
+    ports:
+      - "8092:8092"
+    environment:
+      DB_HOST: mysql-inscripcionclase
+      DB_PORT: 3306
+      DB_NAME: ms-inscripcion_clase
+      DB_USER: root
+      DB_PASSWORD: root
+      JWT_SECRET: "1234567890123456789012345678901234567890"
+      EUREKA_URL: http://ms-eureka:8761/eureka/
+    depends_on:
+      - mysql-inscripcionclase
+      - ms-eureka
+    networks:
+      - backend-network
+  ms-eureka:
+    build: ./ms-eureka
+    container_name: ms-eureka
+    restart: unless-stopped
+    ports:
+      - "8761:8761"
+    networks:
+      - backend-network
+  ms-gateway:
+    build: ./ms-gateway
+    container_name: ms-gateway
+    restart: unless-stopped
+    ports:
+      - "8099:8099"
+    environment:
+      EUREKA_URL: http://ms-eureka:8761/eureka/
+    depends_on:
+      - ms-eureka
+    networks:
+      - backend-network
+
+  mysql-auth:
+    image: mysql:8
+    container_name: mysql-auth
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ms-user
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_auth_data:/var/lib/mysql
+    networks:
+      - backend-network
+
+  mysql-clase:
+    image: mysql:8
+    container_name: mysql-clase
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ms-clase
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql_clase_data:/var/lib/mysql
+    networks:
+      - backend-network
+
+  mysql-entrenador:
+    image: mysql:8
+    container_name: mysql-entrenador
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: db_entrenador
+    ports:
+      - "3311:3306"
+    volumes:
+      - mysql_entrenador_data:/var/lib/mysql
+    networks:
+      - backend-network
+
+  mysql-inscripcionclase:
+    image: mysql:8
+    container_name: mysql-inscripcionclase
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ms-inscripcion_clase
+    ports:
+      - "3312:3306"
+    volumes:
+      - mysql_inscripcion_data:/var/lib/mysql
+    networks:
+      - backend-network
+
+networks:
+  backend-network:
+    driver: bridge
 volumes:
   proyectogimnasio_db_data:
+  mysql_auth_data:
+  mysql_clase_data:
+  mysql_entrenador_data:
+  mysql_inscripcion_data:
