@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @ActiveProfiles("test")
-class ClienteRepositoryTest { // Nombre de clase corregido
+public class ClienteRepositoryTest { // Nombre de clase corregido
 
     @Autowired
     private ClienteRepository repository;

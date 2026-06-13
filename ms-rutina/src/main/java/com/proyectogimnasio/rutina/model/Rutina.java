@@ -1,9 +1,7 @@
 package com.proyectogimnasio.rutina.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Set;
 
@@ -19,6 +17,8 @@ public class Rutina{
     private Long id;
     private String nombreRutina;
     private String descripcionRutina;
-    @OneToMany(mappedBy = "rutina")
+    @OneToMany(mappedBy = "rutina", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Set<DetallesEjercicio> detalles;
 }

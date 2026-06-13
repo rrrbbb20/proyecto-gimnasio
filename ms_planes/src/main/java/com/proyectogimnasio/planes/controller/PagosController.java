@@ -31,7 +31,7 @@ public class PagosController {
             description = "Agrega un metodo de pago. Requiere rol ADMIN."
     )
     @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Cliente Creado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Metodo de pago Creado"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "No autenticado o token inválido"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado")
     })
@@ -52,8 +52,8 @@ public class PagosController {
             description = "Busca un metodo de pago usando su id. Requiere rol USER o ADMIN."
     )
     @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Cliente obtenido"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Cliente no encontrado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Metodo de pago obtenido"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Metodo de pago no encontrado"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "No autenticado o token inválido"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado")
     })
@@ -100,8 +100,8 @@ public class PagosController {
             description = "Busca un metodo de pago usando su id. Requiere rol USER o ADMIN."
     )
     @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Cliente Actualizado"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Cliente no encontrado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Metodo de pago Actualizado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Metodo de pago no encontrado"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "No autenticado o token inválido"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado")
     })
@@ -122,8 +122,8 @@ public class PagosController {
             description = "Elimina un metodo de pago usando su identificador. Requiere rol ADMIN."
     )
     @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "Cliente eliminado"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Cliente no encontrado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "Metodo de pago eliminado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Metodo de pago no encontrado"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "No autenticado o token inválido"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado")
     })

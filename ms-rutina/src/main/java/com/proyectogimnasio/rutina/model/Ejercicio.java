@@ -1,9 +1,7 @@
 package com.proyectogimnasio.rutina.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Set;
 @Data
@@ -19,6 +17,8 @@ public class Ejercicio{
     private String nombreEjercicio;
     private String zonaEjercitada;
     private Integer repeticiones;
-    @OneToMany(mappedBy = "ejercicio")
+    @OneToMany(mappedBy = "ejercicio", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Set<DetallesEjercicio> detalles;
 }
