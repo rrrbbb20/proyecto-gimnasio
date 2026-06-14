@@ -15,6 +15,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.hateoas.EntityModel;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 import java.util.List;
 
@@ -24,7 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SedeController {
 
-    private final SedeService sedeService;
+    private final SedeService service;
 
 
     @Operation(
@@ -39,14 +41,28 @@ public class SedeController {
     })
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<SedeResponse>> agregarSede(@Valid @RequestBody SedeRequest dto,
-                                                                 @RequestHeader("Authorization")String token) {
+    public ResponseEntity<EntityModel<ApiResponse<SedeResponse>>> agregarSede(
+            @Valid @RequestBody SedeRequest s,
+            @Parameter(hidden = true)@RequestHeader("Authorization") String token) {
 
-        return ResponseEntity.status(201).body(
-                ApiResponse.<SedeResponse>builder().success(true)
-                        .message("Sede agregada")
-                        .data(sedeService.createSede(dto,token)).build()
-        );
+        SedeResponse clase = service.add(s, token);
+
+        ApiResponse<SedeResponse> base =
+                ApiResponse.<SedeResponse>builder()
+                        .success(true)
+                        .message("Sede creada")
+                        .data(clase)
+                        .build();
+
+        EntityModel<ApiResponse<SedeResponse>> recurso = EntityModel.of(base);
+
+        recurso.add(linkTo(methodOn(SedeController.class)
+                .obtenerSede(clase.getId(),null)).withSelfRel()); //token por null
+
+        recurso.add(linkTo(methodOn(SedeController.class)
+                .listar(null)).withRel("all")); //token por null
+
+        return ResponseEntity.status(201).body(recurso);
     }
 
     @Operation(
@@ -60,13 +76,26 @@ public class SedeController {
     })
     @GetMapping
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public ResponseEntity<ApiResponse<List<SedeResponse>>> listar(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<EntityModel<ApiResponse<List<SedeResponse>>>> listar(
+            @Parameter(hidden = true)@RequestHeader("Authorization")
+            String token){
 
-        return ResponseEntity.status(200).body(
-                ApiResponse.<List<SedeResponse>>builder().success(true)
-                        .message("Las sedes se muestra a continuación")
-                        .data(sedeService.listar(token)).build()
-        );
+        ApiResponse<List<SedeResponse>> base =
+                ApiResponse.<List<SedeResponse>>builder()
+                        .success(true)
+                        .message("Listado de sedes")
+                        .data(service.listar(token))
+                        .build();
+
+        EntityModel<ApiResponse<List<SedeResponse>>> recurso = EntityModel.of(base);
+
+        recurso.add(linkTo(methodOn(SedeController.class)
+                .listar(null)).withSelfRel()); //token por null
+
+        recurso.add(linkTo(methodOn(SedeController.class)
+                .agregarSede(null, null)).withRel("create"));//token por null
+
+        return ResponseEntity.ok(recurso);
     }
 
 
@@ -82,14 +111,31 @@ public class SedeController {
     })
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public ResponseEntity<ApiResponse<SedeResponse>> obtener(@PathVariable Long id,
-                                                     @RequestHeader("Authorization") String token) {
-
-        return ResponseEntity.status(200).body(
-                ApiResponse.<SedeResponse>builder().success(true)
+    public ResponseEntity<EntityModel<ApiResponse<SedeResponse>>> obtenerSede(
+            @Parameter(description = "id de la sede a buscar", example = "1", required = true)@PathVariable Long id,
+            @Parameter(hidden = true)@RequestHeader("Authorization")String token){
+        ApiResponse<SedeResponse> base =
+                ApiResponse.<SedeResponse>builder()
+                        .success(true)
                         .message("Sede encontrada")
-                        .data(sedeService.obtenerSede(id,token)).build()
-        );
+                        .data(service.obtenerSede(id, token))
+                        .build();
+
+        EntityModel<ApiResponse<SedeResponse>> recurso = EntityModel.of(base);
+
+        recurso.add(linkTo(methodOn(SedeController.class)
+                .obtenerSede(id,null)).withSelfRel());
+
+        recurso.add(linkTo(methodOn(SedeController.class)
+                .listar(null)).withRel("all"));
+
+        recurso.add(linkTo(methodOn(SedeController.class)
+                .actualizarSede(id, null, null)).withRel("update")); //cambie token por null
+
+        recurso.add(linkTo(methodOn(SedeController.class)
+                .eliminarSede(id)).withRel("delete"));
+
+        return ResponseEntity.ok(recurso);
     }
 
 
@@ -113,7 +159,7 @@ public class SedeController {
 
                 ApiResponse.<SedeResponse>builder().success(true)
                         .message("Sede actualizada")
-                        .data(sedeService.actualizarSede(id, dto, token)).build()
+                        .data(service.actualizarSede(id, dto, token)).build()
         );
     }
 
@@ -131,7 +177,7 @@ public class SedeController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<Void>> eliminarSede(@PathVariable Long id) {
 
-        sedeService.eliminarSede(id);
+        service.eliminarSede(id);
 
         return ResponseEntity.ok(
                 ApiResponse.<Void>builder()

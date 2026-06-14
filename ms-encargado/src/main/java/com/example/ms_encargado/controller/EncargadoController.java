@@ -5,12 +5,15 @@ import com.example.ms_encargado.dto.EncargadoRequest;
 import com.example.ms_encargado.dto.EncargadoResponse;
 import com.example.ms_encargado.service.EncargadoService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.hateoas.EntityModel;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 import java.util.List;
 
@@ -34,13 +37,28 @@ public class EncargadoController {
     })
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<EncargadoResponse>> add(@Valid @RequestBody EncargadoRequest e) {
+    public ResponseEntity<EntityModel<ApiResponse<EncargadoResponse>>> add(@Valid @RequestBody EncargadoRequest e) {
 
-        return ResponseEntity.status(201).body(
-                ApiResponse.<EncargadoResponse>builder().success(true)
-                        .message("Encargado creado")
-                        .data(service.add(e)).build()
-        );
+        EncargadoResponse encargado = service.add(e);
+
+        ApiResponse<EncargadoResponse> respuestaBase =
+                ApiResponse.<EncargadoResponse>builder()
+                        .success(true)
+                        .message("Entrenador creado")
+                        .data(encargado)
+                        .build();
+
+        EntityModel<ApiResponse<EncargadoResponse>> recurso =
+                EntityModel.of(respuestaBase);
+
+        recurso.add(linkTo(methodOn(EncargadoController.class)
+                .findById(encargado.getId(),null)).withSelfRel());
+
+        recurso.add(linkTo(methodOn(EncargadoController.class)
+                .getAll(null)).withRel("all"));
+
+        return ResponseEntity.status(201).body(recurso);
+
     }
     @Operation(
             summary = "Obtener lista de encargados por id",
@@ -54,11 +72,31 @@ public class EncargadoController {
     })
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public ResponseEntity<ApiResponse<EncargadoResponse>> findById(@PathVariable Long id){
-        return ResponseEntity.status(200).body(
-                ApiResponse.<EncargadoResponse>builder().success(true).message("Encontrado")
-                        .data(service.findById(id)).build()
-        );
+    public ResponseEntity<EntityModel<ApiResponse<EncargadoResponse>>> findById(
+            @Parameter(description = "id del encargado a buscar", example = "1", required = true)@PathVariable Long id,
+            @Parameter(hidden = true)@RequestHeader("Authorization")String token){
+        ApiResponse<EncargadoResponse> base =
+                ApiResponse.<EncargadoResponse>builder()
+                        .success(true)
+                        .message("Encargado encontrado")
+                        .data(service.findById(id, token))
+                        .build();
+
+        EntityModel<ApiResponse<EncargadoResponse>> recurso = EntityModel.of(base);
+
+        recurso.add(linkTo(methodOn(EncargadoController.class)
+                .findById(id, null)).withSelfRel());
+
+        recurso.add(linkTo(methodOn(EncargadoController.class)
+                .getAll(null)).withRel("all"));
+
+        recurso.add(linkTo(methodOn(EncargadoController.class)
+                .update(id, null,null)).withRel("update")); //cambie token por null
+
+        recurso.add(linkTo(methodOn(EncargadoController.class)
+                .delete(id)).withRel("delete"));
+
+        return ResponseEntity.ok(recurso);
     }
     @Operation(
             summary = "Obtener lista de encargados",
@@ -72,13 +110,26 @@ public class EncargadoController {
     })
     @GetMapping
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public ResponseEntity<ApiResponse<List<EncargadoResponse>>> getAll(){
+    public ResponseEntity<EntityModel<ApiResponse<List<EncargadoResponse>>>> getAll(
+            @Parameter(hidden = true)@RequestHeader("Authorization")
+            String token){
 
-        return ResponseEntity.status(200).body(
-                ApiResponse.<List<EncargadoResponse>>builder().success(true)
-                        .data(service.getAll()).build()
-        );
+        ApiResponse<List<EncargadoResponse>> base =
+                ApiResponse.<List<EncargadoResponse>>builder()
+                        .success(true)
+                        .message("Listado de encargados")
+                        .data(service.getAll())
+                        .build();
 
+        EntityModel<ApiResponse<List<EncargadoResponse>>> recurso = EntityModel.of(base);
+
+        recurso.add(linkTo(methodOn(EncargadoController.class)
+                .getAll(null)).withSelfRel()); //token por null
+
+        recurso.add(linkTo(methodOn(EncargadoController.class)
+                .add(null)).withRel("create"));//token por null
+
+        return ResponseEntity.ok(recurso);
     }
     @Operation(
             summary = "Actualizar atributos del encargado de la id ingresada",
@@ -92,15 +143,32 @@ public class EncargadoController {
     })
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<EncargadoResponse>> update(@PathVariable Long id, @Valid @RequestBody EncargadoRequest e) {
+    public ResponseEntity<EntityModel<ApiResponse<EncargadoResponse>>> update(
+            @Parameter(description = "id de la clase que se desea modificar", example = "1", required = true)@PathVariable Long id,
+            @Valid @RequestBody EncargadoRequest e,
+            @Parameter(hidden = true)@RequestHeader("Authorization")String token){
 
-        return ResponseEntity.ok(
+        EncargadoResponse clase = service.update(id, e, token);
 
-                ApiResponse.<EncargadoResponse>builder().success(true)
-                        .data(service.update(id,e)).build()
+        ApiResponse<EncargadoResponse> base =
+                ApiResponse.<EncargadoResponse>builder()
+                        .success(true)
+                        .message("Encargado actualizado")
+                        .data(clase)
+                        .build();
 
-        );
+        EntityModel<ApiResponse<EncargadoResponse>> recurso = EntityModel.of(base);
 
+        recurso.add(linkTo(methodOn(EncargadoController.class)
+                .findById(id, null)).withSelfRel()); //token por null
+
+        recurso.add(linkTo(methodOn(EncargadoController.class)
+                .getAll(null)).withRel("all")); //token por null
+
+        recurso.add(linkTo(methodOn(EncargadoController.class)
+                .delete(id)).withRel("delete"));
+
+        return ResponseEntity.ok(recurso);
     }
     @Operation(
             summary = "Elimina un encargado por id",

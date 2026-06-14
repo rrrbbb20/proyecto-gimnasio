@@ -26,7 +26,7 @@ public class SedeService {
     private final SedeRepository sedeRepository;
     private final EncargadoClient encargadoClient;
 
-    public SedeResponse createSede(SedeRequest dto, String token) {
+    public SedeResponse add(SedeRequest dto, String token) {
 
         log.info("Agregar Sede", keyValue("nombre", dto.getNombre()));
 

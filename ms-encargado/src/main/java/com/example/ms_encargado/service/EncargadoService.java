@@ -37,7 +37,7 @@ public class EncargadoService {
     }
 
 
-    public EncargadoResponse findById(Long id){
+    public EncargadoResponse findById(Long id, String token){
         log.info("Obtener encargado", keyValue("id", id));
         Encargado encargado1 = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("encargado no encontrado"));
@@ -57,7 +57,7 @@ public class EncargadoService {
                 .toList();
 
     }
-    public EncargadoResponse update(Long id , EncargadoRequest e){
+    public EncargadoResponse update(Long id , EncargadoRequest e, String token){
 
         Encargado encargado = repository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Encargado no Encontrado"));
