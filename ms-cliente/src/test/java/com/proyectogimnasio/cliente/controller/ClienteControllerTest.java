@@ -100,7 +100,6 @@ public class ClienteControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value("Cliente obtenido"))
-                // Validaciones de hipermedios HATEOAS estructurales
                 .andExpect(jsonPath("$.data.links[?(@.rel=='self')].href").exists())
                 .andExpect(jsonPath("$.data.links[?(@.rel=='all')].href").exists())
                 .andExpect(jsonPath("$.data.links[?(@.rel=='update')].href").exists())
@@ -145,7 +144,7 @@ public class ClienteControllerTest {
         request.setRun("12345678-9");
         request.setCorreo("cristobal.nuevo@gmail.com");
         request.setFechaNac(LocalDate.of(2000, 1, 1));
-        request.setIdPlan(2L); // Cambiando el plan, por ejemplo
+        request.setIdPlan(2L);
 
         ClienteResponse responseMock = ClienteResponse.builder()
                 .id(idCliente)

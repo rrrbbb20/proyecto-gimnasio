@@ -47,7 +47,6 @@ public class PlanesControllerTest {
 
     @BeforeEach
     public void setUp() {
-        // Inicializamos un objeto válido de acuerdo a las restricciones de validación (@NotBlank, @NotNull) de PlanesRequest
         requestValido = new PlanesRequest();
         requestValido.setNombrePlan("Plan Fuerza Premium");
         requestValido.setPrecioPlan(new BigDecimal("35000"));
@@ -55,7 +54,6 @@ public class PlanesControllerTest {
         requestValido.setBeneficios("Evaluación de Kinesiólogo + Rutina personalizada");
         requestValido.setIdPago(1L);
 
-        // Mock de respuesta esperada desde la capa Service
         responseMock = PlanesResponse.builder()
                 .id(1L)
                 .nombrePlan("Plan Fuerza Premium")
@@ -79,7 +77,7 @@ public class PlanesControllerTest {
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestValido)))
-                .andExpect(status().isCreated()) // Espera 201 de acuerdo a tu controlador
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value("Plan creado"))
                 .andExpect(jsonPath("$.data.id").value(1L))
@@ -90,14 +88,14 @@ public class PlanesControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void debeDevolverBadRequestCuandoCamposSonNulos() throws Exception {
-        PlanesRequest requestInvalido = new PlanesRequest(); // Al estar vacío, rompe las validaciones del DTO
+        PlanesRequest requestInvalido = new PlanesRequest();
 
         mockMvc.perform(post("/api/v3/planes")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token-valido")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestInvalido)))
-                .andExpect(status().isBadRequest()); // Espera 400 Bad Request
+                .andExpect(status().isBadRequest());
     }
 
 
@@ -112,7 +110,7 @@ public class PlanesControllerTest {
                 .andExpect(status().isOk()) // Espera 200 OK
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value("Plan obtenido"))
-                // Valida los links estructurales HATEOAS autogenerados por el EntityModel
+
                 .andExpect(jsonPath("$.data.links[?(@.rel=='self')].href").exists())
                 .andExpect(jsonPath("$.data.links[?(@.rel=='all')].href").exists())
                 .andExpect(jsonPath("$.data.links[?(@.rel=='update')].href").exists())
