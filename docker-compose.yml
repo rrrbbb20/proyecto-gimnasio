@@ -23,13 +23,16 @@ services:
     ports:
       - "8083:8083"
     depends_on:
-      db:
-        condition: service_healthy
+      - mysql-cliente
+      - ms-eureka
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/db_cliente?allowPublicKeyRetrieval=true&useSSL=false
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
-      JWT_SECRET: 1234567890123456789012345678901234567890
+      DB_HOST: mysql-cliente
+      DB_PORT: 3306
+      DB_NAME: db_cliente
+      DB_USER: root
+      DB_PASSWORD: root
+      JWT_SECRET: "1234567890123456789012345678901234567890"
+      EUREKA_URL: http://ms-eureka:8761/eureka/
     networks:
       - backend-network
 
@@ -86,13 +89,16 @@ services:
     ports:
       - "8088:8088"
     depends_on:
-      db:
-        condition: service_healthy
+      - mysql-planes
+      - ms-eureka
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/db_rutina?allowPublicKeyRetrieval=true&useSSL=false
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
-      JWT_SECRET: 1234567890123456789012345678901234567890
+      DB_HOST: mysql-rutina
+      DB_PORT: 3306
+      DB_NAME: db_rutina
+      DB_USER: root
+      DB_PASSWORD: root
+      JWT_SECRET: "1234567890123456789012345678901234567890"
+      EUREKA_URL: http://ms-eureka:8761/eureka/
     networks:
       - backend-network
   sede:
@@ -116,13 +122,16 @@ services:
     ports:
       - "8087:8087"
     depends_on:
-      db:
-        condition: service_healthy
+      - mysql-planes
+      - ms-eureka
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/db_planes?allowPublicKeyRetrieval=true&useSSL=false
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
-      JWT_SECRET: 1234567890123456789012345678901234567890
+      DB_HOST: mysql-planes
+      DB_PORT: 3306
+      DB_NAME: db_planes
+      DB_USER: root
+      DB_PASSWORD: root
+      JWT_SECRET: "1234567890123456789012345678901234567890"
+      EUREKA_URL: http://ms-eureka:8761/eureka/
     networks:
       - backend-network
 
@@ -281,6 +290,45 @@ services:
       - mysql_inscripcion_data:/var/lib/mysql
     networks:
       - backend-network
+  mysql-cliente:
+    image: mysql:8
+    container_name: mysql-cliente
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ms-cliente
+    ports:
+      - "3313:3306"
+    volumes:
+      - mysql_cliente_data:/var/lib/mysql
+    networks:
+      - backend-network
+  mysql-planes:
+    image: mysql:8
+    container_name: mysql-planes
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ms-planes
+    ports:
+      - "3314:3306"
+    volumes:
+      - mysql_planes_data:/var/lib/mysql
+    networks:
+      - backend-network
+  mysql-rutinas:
+    image: mysql:8
+    container_name: mysql-rutinas
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ms-rutinas
+    ports:
+      - "3315:3306"
+    volumes:
+      - mysql_rutinas_data:/var/lib/mysql
+    networks:
+      - backend-network
 
 networks:
   backend-network:
@@ -291,3 +339,6 @@ volumes:
   mysql_clase_data:
   mysql_entrenador_data:
   mysql_inscripcion_data:
+  mysql_rutinas_data:
+  mysql_planes_data:
+  mysql_cliente_data:
