@@ -1,8 +1,9 @@
 package com.proyectogimnasio.planes.client;
 
 
-import com.proyectogimnasio.cliente.dto.ApiResponse;
-import com.proyectogimnasio.cliente.dto.ClienteResponse;
+
+import com.proyectogimnasio.planes.dto.ApiResponse;
+import com.proyectogimnasio.planes.dto.ClienteResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;

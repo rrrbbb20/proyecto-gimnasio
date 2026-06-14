@@ -1,12 +1,9 @@
 package com.proyectogimnasio.planes.model;
 
-import com.proyectogimnasio.cliente.model.Cliente;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
-import org.springframework.stereotype.Component;
 
 @Data
 @NoArgsConstructor
@@ -19,12 +16,11 @@ public class Pagos {
     @Column(name = "pago_id")
     private Long id;
     private String tipoPago;
-    private Double numTarjeta;
+    private String numTarjeta;
     private String fechaVencimiento;
     private Integer cvc;
     private String direccionFacturacion;
     private String codigoPostal;
-    @OneToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "nombre_cliente_id")
-    private Cliente cliente;
+    private Long idCliente;
 }

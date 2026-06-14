@@ -1,6 +1,5 @@
 package com.proyectogimnasio.cliente.dto;
 
-import com.proyectogimnasio.cliente.model.Cliente;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,4 +19,6 @@ public class ClienteResponse {
     private String correo;
     private LocalDate fechaNac;
     private Long idPlan;
+
+    private PlanesResponse detallesPlan;
 }

@@ -44,6 +44,7 @@ public class ClienteController {
         );
     }
 
+
     @Operation(
             summary = "Obtener cliente por ID",
             description = "Busca un cliente usando su id. Requiere rol USER o ADMIN."
@@ -54,10 +55,11 @@ public class ClienteController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "No autenticado o token inválido"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado")
     })
+
     @GetMapping("/{id}") // El único GET para /{id}
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<ApiResponse<EntityModel<ClienteResponse>>> obtener(@PathVariable Long id,
-                                                                             @RequestHeader("Authorization") String token) { // <-- Se agregó @RequestHeader aquí
+                                                                             @RequestHeader("Authorization") String token) {
 
         ClienteResponse cliente = service.findById(id, token);
         EntityModel<ClienteResponse> recurso = EntityModel.of(cliente);
@@ -137,4 +139,5 @@ public class ClienteController {
                 .build()
         );
     }
+
 }

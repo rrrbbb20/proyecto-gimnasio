@@ -3,8 +3,8 @@ package com.proyectogimnasio.planes.config;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.proyectogimnasio.cliente.dto.ApiResponse;
-import com.proyectogimnasio.cliente.security.JwtFilter;
+import com.proyectogimnasio.planes.dto.ApiResponse;
+import com.proyectogimnasio.planes.security.JwtFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

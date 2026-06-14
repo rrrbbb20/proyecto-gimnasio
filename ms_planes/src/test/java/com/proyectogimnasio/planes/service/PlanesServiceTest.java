@@ -7,17 +7,21 @@ import com.proyectogimnasio.planes.model.Planes;
 import com.proyectogimnasio.planes.repository.PagosRepository;
 import com.proyectogimnasio.planes.repository.PlanesRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -30,145 +34,239 @@ public class PlanesServiceTest {
     private PagosRepository pagosRepository;
 
     @Mock
-    private ClienteClient client;
+    private ClienteClient clienteClient;
 
     @InjectMocks
     private PlanesService planesService;
 
-    private final String TOKEN_MOCK = "Bearer token-valido-123";
+    private String tokenDummy;
+    private Pagos pagoMock;
+    private Planes planMock;
 
-    @Test
-    void deberiaCrearPlanCorrectamente() {
-        // Arrange
-        Pagos pagoMock = new Pagos(); // Creamos un mock de la relación
-        pagoMock.setId(1L);
+    @BeforeEach
+    public void setUp() {
+        tokenDummy = "Bearer token-de-prueba-123";
 
-        PlanesRequest request = new PlanesRequest();
-        request.setNombrePlan("Plan Estandar");
-        request.setPrecioPlan(2700.0);
-        request.setDescripcionPlan("Acceso libre");
-        request.setBeneficios("Estacionamiento gratis");
-        request.setTipoPago(pagoMock);
+        pagoMock = new Pagos();
+        pagoMock.setId(10L);
+        pagoMock.setTipoPago("Debito");
+        pagoMock.setNumTarjeta("123456******7890");
+        pagoMock.setIdCliente(1L);
 
-        // Usamos el constructor @AllArgsConstructor generado por Lombok en Planes
-        Planes planGuardado = new Planes(1L, "Plan Estandar", 2700.0, "Acceso libre", "Estacionamiento gratis", pagoMock);
-
-        when(planesRepository.save(any(Planes.class))).thenReturn(planGuardado);
-
-        // Act
-        PlanesResponse resultado = planesService.addPlan(request, TOKEN_MOCK);
-
-        // Assert
-        assertNotNull(resultado);
-        assertEquals(1L, resultado.getId());
-        assertEquals("Plan Estandar", resultado.getNombrePlan());
-        assertEquals(2700.0, resultado.getPrecioPlan());
-        verify(planesRepository).save(any(Planes.class));
+        planMock = new Planes();
+        planMock.setId(1L);
+        planMock.setNombrePlan("Plan Anual");
+        planMock.setPrecioPlan(new BigDecimal("250000"));
+        planMock.setDescripcionPlan("Acceso libre");
+        planMock.setBeneficios("Lockers incluidos");
+        planMock.setIdPago(pagoMock);
     }
 
-    @Test
-    void deberiaRetornarPlanCuandoExiste() {
-        // Arrange
-        Pagos pagoMock = new Pagos();
-        Planes plan = new Planes(1L, "Plan Premium", 5000.0, "Premium", "Todos", pagoMock);
+    @Nested
+    public class PlanesTests {
 
-        when(planesRepository.findById(1L)).thenReturn(Optional.of(plan));
+        @Test
+        public void debeAgregarPlanExitosamenteCuandoPagoExiste() {
+            // Arrange
+            PlanesRequest request = new PlanesRequest();
+            request.setNombrePlan("Plan Anual");
+            request.setPrecioPlan(new BigDecimal("250000"));
+            request.setIdPago(10L);
 
-        // Act
-        PlanesResponse resultado = planesService.findByIdPlan(1L, TOKEN_MOCK);
+            when(pagosRepository.findById(10L)).thenReturn(Optional.of(pagoMock));
+            when(planesRepository.save(any(Planes.class))).thenReturn(planMock);
 
-        // Assert
-        assertNotNull(resultado);
-        assertEquals(1L, resultado.getId());
-        assertEquals("Plan Premium", resultado.getNombrePlan());
-        verify(planesRepository).findById(1L);
+            // Act
+            PlanesResponse response = planesService.addPlan(request, tokenDummy);
+
+            // Assert
+            assertNotNull(response);
+            assertEquals(1L, response.getId());
+            assertEquals("Plan Anual", response.getNombrePlan());
+            assertEquals(10L, response.getIdPago());
+            verify(planesRepository, times(1)).save(any(Planes.class));
+        }
+
+        @Test
+        public void debeLanzarExceptionAlAgregarPlanSiPagoNoExiste() {
+            PlanesRequest request = new PlanesRequest();
+            request.setIdPago(99L);
+
+            when(pagosRepository.findById(99L)).thenReturn(Optional.empty());
+
+            assertThrows(EntityNotFoundException.class, () -> planesService.addPlan(request, tokenDummy));
+            verify(planesRepository, never()).save(any());
+        }
+
+        @Test
+        public void debeBuscarPlanPorIdExitosamente() {
+            when(planesRepository.findById(1L)).thenReturn(Optional.of(planMock));
+
+            PlanesResponse response = planesService.findByIdPlan(1L, tokenDummy);
+
+            assertNotNull(response);
+            assertEquals("Plan Anual", response.getNombrePlan());
+        }
+
+        @Test
+        public void debeLanzarExceptionSiPlanNoExiste() {
+            when(planesRepository.findById(1L)).thenReturn(Optional.empty());
+
+            assertThrows(EntityNotFoundException.class, () -> planesService.findByIdPlan(1L, tokenDummy));
+        }
+
+        @Test
+        public void debeListarTodosLosPlanes() {
+            when(planesRepository.findAll()).thenReturn(List.of(planMock));
+
+            List<PlanesResponse> list = planesService.getAllPlanes(tokenDummy);
+
+            assertFalse(list.isEmpty());
+            assertEquals(1, list.size());
+            assertEquals(1L, list.get(0).getId());
+        }
+
+        @Test
+        public void debeActualizarPlanExitosamente() {
+            PlanesRequest request = new PlanesRequest();
+            request.setNombrePlan("Plan Anual Modificado");
+            request.setPrecioPlan(new BigDecimal("260000"));
+            request.setIdPago(10L);
+
+            when(planesRepository.findById(1L)).thenReturn(Optional.of(planMock));
+            when(pagosRepository.findById(10L)).thenReturn(Optional.of(pagoMock));
+
+            planMock.setNombrePlan("Plan Anual Modificado");
+            when(planesRepository.save(any(Planes.class))).thenReturn(planMock);
+
+            PlanesResponse response = planesService.updatePlan(1L, request, tokenDummy);
+
+            assertNotNull(response);
+            assertEquals("Plan Anual Modificado", response.getNombrePlan());
+        }
+
+        @Test
+        public void debeEliminarPlanSiExiste() {
+            when(planesRepository.existsById(1L)).thenReturn(true);
+            doNothing().when(planesRepository).deleteById(1L);
+
+            assertDoesNotThrow(() -> planesService.deletePlan(1L));
+            verify(planesRepository, times(1)).deleteById(1L);
+        }
+
+        @Test
+        public void debeLanzarExceptionAlEliminarPlanInexistente() {
+            when(planesRepository.existsById(1L)).thenReturn(false);
+
+            assertThrows(EntityNotFoundException.class, () -> planesService.deletePlan(1L));
+            verify(planesRepository, never()).deleteById(anyLong());
+        }
     }
 
-    @Test
-    void deberiaLanzarExcepcionCuandoPlanNoExiste() {
-        // Arrange
-        when(planesRepository.findById(99L)).thenReturn(Optional.empty());
 
-        // Act & Assert
-        EntityNotFoundException exception = assertThrows(
-                EntityNotFoundException.class,
-                () -> planesService.findByIdPlan(99L, TOKEN_MOCK)
-        );
+    @Nested
+    public class PagosTests {
 
-        assertEquals("Plan no Existe", exception.getMessage());
-        verify(planesRepository).findById(99L);
-    }
+        @Test
+        public void debeAgregarPagoExitosamenteCuandoClienteExiste() {
+            // Arrange
+            PagosRequest request = new PagosRequest();
+            request.setTipoPago("Debito");
+            request.setIdCliente(1L);
 
-    @Test
-    void deberiaRetornarListaDePlanes() {
-        // Arrange
-        Planes plan = new Planes(1L, "Plan Estandar", 2700.0, "Acceso libre", "Ninguno", null);
-        when(planesRepository.findAll()).thenReturn(List.of(plan));
+            ClienteResponse clienteMock = ClienteResponse.builder().nombres("Juan").apellidos("Perez").build();
 
-        // Act
-        List<PlanesResponse> resultado = planesService.getAllPlanes(TOKEN_MOCK);
+            when(clienteClient.getCliente(1L, tokenDummy)).thenReturn(clienteMock);
+            when(pagosRepository.save(any(Pagos.class))).thenReturn(pagoMock);
 
-        // Assert
-        assertFalse(resultado.isEmpty());
-        assertEquals(1, resultado.size());
-        assertEquals("Plan Estandar", resultado.get(0).getNombrePlan());
-        verify(planesRepository).findAll();
-    }
+            // Act
+            PagosResponse response = planesService.addPago(request, tokenDummy);
 
-    @Test
-    void deberiaActualizarPlanCorrectamente() {
-        // Arrange
-        Planes planExistente = new Planes(1L, "Plan Antiguo", 2000.0, "Desc", "Ben", null);
+            // Assert
+            assertNotNull(response);
+            assertEquals(10L, response.getId());
+            assertEquals(1L, response.getIdCliente());
+            verify(pagosRepository, times(1)).save(any(Pagos.class));
+        }
 
-        PlanesRequest request = new PlanesRequest();
-        request.setNombrePlan("Plan Actualizado");
-        request.setPrecioPlan(3000.0);
-        request.setDescripcionPlan("Nueva desc");
-        request.setBeneficios("Nuevos ben");
-        request.setTipoPago(null);
+        @Test
+        public void debeLanzarExceptionAlAgregarPagoSiClienteNoExiste() {
+            PagosRequest request = new PagosRequest();
+            request.setIdCliente(5L);
 
-        when(planesRepository.findById(1L)).thenReturn(Optional.of(planExistente));
-        when(planesRepository.save(any(Planes.class))).thenAnswer(invocation -> invocation.getArgument(0));
+            when(clienteClient.getCliente(5L, tokenDummy)).thenReturn(null);
 
-        // Act
-        PlanesResponse resultado = planesService.updatePlan(1L, request, TOKEN_MOCK);
+            assertThrows(EntityNotFoundException.class, () -> planesService.addPago(request, tokenDummy));
+            verify(pagosRepository, never()).save(any());
+        }
 
-        // Assert
-        assertNotNull(resultado);
-        assertEquals("Plan Actualizado", resultado.getNombrePlan());
-        assertEquals(3000.0, resultado.getPrecioPlan());
-        verify(planesRepository).findById(1L);
-        verify(planesRepository).save(any(Planes.class));
-    }
+        @Test
+        public void debeBuscarPagoPorIdExitosamente() {
+            when(pagosRepository.findById(10L)).thenReturn(Optional.of(pagoMock));
 
+            PagosResponse response = planesService.findByIdPago(10L, tokenDummy);
 
-    @Test
-    void deberiaEliminarPagoCorrectamente() {
-        // Arrange
-        when(pagosRepository.existsById(1L)).thenReturn(true);
-        doNothing().when(pagosRepository).deleteById(1L);
+            assertNotNull(response);
+            assertEquals("Debito", response.getTipoPago());
+        }
 
-        // Act
-        planesService.deletePago(1L);
+        @Test
+        public void debeListarTodosLosPagos() {
+            when(pagosRepository.findAll()).thenReturn(List.of(pagoMock));
 
-        // Assert
-        verify(pagosRepository).existsById(1L);
-        verify(pagosRepository).deleteById(1L);
-    }
+            List<PagosResponse> list = planesService.getAllPagos(tokenDummy);
 
-    @Test
-    void deberiaLanzarExcepcionAlEliminarPagoInexistente() {
-        // Arrange
-        when(pagosRepository.existsById(99L)).thenReturn(false);
+            assertFalse(list.isEmpty());
+            assertEquals(1, list.size());
+        }
 
-        // Act & Assert
-        EntityNotFoundException exception = assertThrows(
-                EntityNotFoundException.class,
-                () -> planesService.deletePago(99L)
-        );
+        @Test
+        public void debeActualizarPagoExitosamenteCuandoClienteExiste() {
+            PagosRequest request = new PagosRequest();
+            request.setTipoPago("Credito");
+            request.setIdCliente(1L);
 
-        assertEquals("No se puede eliminar un metodo de pago inexistente", exception.getMessage());
-        verify(pagosRepository).existsById(99L);
-        verify(pagosRepository, never()).deleteById(anyLong());
+            ClienteResponse clienteMock = ClienteResponse.builder().nombres("Juan").apellidos("Perez").build();
+
+            when(pagosRepository.findById(10L)).thenReturn(Optional.of(pagoMock));
+            when(clienteClient.getCliente(1L, tokenDummy)).thenReturn(clienteMock);
+
+            pagoMock.setTipoPago("Credito");
+            when(pagosRepository.save(any(Pagos.class))).thenReturn(pagoMock);
+
+            PagosResponse response = planesService.updatePago(10L, request, tokenDummy);
+
+            assertNotNull(response);
+            assertEquals("Credito", response.getTipoPago());
+        }
+
+        @Test
+        public void debeLanzarExceptionAlActualizarPagoSiClienteNoExiste() {
+            PagosRequest request = new PagosRequest();
+            request.setIdCliente(99L);
+
+            when(pagosRepository.findById(10L)).thenReturn(Optional.of(pagoMock));
+            when(clienteClient.getCliente(99L, tokenDummy)).thenReturn(null);
+
+            assertThrows(EntityNotFoundException.class, () -> planesService.updatePago(10L, request, tokenDummy));
+            verify(pagosRepository, never()).save(any());
+        }
+
+        @Test
+        public void debeEliminarPagoSiExiste() {
+            when(pagosRepository.existsById(10L)).thenReturn(true);
+            doNothing().when(pagosRepository).deleteById(10L);
+
+            assertDoesNotThrow(() -> planesService.deletePago(10L));
+            verify(pagosRepository, times(1)).deleteById(10L);
+        }
+
+        @Test
+        public void debeLanzarExceptionAlEliminarPagoInexistente() {
+            when(pagosRepository.existsById(10L)).thenReturn(false);
+
+            assertThrows(EntityNotFoundException.class, () -> planesService.deletePago(10L));
+            verify(pagosRepository, never()).deleteById(anyLong());
+        }
     }
 }

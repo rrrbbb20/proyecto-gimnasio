@@ -1,7 +1,7 @@
 package com.proyectogimnasio.planes.exception;
 
 
-import com.proyectogimnasio.cliente.dto.ApiResponse;
+import com.proyectogimnasio.planes.dto.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;

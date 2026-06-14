@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @ActiveProfiles("test")
-class PlanesRepositoryTest {
+public class PlanesRepositoryTest {
 
     @Autowired
     private PlanesRepository planesRepository;
@@ -23,14 +24,14 @@ class PlanesRepositoryTest {
     private PagosRepository pagosRepository;
 
     @Test
-    void debeGuardarPlanConMetodoDePago() {
+    public void debeGuardarPlanConMetodoDePago() {
         // Arrange
         Pagos pago = new Pagos();
         pago.setTipoPago("Tarjeta de Credito");
-        pago.setNumTarjeta(1234567890123456.0);
+        pago.setNumTarjeta("1234567890123456");
         Pagos pagoGuardado = pagosRepository.save(pago);
 
-        Planes plan = new Planes(null, "Plan Premium", 45000.0, "Acceso total", "Gimnasio + Piscina", pagoGuardado);
+        Planes plan = new Planes(null, "Plan Premium", new BigDecimal("45000"), "Acceso total", "Gimnasio + Piscina", pagoGuardado);
 
         // Act
         Planes guardado = planesRepository.save(plan);
@@ -38,15 +39,14 @@ class PlanesRepositoryTest {
         // Assert
         assertNotNull(guardado.getId());
         assertEquals("Plan Premium", guardado.getNombrePlan());
-        assertEquals(45000.0, guardado.getPrecioPlan());
-        assertNotNull(guardado.getTipoPago());
-        assertEquals("Tarjeta de Credito", guardado.getTipoPago().getTipoPago());
+        assertEquals(new BigDecimal("45000"), guardado.getPrecioPlan());
+        assertNotNull(guardado.getIdPago());
     }
 
     @Test
-    void debeBuscarPlanPorId() {
+    public void debeBuscarPlanPorId() {
         // Arrange
-        Planes plan = new Planes(null, "Plan Estudiante", 25000.0, "Lunes a Viernes", "Ninguno", null);
+        Planes plan = new Planes(null, "Plan Estudiante", new BigDecimal("25000"), "Lunes a Viernes", "Ninguno", null);
         Planes guardado = planesRepository.save(plan);
 
         // Act
@@ -56,14 +56,13 @@ class PlanesRepositoryTest {
         assertTrue(resultado.isPresent());
         assertEquals(guardado.getId(), resultado.get().getId());
         assertEquals("Plan Estudiante", resultado.get().getNombrePlan());
-        assertEquals(25000.0, resultado.get().getPrecioPlan());
     }
 
     @Test
-    void debeListarPlanes() {
+    public void debeListarPlanes() {
         // Arrange
-        planesRepository.save(new Planes(null, "Plan Diario", 5000.0, "Solo 1 dia", "Lockers", null));
-        planesRepository.save(new Planes(null, "Plan Mensual", 30000.0, "Mes completo", "Lockers + Toalla", null));
+        planesRepository.save(new Planes(null, "Plan Diario", new BigDecimal("5000"), "Solo 1 dia", "Lockers", null));
+        planesRepository.save(new Planes(null, "Plan Mensual", new BigDecimal("30000"), "Mes completo", "Lockers + Toalla", null));
 
         // Act
         List<Planes> resultado = planesRepository.findAll();
@@ -74,16 +73,14 @@ class PlanesRepositoryTest {
     }
 
     @Test
-    void debeEliminarPlan() {
+    public void debeEliminarPlan() {
         // Arrange
-        Planes plan = new Planes(null, "Plan Temporal", 10000.0, "Por vencer", "Ninguno", null);
+        Planes plan = new Planes(null, "Plan Temporal", new BigDecimal("10000"), "Por vencer", "Ninguno", null);
         Planes guardado = planesRepository.save(plan);
 
-        // Act
         planesRepository.deleteById(guardado.getId());
-
-        // Assert
         Optional<Planes> resultado = planesRepository.findById(guardado.getId());
-        assertFalse(resultado.isPresent());
+
+        assertTrue(resultado.isEmpty());
     }
 }

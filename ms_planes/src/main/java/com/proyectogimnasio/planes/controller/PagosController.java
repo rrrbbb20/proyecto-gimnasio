@@ -134,7 +134,7 @@ public class PagosController {
         pagosService.deletePago(id);
         return ResponseEntity.ok(
 
-                ApiResponse.<Void>builder().success(true).message("Plan Eliminado").build()
+                ApiResponse.<Void>builder().success(true).message("Método de pago eliminado").build()
         );
     }
 }

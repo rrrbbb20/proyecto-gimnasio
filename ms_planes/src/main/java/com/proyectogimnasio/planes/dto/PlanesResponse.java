@@ -1,7 +1,8 @@
 package com.proyectogimnasio.planes.dto;
 
-import com.proyectogimnasio.planes.model.Pagos;
 import lombok.*;
+
+import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
@@ -10,9 +11,9 @@ import lombok.*;
 public class PlanesResponse {
     private Long id;
     private String nombrePlan;
-    private Double precioPlan;
+    private BigDecimal precioPlan;
     private String descripcionPlan;
     private String beneficios;
-    private Pagos tipoPago;
+    private Long idPago;
 
 }
