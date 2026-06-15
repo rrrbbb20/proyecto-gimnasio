@@ -97,7 +97,7 @@ public class PagosController {
     }
     @Operation(
             summary = "Actualizar metodo de pago por ID ",
-            description = "Busca un metodo de pago usando su id. Requiere rol USER o ADMIN."
+            description = "Actualiza un metodo de pago usando su id. Requiere rol USER o ADMIN."
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Metodo de pago Actualizado"),
