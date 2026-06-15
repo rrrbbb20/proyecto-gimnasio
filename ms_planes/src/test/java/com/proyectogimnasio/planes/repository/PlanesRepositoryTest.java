@@ -1,6 +1,5 @@
 package com.proyectogimnasio.planes.repository;
 
-import com.proyectogimnasio.planes.model.Pagos;
 import com.proyectogimnasio.planes.model.Planes;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,18 +19,10 @@ public class PlanesRepositoryTest {
     @Autowired
     private PlanesRepository planesRepository;
 
-    @Autowired
-    private PagosRepository pagosRepository;
-
     @Test
-    public void debeGuardarPlanConMetodoDePago() {
+    public void debeGuardarPlanExitosamente() {
         // Arrange
-        Pagos pago = new Pagos();
-        pago.setTipoPago("Tarjeta de Credito");
-        pago.setNumTarjeta("1234567890123456");
-        Pagos pagoGuardado = pagosRepository.save(pago);
-
-        Planes plan = new Planes(null, "Plan Premium", new BigDecimal("45000"), "Acceso total", "Gimnasio + Piscina", pagoGuardado);
+        Planes plan = new Planes(null, "Plan Premium", new BigDecimal("45000"), "Acceso total", "Gimnasio + Piscina");
 
         // Act
         Planes guardado = planesRepository.save(plan);
@@ -40,13 +31,12 @@ public class PlanesRepositoryTest {
         assertNotNull(guardado.getId());
         assertEquals("Plan Premium", guardado.getNombrePlan());
         assertEquals(new BigDecimal("45000"), guardado.getPrecioPlan());
-        assertNotNull(guardado.getIdPago());
     }
 
     @Test
     public void debeBuscarPlanPorId() {
         // Arrange
-        Planes plan = new Planes(null, "Plan Estudiante", new BigDecimal("25000"), "Lunes a Viernes", "Ninguno", null);
+        Planes plan = new Planes(null, "Plan Estudiante", new BigDecimal("25000"), "Lunes a Viernes", "Ninguno");
         Planes guardado = planesRepository.save(plan);
 
         // Act
@@ -61,8 +51,8 @@ public class PlanesRepositoryTest {
     @Test
     public void debeListarPlanes() {
         // Arrange
-        planesRepository.save(new Planes(null, "Plan Diario", new BigDecimal("5000"), "Solo 1 dia", "Lockers", null));
-        planesRepository.save(new Planes(null, "Plan Mensual", new BigDecimal("30000"), "Mes completo", "Lockers + Toalla", null));
+        planesRepository.save(new Planes(null, "Plan Diario", new BigDecimal("5000"), "Solo 1 dia", "Lockers"));
+        planesRepository.save(new Planes(null, "Plan Mensual", new BigDecimal("30000"), "Mes completo", "Lockers + Toalla"));
 
         // Act
         List<Planes> resultado = planesRepository.findAll();
@@ -75,12 +65,14 @@ public class PlanesRepositoryTest {
     @Test
     public void debeEliminarPlan() {
         // Arrange
-        Planes plan = new Planes(null, "Plan Temporal", new BigDecimal("10000"), "Por vencer", "Ninguno", null);
+        Planes plan = new Planes(null, "Plan Temporal", new BigDecimal("10000"), "Por vencer", "Ninguno");
         Planes guardado = planesRepository.save(plan);
 
+        // Act
         planesRepository.deleteById(guardado.getId());
         Optional<Planes> resultado = planesRepository.findById(guardado.getId());
 
+        // Assert
         assertTrue(resultado.isEmpty());
     }
 }

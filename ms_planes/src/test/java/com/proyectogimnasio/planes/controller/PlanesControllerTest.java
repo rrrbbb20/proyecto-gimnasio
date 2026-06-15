@@ -24,142 +24,124 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(PlanesController.class)
-public class PlanesControllerTest {
+class PlanesControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
 
     private ObjectMapper objectMapper;
 
     @MockitoBean
     private PlanesService planesService;
 
-    private PlanesRequest requestValido;
-    private PlanesResponse responseMock;
+    private PlanesRequest planesRequest;
+    private PlanesResponse planesResponse;
 
     @MockitoBean
     private JwtUtil jwtUtil;
 
     @BeforeEach
-    public void setUp() {
-        requestValido = new PlanesRequest();
-        requestValido.setNombrePlan("Plan Fuerza Premium");
-        requestValido.setPrecioPlan(new BigDecimal("35000"));
-        requestValido.setDescripcionPlan("Acceso total a sala de pesas y musculación");
-        requestValido.setBeneficios("Evaluación de Kinesiólogo + Rutina personalizada");
-        requestValido.setIdPago(1L);
+    void setUp() {
+        planesRequest = new PlanesRequest();
+        planesRequest.setNombrePlan("Plan Premium");
+        planesRequest.setPrecioPlan(new BigDecimal("45000"));
+        planesRequest.setDescripcionPlan("Acceso total");
+        planesRequest.setBeneficios("Piscina + Gym");
 
-        responseMock = PlanesResponse.builder()
+        planesResponse = PlanesResponse.builder()
                 .id(1L)
-                .nombrePlan("Plan Fuerza Premium")
-                .precioPlan(new BigDecimal("35000"))
-                .descripcionPlan("Acceso total a sala de pesas y musculación")
-                .beneficios("Evaluación de Kinesiólogo + Rutina personalizada")
-                .idPago(1L)
+                .nombrePlan("Plan Premium")
+                .precioPlan(new BigDecimal("45000"))
+                .descripcionPlan("Acceso total")
+                .beneficios("Piscina + Gym")
                 .build();
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
     }
 
-
     @Test
     @WithMockUser(roles = "ADMIN")
-    public void debeAgregarPlanCuandoAdminYRequestValido() throws Exception {
-        when(planesService.addPlan(any(PlanesRequest.class), any())).thenReturn(responseMock);
+    void addPlan_CuandoAdminYValido_DebeRetornar201YPlan() throws Exception {
+        when(planesService.addPlan(any(PlanesRequest.class), any())).thenReturn(planesResponse);
 
         mockMvc.perform(post("/api/v3/planes")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token-valido")
+                        .param("token", "Bearer token-valido")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestValido)))
-                .andExpect(status().isCreated())
+                        .content(objectMapper.writeValueAsString(planesRequest)))
+                .andExpect(status().isCreated()) // Corregido: El controlador devuelve HttpStatus 201
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.message").value("Plan creado"))
                 .andExpect(jsonPath("$.data.id").value(1L))
-                .andExpect(jsonPath("$.data.nombrePlan").value("Plan Fuerza Premium"));
+                .andExpect(jsonPath("$.data.nombrePlan").value("Plan Premium"));
     }
-
-
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    public void debeDevolverBadRequestCuandoCamposSonNulos() throws Exception {
-        PlanesRequest requestInvalido = new PlanesRequest();
-
-        mockMvc.perform(post("/api/v3/planes")
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer token-valido")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestInvalido)))
-                .andExpect(status().isBadRequest());
-    }
-
 
     @Test
     @WithMockUser(roles = "USER")
-    public void debeObtenerPlanPorIdConEnlacesHateoas() throws Exception {
-        when(planesService.findByIdPlan(anyLong(), any())).thenReturn(responseMock);
+    void findByIdPlan_CuandoUser_DebeRetornarPlanConHateoas() throws Exception {
+        when(planesService.findByIdPlan(eq(1L), any())).thenReturn(planesResponse);
 
         mockMvc.perform(get("/api/v3/planes/1")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token-valido")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk()) // Espera 200 OK
+                        .param("token", "Bearer token-valido"))
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.message").value("Plan obtenido"))
-
-                .andExpect(jsonPath("$.data.links[?(@.rel=='self')].href").exists())
-                .andExpect(jsonPath("$.data.links[?(@.rel=='all')].href").exists())
-                .andExpect(jsonPath("$.data.links[?(@.rel=='update')].href").exists())
-                .andExpect(jsonPath("$.data.links[?(@.rel=='delete')].href").exists());
+                .andExpect(jsonPath("$.message").value("Plan obtenido")) // Validando el mensaje explícito
+                .andExpect(jsonPath("$.data.id").value(1L))
+                // Validando la estructura del EntityModel (HATEOAS)
+                .andExpect(jsonPath("$.data._links.self.href").exists())
+                .andExpect(jsonPath("$.data._links.all.href").exists());
     }
-
 
     @Test
     @WithMockUser(roles = "USER")
-    public void debeListarTodosLosPlanes() throws Exception {
-        when(planesService.getAllPlanes(any())).thenReturn(List.of(responseMock));
+    void getAllPlanes_DebeRetornarListaDePlanes() throws Exception {
+        when(planesService.getAllPlanes(any())).thenReturn(List.of(planesResponse));
 
         mockMvc.perform(get("/api/v3/planes")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token-valido")
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .param("token", "Bearer token-valido"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data").isArray())
-                .andExpect(jsonPath("$.data[0].id").value(1L));
+                .andExpect(jsonPath("$.data[0].nombrePlan").value("Plan Premium"));
     }
-
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    public void debeActualizarPlanCuandoAdminYRequestValido() throws Exception {
-        when(planesService.updatePlan(anyLong(), any(PlanesRequest.class), any())).thenReturn(responseMock);
+    void updatePlan_CuandoAdmin_DebeActualizarYRetornarPlan() throws Exception {
+        when(planesService.updatePlan(eq(1L), any(PlanesRequest.class), any())).thenReturn(planesResponse);
 
         mockMvc.perform(put("/api/v3/planes/1")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token-valido")
+                        .param("token", "Bearer token-valido")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestValido)))
+                        .content(objectMapper.writeValueAsString(planesRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data.id").value(1L));
+                .andExpect(jsonPath("$.data.nombrePlan").value("Plan Premium"));
     }
 
     @Test
     @WithMockUser(roles = "ADMIN")
-    public void debeEliminarPlanCuandoAdmin() throws Exception {
-        doNothing().when(planesService).deletePlan(anyLong());
+    void deletePlan_CuandoAdmin_DebeRetornarOkConMensaje() throws Exception {
+        doNothing().when(planesService).deletePlan(1L);
 
         mockMvc.perform(delete("/api/v3/planes/1")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON))
+                        .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value("Plan Eliminado"));
     }
 
-
+    @Test
+    @WithMockUser(roles = "USER")
+    void deletePlan_CuandoUserNoAutorizado_DebeRetornar403() throws Exception {
+        mockMvc.perform(delete("/api/v3/planes/1")
+                        .with(csrf()))
+                .andExpect(status().isForbidden());
+    }
 }

@@ -9,7 +9,6 @@ import com.proyectogimnasio.planes.service.PlanesService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -40,9 +39,9 @@ class PagosControllerTest {
 
     private PagosRequest requestValido;
     private PagosResponse responseMock;
+
     @MockitoBean
     private JwtUtil jwtUtil;
-
 
     @BeforeEach
     public void setUp() {
@@ -70,7 +69,6 @@ class PagosControllerTest {
         objectMapper.registerModule(new JavaTimeModule());
     }
 
-
     @Test
     @WithMockUser(roles = "ADMIN")
     public void debeAgregarPagoCuandoAdminYRequestValido() throws Exception {
@@ -78,15 +76,15 @@ class PagosControllerTest {
 
         mockMvc.perform(post("/api/v2/pagos")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token-valido")
+                        .param("token", "Bearer token-valido") // El controlador espera 'token' como argumento de método
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestValido)))
-                .andExpect(status().isCreated()) // Espera 201
+                .andExpect(status().isCreated()) // Match con ResponseEntity.status(201)
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.message").value("Plan creado"))
+                .andExpect(jsonPath("$.message").value("Plan creado")) // Match con el string del controlador
                 .andExpect(jsonPath("$.data.id").value(1L));
     }
-
 
     @Test
     @WithMockUser(roles = "ADMIN")
@@ -101,7 +99,6 @@ class PagosControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-
     @Test
     @WithMockUser(roles = "USER")
     public void debeObtenerPagoPorIdConEnlacesHateoas() throws Exception {
@@ -109,16 +106,17 @@ class PagosControllerTest {
 
         mockMvc.perform(get("/api/v2/pagos/1")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token-valido")
+                        .param("token", "Bearer token-valido")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value("Metodo de Pago obtenido"))
-                .andExpect(jsonPath("$.data.links[?(@.rel=='self')].href").exists())
-                .andExpect(jsonPath("$.data.links[?(@.rel=='all')].href").exists())
-                .andExpect(jsonPath("$.data.links[?(@.rel=='update')].href").exists())
-                .andExpect(jsonPath("$.data.links[?(@.rel=='delete')].href").exists());
+                // En HATEOAS con EntityModel, los links se renderizan bajo la propiedad '_links' por defecto de Spring HATEOAS
+                .andExpect(jsonPath("$.data._links.self.href").exists())
+                .andExpect(jsonPath("$.data._links.all.href").exists())
+                .andExpect(jsonPath("$.data._links.update.href").exists())
+                .andExpect(jsonPath("$.data._links.delete.href").exists());
     }
-
 
     @Test
     @WithMockUser(roles = "USER")
@@ -126,14 +124,13 @@ class PagosControllerTest {
         when(pagosService.getAllPagos(anyString())).thenReturn(List.of(responseMock));
 
         mockMvc.perform(get("/api/v2/pagos")
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer token-valido")
+                        .header("Authorization", "Bearer token-valido") // Requerido por @RequestHeader("Authorization")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data").isArray())
                 .andExpect(jsonPath("$.data[0].id").value(1L));
     }
-
 
     @Test
     @WithMockUser(roles = "ADMIN")
@@ -142,6 +139,7 @@ class PagosControllerTest {
 
         mockMvc.perform(put("/api/v2/pagos/1")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token-valido")
+                        .param("token", "Bearer token-valido")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestValido)))
@@ -149,7 +147,6 @@ class PagosControllerTest {
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.id").value(1L));
     }
-
 
     @Test
     @WithMockUser(roles = "ADMIN")
@@ -163,5 +160,4 @@ class PagosControllerTest {
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value("Método de pago eliminado"));
     }
-
 }
