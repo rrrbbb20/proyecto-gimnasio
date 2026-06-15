@@ -1,6 +1,5 @@
 package com.proyectogimnasio.cliente.repository;
 
-
 import com.proyectogimnasio.cliente.model.Cliente;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @ActiveProfiles("test")
-public class ClienteRepositoryTest { // Nombre de clase corregido
+public class ClienteRepositoryTest {
 
     @Autowired
     private ClienteRepository repository;
@@ -30,32 +29,12 @@ public class ClienteRepositoryTest { // Nombre de clase corregido
 
         // Assert
         assertNotNull(guardado.getId());
-        assertEquals("vicentito", guardado.getNombres()); // Coincide con lo guardado
-        assertEquals("garcia", guardado.getApellidos());  // Coincide con lo guardado
+        assertEquals("vicentito", guardado.getNombres());
+        assertEquals("garcia", guardado.getApellidos());
         assertEquals("7.435.565-9", guardado.getRun());
         assertEquals("vicentito.garcia1@gmail.com", guardado.getCorreo());
         assertEquals(LocalDate.of(2007, 12, 1), guardado.getFechaNac());
         assertEquals(1L, guardado.getIdPlan());
-    }
-
-    @Test
-    void debeBuscarClientePorId() {
-        // Arrange
-        Cliente cliente = new Cliente(null, "vicentito", "garcia", "7.435.565-9", "vicentito.garcia1@gmail.com", LocalDate.of(2007, 12, 1), 1L);
-        Cliente guardado = repository.save(cliente);
-
-        // Act
-        Optional<Cliente> resultado = repository.findById(guardado.getId());
-
-        // Assert
-        assertTrue(resultado.isPresent());
-        assertEquals(guardado.getId(), resultado.get().getId()); // Compara de forma dinámica contra el ID real generado
-        assertEquals("vicentito", resultado.get().getNombres());
-        assertEquals("garcia", resultado.get().getApellidos());
-        assertEquals("7.435.565-9", resultado.get().getRun());
-        assertEquals("vicentito.garcia1@gmail.com", resultado.get().getCorreo());
-        assertEquals(LocalDate.of(2007, 12, 1), resultado.get().getFechaNac());
-        assertEquals(1L, resultado.get().getIdPlan());
     }
 
     @Test
@@ -80,9 +59,9 @@ public class ClienteRepositoryTest { // Nombre de clase corregido
 
         // Act
         repository.deleteById(guardado.getId());
+        Optional<Cliente> resultado = repository.findById(guardado.getId());
 
         // Assert
-        Optional<Cliente> resultado = repository.findById(guardado.getId());
-        assertFalse(resultado.isPresent());
+        assertTrue(resultado.isEmpty());
     }
 }

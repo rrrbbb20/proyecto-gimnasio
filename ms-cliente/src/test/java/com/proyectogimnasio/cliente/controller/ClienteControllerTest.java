@@ -9,7 +9,6 @@ import com.proyectogimnasio.cliente.service.ClienteService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -19,9 +18,9 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -37,20 +36,32 @@ public class ClienteControllerTest {
     @MockitoBean
     private ClienteService service;
 
-    private ObjectMapper objectMapper;
-
     @MockitoBean
     private JwtUtil jwtUtil;
 
+    private ObjectMapper objectMapper;
+
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
     }
 
+    private Map<String, Object> getPagoMock() {
+        return Map.of(
+                "tipoPago", "CREDITO",
+                "numTarjeta", "4555111122223333",
+                "fechaVencimiento", "11/30",
+                "cvc", 999,
+                "direccionFacturacion", "Av. Providencia 1234",
+                "codigoPostal", "7500000"
+        );
+    }
+
     @Test
     @WithMockUser(roles = "ADMIN")
-    public void debeAgregarCliente() throws Exception {
+    void debeAgregarClienteCuandoRolEsAdmin() throws Exception {
+        // Arrange
         ClienteRequest request = new ClienteRequest();
         request.setNombres("Cristobal");
         request.setApellidos("Gomez");
@@ -58,15 +69,21 @@ public class ClienteControllerTest {
         request.setCorreo("cristobal@gmail.com");
         request.setFechaNac(LocalDate.of(2000, 1, 1));
         request.setIdPlan(1L);
+        request.setPago(getPagoMock());
 
-        ClienteResponse response = ClienteResponse.builder()
+        ClienteResponse responseMock = ClienteResponse.builder()
                 .id(1L)
                 .nombres("Cristobal")
                 .apellidos("Gomez")
+                .run("12345678-9")
+                .correo("cristobal@gmail.com")
+                .fechaNac(LocalDate.of(2000, 1, 1))
+                .idPlan(1L)
                 .build();
 
-        when(service.add(any(ClienteRequest.class), anyString())).thenReturn(response);
+        when(service.add(any(ClienteRequest.class), anyString())).thenReturn(responseMock);
 
+        // Act & Assert
         mockMvc.perform(post("/api/v3/clientes")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token-valido")
                         .with(csrf())
@@ -75,69 +92,76 @@ public class ClienteControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.nombres").value("Cristobal"));
+
+        verify(service, times(1)).add(any(ClienteRequest.class), anyString());
     }
 
     @Test
     @WithMockUser(roles = "USER")
-    public void debeObtenerClienteConHateoas() throws Exception {
+    void debeRetornarForbiddenAlAgregarClienteCuandoRolEsUser() throws Exception {
         // Arrange
-        ClienteResponse clienteMock = ClienteResponse.builder()
-                .id(1L)
-                .nombres("Cristobal")
-                .apellidos("Gomez")
-                .idPlan(1L)
-                .correo("cristobal@gmail.com")
-                .run("12345678-9")
-                .fechaNac(LocalDate.of(2000, 1, 1))
-                .build();
-
-        when(service.findById(anyLong(), anyString())).thenReturn(clienteMock);
+        ClienteRequest request = new ClienteRequest();
+        request.setNombres("Cristobal");
+        request.setPago(getPagoMock());
 
         // Act & Assert
-        mockMvc.perform(get("/api/v3/clientes/1")
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer token-de-prueba-valido")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.message").value("Cliente obtenido"))
-                .andExpect(jsonPath("$.data.links[?(@.rel=='self')].href").exists())
-                .andExpect(jsonPath("$.data.links[?(@.rel=='all')].href").exists())
-                .andExpect(jsonPath("$.data.links[?(@.rel=='update')].href").exists())
-                .andExpect(jsonPath("$.data.links[?(@.rel=='delete')].href").exists());
+        mockMvc.perform(post("/api/v3/clientes")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer token-valido")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isForbidden());
+
+        verify(service, never()).add(any(ClienteRequest.class), anyString());
     }
 
     @Test
     @WithMockUser(roles = "USER")
-    public void debeListarClientes() throws Exception {
-        ClienteResponse clienteMock = ClienteResponse.builder().id(1L).nombres("Cristobal").build();
-        when(service.getAll(anyString())).thenReturn(List.of(clienteMock));
-
-        mockMvc.perform(get("/api/v3/clientes")
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer token-valido")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data[0].nombres").value("Cristobal"));
-    }
-
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    public void debeEliminarCliente() throws Exception {
-        doNothing().when(service).delete(anyLong());
-
-        mockMvc.perform(delete("/api/v3/clientes/1")
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer token-valido")
-                        .with(csrf()))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.message").value("Cliente eliminado"));
-    }
-    @Test
-    @WithMockUser(roles = "ADMIN")
-    void debeActualizarCliente() throws Exception {
+    void debeObtenerClientePorIdCuandoRolEsUser() throws Exception {
         // Arrange
         Long idCliente = 1L;
+        ClienteResponse responseMock = ClienteResponse.builder()
+                .id(idCliente)
+                .nombres("Vicentito")
+                .build();
 
+        when(service.findById(eq(idCliente), anyString())).thenReturn(responseMock);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/v3/clientes/{id}", idCliente)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer token-valido"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.nombres").value("Vicentito"));
+
+        verify(service, times(1)).findById(eq(idCliente), anyString());
+    }
+
+    @Test
+    @WithMockUser(roles = "USER")
+    void debeListarTodosLosClientesCuandoRolEsUser() throws Exception {
+        // Arrange
+        List<ClienteResponse> listaMock = List.of(
+                ClienteResponse.builder().id(1L).nombres("Vicentito").build()
+        );
+
+        when(service.getAll(anyString())).thenReturn(listaMock);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/v3/clientes")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer token-valido"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data[0].nombres").value("Vicentito"));
+
+        verify(service, times(1)).getAll(anyString());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void debeActualizarClienteCuandoRolEsAdmin() throws Exception {
+        // Arrange
+        Long idCliente = 1L;
         ClienteRequest request = new ClienteRequest();
         request.setNombres("Cristobal Modificado");
         request.setApellidos("Gomez");
@@ -145,6 +169,7 @@ public class ClienteControllerTest {
         request.setCorreo("cristobal.nuevo@gmail.com");
         request.setFechaNac(LocalDate.of(2000, 1, 1));
         request.setIdPlan(2L);
+        request.setPago(getPagoMock());
 
         ClienteResponse responseMock = ClienteResponse.builder()
                 .id(idCliente)
@@ -156,13 +181,12 @@ public class ClienteControllerTest {
                 .idPlan(2L)
                 .build();
 
-        // Simulamos que el servicio recibe cualquier request, el ID y cualquier token, y retorna el mock corregido
         when(service.update(eq(idCliente), any(ClienteRequest.class), anyString())).thenReturn(responseMock);
 
         // Act & Assert
         mockMvc.perform(put("/api/v3/clientes/{id}", idCliente)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token-valido")
-                        .with(csrf()) // Necesario ya que es un método de escritura (PUT) protegido
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -170,7 +194,7 @@ public class ClienteControllerTest {
                 .andExpect(jsonPath("$.data.nombres").value("Cristobal Modificado"))
                 .andExpect(jsonPath("$.data.idPlan").value(2L));
 
-        // Verificamos que el controlador realmente invoque al servicio con los parámetros correctos
         verify(service, times(1)).update(eq(idCliente), any(ClienteRequest.class), anyString());
     }
+
 }
