@@ -57,23 +57,27 @@ public class EncargadoService {
                 .toList();
 
     }
-    public EncargadoResponse update(Long id , EncargadoRequest e, String token){
+    public EncargadoResponse update(Long id, EncargadoRequest e, String token){
 
         Encargado encargado = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Encargado no Encontrado"));
-        log.info("Actualizar Encargado", keyValue("id", id));
+                .orElseThrow(() ->
+                        new EntityNotFoundException(
+                                "Encargado no Encontrado"));
+
+        log.info("Actualizar Encargado",
+                keyValue("id", id));
+
         encargado.setId(id);
         encargado.setNombreCompleto(e.getNombreCompleto());
         encargado.setRun(e.getRun());
+        encargado.setDireccion(e.getDireccion()); // ← FALTA ESTA LÍNEA
         encargado.setFechaNacimiento(e.getFechaNacimiento());
-        Encargado updateEncargado = repository.save(encargado);
-        log.info("Encargado actualizado correctamente",
-                keyValue("id", updateEncargado.getId())
-        );
+
+        Encargado updateEncargado =
+                repository.save(encargado);
 
         return mapToResponse(updateEncargado);
     }
-
     public void delete(Long id){
         if (!repository.existsById(id)) {
             throw new EntityNotFoundException("No se puede eliminar encargado no encontrado");

@@ -44,7 +44,7 @@ public class EncargadoController {
         ApiResponse<EncargadoResponse> respuestaBase =
                 ApiResponse.<EncargadoResponse>builder()
                         .success(true)
-                        .message("Entrenador creado")
+                        .message("Encargado creado")
                         .data(encargado)
                         .build();
 
@@ -90,8 +90,8 @@ public class EncargadoController {
         recurso.add(linkTo(methodOn(EncargadoController.class)
                 .getAll(null)).withRel("all"));
 
-        recurso.add(linkTo(methodOn(EncargadoController.class)
-                .update(id, null,null)).withRel("update")); //cambie token por null
+        //recurso.add(linkTo(methodOn(EncargadoController.class)
+        //        .update(id, null,null)).withRel("update")); //cambie token por null
 
         recurso.add(linkTo(methodOn(EncargadoController.class)
                 .delete(id)).withRel("delete"));
@@ -126,8 +126,8 @@ public class EncargadoController {
         recurso.add(linkTo(methodOn(EncargadoController.class)
                 .getAll(null)).withSelfRel()); //token por null
 
-        recurso.add(linkTo(methodOn(EncargadoController.class)
-                .add(null)).withRel("create"));//token por null
+        //recurso.add(linkTo(methodOn(EncargadoController.class)
+        //        .add(null)).withRel("create"));//token por null
 
         return ResponseEntity.ok(recurso);
     }
@@ -144,7 +144,7 @@ public class EncargadoController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EntityModel<ApiResponse<EncargadoResponse>>> update(
-            @Parameter(description = "id de la clase que se desea modificar", example = "1", required = true)@PathVariable Long id,
+            @Parameter(description = "id del encargado que se desea modificar", example = "1", required = true)@PathVariable Long id,
             @Valid @RequestBody EncargadoRequest e,
             @Parameter(hidden = true)@RequestHeader("Authorization")String token){
 
