@@ -330,6 +330,48 @@ services:
     networks:
       - backend-network
 
+  mysql-encargado:
+    image: mysql:8
+    container_name: mysql-encargado
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ms-encargado
+    ports:
+      - "3316:3306"
+    volumes:
+      - mysql_encargado_data:/var/lib/mysql
+    networks:
+      - backend-network
+
+  mysql-inventario:
+    image: mysql:8
+    container_name: mysql-inventario
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ms-inventario
+    ports:
+      - "3317:3306"
+    volumes:
+      - mysql_inventario_data:/var/lib/mysql
+    networks:
+      - backend-network
+
+  mysql-sede:
+    image: mysql:8
+    container_name: mysql-sede
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ms-sede
+    ports:
+      - "3318:3306"
+    volumes:
+      - mysql_sede_data:/var/lib/mysql
+    networks:
+      - backend-network
+
 networks:
   backend-network:
     driver: bridge
@@ -342,3 +384,6 @@ volumes:
   mysql_rutinas_data:
   mysql_planes_data:
   mysql_cliente_data:
+  mysql_encargado_data:
+  mysql_sede_data:
+  mysql_inventario_data:
