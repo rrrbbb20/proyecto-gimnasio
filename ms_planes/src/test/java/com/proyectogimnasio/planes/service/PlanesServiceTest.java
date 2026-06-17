@@ -44,12 +44,10 @@ class PlanesServiceTest {
     @InjectMocks
     private PlanesService planesService;
 
-    private String token;
     private ClienteResponse clienteMock;
 
     @BeforeEach
     void setUp() {
-        token = "Bearer test-token";
         clienteMock = ClienteResponse.builder()
                 .nombres("Juan")
                 .apellidos("Pérez")
@@ -69,7 +67,7 @@ class PlanesServiceTest {
         Planes planGuardado = new Planes(1L, "Plan Premium", new BigDecimal("45000"), "Acceso completo", "Piscina + Máquinas");
         when(planesRepository.save(any(Planes.class))).thenReturn(planGuardado);
 
-        PlanesResponse response = planesService.addPlan(request, token);
+        PlanesResponse response = planesService.addPlan(request);
 
         assertNotNull(response);
         assertEquals(1L, response.getId());
@@ -82,7 +80,7 @@ class PlanesServiceTest {
         Planes plan = new Planes(1L, "Plan Básico", new BigDecimal("20000"), "Solo máquinas", "Ninguno");
         when(planesRepository.findById(1L)).thenReturn(Optional.of(plan));
 
-        PlanesResponse response = planesService.findByIdPlan(1L, token);
+        PlanesResponse response = planesService.findByIdPlan(1L);
 
         assertNotNull(response);
         assertEquals("Plan Básico", response.getNombrePlan());
@@ -92,7 +90,7 @@ class PlanesServiceTest {
     void findByIdPlan_CuandoNoExiste_DebeLanzarException() {
         when(planesRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> planesService.findByIdPlan(1L, token));
+        assertThrows(EntityNotFoundException.class, () -> planesService.findByIdPlan(1L));
     }
 
     @Test
@@ -100,7 +98,7 @@ class PlanesServiceTest {
         List<Planes> lista = List.of(new Planes(1L, "Plan 1", BigDecimal.TEN, "", ""));
         when(planesRepository.findAll()).thenReturn(lista);
 
-        List<PlanesResponse> response = planesService.getAllPlanes(token);
+        List<PlanesResponse> response = planesService.getAllPlanes();
 
         assertFalse(response.isEmpty());
         assertEquals(1, response.size());
@@ -115,7 +113,7 @@ class PlanesServiceTest {
         when(planesRepository.findById(1L)).thenReturn(Optional.of(planExistente));
         when(planesRepository.save(any(Planes.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        PlanesResponse response = planesService.updatePlan(1L, request, token);
+        PlanesResponse response = planesService.updatePlan(1L, request);
 
         assertNotNull(response);
         assertEquals("Plan Nuevo", response.getNombrePlan());
@@ -146,10 +144,10 @@ class PlanesServiceTest {
         request.setTipoPago("Tarjeta Crédito");
 
         Pagos pagoGuardado = new Pagos(1L, "Tarjeta Crédito", "1234", "12/30", 123, "Calle 1", "123", 10L);
-        when(clienteClient.getCliente(10L, token)).thenReturn(clienteMock);
+        when(clienteClient.getCliente(10L)).thenReturn(clienteMock);
         when(pagosRepository.save(any(Pagos.class))).thenReturn(pagoGuardado);
 
-        PagosResponse response = planesService.addPago(request, token);
+        PagosResponse response = planesService.addPago(request);
 
         assertNotNull(response);
         assertEquals(1L, response.getId());
@@ -161,9 +159,9 @@ class PlanesServiceTest {
         PagosRequest request = new PagosRequest();
         request.setIdCliente(99L);
 
-        when(clienteClient.getCliente(99L, token)).thenReturn(null);
+        when(clienteClient.getCliente(99L)).thenReturn(null);
 
-        assertThrows(EntityNotFoundException.class, () -> planesService.addPago(request, token));
+        assertThrows(EntityNotFoundException.class, () -> planesService.addPago(request));
         verify(pagosRepository, never()).save(any(Pagos.class));
     }
 
@@ -172,7 +170,7 @@ class PlanesServiceTest {
         Pagos pago = new Pagos(1L, "Efectivo", null, null, null, null, null, 10L);
         when(pagosRepository.findById(1L)).thenReturn(Optional.of(pago));
 
-        PagosResponse response = planesService.findByIdPago(1L, token);
+        PagosResponse response = planesService.findByIdPago(1L);
 
         assertNotNull(response);
         assertEquals("Efectivo", response.getTipoPago());
@@ -186,10 +184,10 @@ class PlanesServiceTest {
         request.setTipoPago("Nuevo");
 
         when(pagosRepository.findById(1L)).thenReturn(Optional.of(pagoExistente));
-        when(clienteClient.getCliente(10L, token)).thenReturn(clienteMock);
+        when(clienteClient.getCliente(10L)).thenReturn(clienteMock);
         when(pagosRepository.save(any(Pagos.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        PagosResponse response = planesService.updatePago(1L, request, token);
+        PagosResponse response = planesService.updatePago(1L, request);
 
         assertNotNull(response);
         assertEquals("Nuevo", response.getTipoPago());
@@ -202,9 +200,9 @@ class PlanesServiceTest {
         request.setIdCliente(99L);
 
         when(pagosRepository.findById(1L)).thenReturn(Optional.of(pagoExistente));
-        when(clienteClient.getCliente(99L, token)).thenReturn(null);
+        when(clienteClient.getCliente(99L)).thenReturn(null);
 
-        assertThrows(EntityNotFoundException.class, () -> planesService.updatePago(1L, request, token));
+        assertThrows(EntityNotFoundException.class, () -> planesService.updatePago(1L, request));
     }
 
     @Test
@@ -228,12 +226,12 @@ class PlanesServiceTest {
         Pagos pagoGuardado = new Pagos(5L, "Debito", null, null, null, null, null, 10L);
         Suscripcion suscripcionGuardada = new Suscripcion(1L, 10L, plan, pagoGuardado, LocalDate.now(), LocalDate.now().plusMonths(1), "ACTIVA");
 
-        when(clienteClient.getCliente(10L, token)).thenReturn(clienteMock);
+        when(clienteClient.getCliente(10L)).thenReturn(clienteMock);
         when(planesRepository.findById(2L)).thenReturn(Optional.of(plan));
         when(pagosRepository.save(any(Pagos.class))).thenReturn(pagoGuardado);
         when(suscripcionRepository.save(any(Suscripcion.class))).thenReturn(suscripcionGuardada);
 
-        SuscripcionResponse response = planesService.crearSuscripcion(request, token);
+        SuscripcionResponse response = planesService.crearSuscripcion(request);
 
         assertNotNull(response);
         assertEquals(1L, response.getId());
@@ -247,9 +245,9 @@ class PlanesServiceTest {
         SuscripcionRequest request = new SuscripcionRequest();
         request.setIdCliente(99L);
 
-        when(clienteClient.getCliente(99L, token)).thenReturn(null);
+        when(clienteClient.getCliente(99L)).thenReturn(null);
 
-        assertThrows(EntityNotFoundException.class, () -> planesService.crearSuscripcion(request, token));
+        assertThrows(EntityNotFoundException.class, () -> planesService.crearSuscripcion(request));
     }
 
     @Test
@@ -259,9 +257,9 @@ class PlanesServiceTest {
         Suscripcion suscripcion = new Suscripcion(1L, 10L, plan, pago, LocalDate.now(), LocalDate.now().plusMonths(1), "ACTIVA");
 
         when(suscripcionRepository.findByIdCliente(10L)).thenReturn(Optional.of(suscripcion));
-        when(clienteClient.getCliente(10L, token)).thenReturn(clienteMock);
+        when(clienteClient.getCliente(10L)).thenReturn(clienteMock);
 
-        SuscripcionResponse response = planesService.getSuscripcionByCliente(10L, token);
+        SuscripcionResponse response = planesService.getSuscripcionByCliente(10L);
 
         assertNotNull(response);
         assertEquals(1L, response.getId());
@@ -276,9 +274,9 @@ class PlanesServiceTest {
 
         when(suscripcionRepository.findById(1L)).thenReturn(Optional.of(suscripcion));
         when(suscripcionRepository.save(any(Suscripcion.class))).thenAnswer(inv -> inv.getArgument(0));
-        when(clienteClient.getCliente(10L, token)).thenReturn(clienteMock);
+        when(clienteClient.getCliente(10L)).thenReturn(clienteMock);
 
-        SuscripcionResponse response = planesService.updateSuscripcion(1L, "cancelada", token);
+        SuscripcionResponse response = planesService.updateSuscripcion(1L, "cancelada");
 
         assertNotNull(response);
         assertEquals("CANCELADA", response.getEstado());
@@ -299,10 +297,10 @@ class PlanesServiceTest {
         Suscripcion suscripcion = new Suscripcion(1L, 10L, plan, pago, LocalDate.now(), LocalDate.now().plusMonths(1), "ACTIVA");
 
         when(suscripcionRepository.findByIdCliente(10L)).thenReturn(Optional.of(suscripcion));
-        when(clienteClient.getCliente(10L, token)).thenThrow(new RuntimeException("Error de red de prueba"));
+        when(clienteClient.getCliente(10L)).thenThrow(new RuntimeException("Error de red de prueba"));
 
         assertDoesNotThrow(() -> {
-            SuscripcionResponse response = planesService.getSuscripcionByCliente(10L, token);
+            SuscripcionResponse response = planesService.getSuscripcionByCliente(10L);
             assertNotNull(response);
             assertEquals(1L, response.getId());
         });

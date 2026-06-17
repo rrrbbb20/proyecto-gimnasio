@@ -65,7 +65,7 @@ class PlanesControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void addPlan_CuandoAdminYValido_DebeRetornar201YPlan() throws Exception {
-        when(planesService.addPlan(any(PlanesRequest.class), any())).thenReturn(planesResponse);
+        when(planesService.addPlan(any(PlanesRequest.class))).thenReturn(planesResponse);
 
         mockMvc.perform(post("/api/v3/planes")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token-valido")
@@ -73,7 +73,7 @@ class PlanesControllerTest {
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(planesRequest)))
-                .andExpect(status().isCreated()) // Corregido: El controlador devuelve HttpStatus 201
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.id").value(1L))
                 .andExpect(jsonPath("$.data.nombrePlan").value("Plan Premium"));
@@ -82,16 +82,15 @@ class PlanesControllerTest {
     @Test
     @WithMockUser(roles = "USER")
     void findByIdPlan_CuandoUser_DebeRetornarPlanConHateoas() throws Exception {
-        when(planesService.findByIdPlan(eq(1L), any())).thenReturn(planesResponse);
+        when(planesService.findByIdPlan(eq(1L))).thenReturn(planesResponse);
 
         mockMvc.perform(get("/api/v3/planes/1")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token-valido")
                         .param("token", "Bearer token-valido"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.message").value("Plan obtenido")) // Validando el mensaje explícito
+                .andExpect(jsonPath("$.message").value("Plan obtenido"))
                 .andExpect(jsonPath("$.data.id").value(1L))
-                // Validando la estructura del EntityModel (HATEOAS)
                 .andExpect(jsonPath("$.data._links.self.href").exists())
                 .andExpect(jsonPath("$.data._links.all.href").exists());
     }
@@ -99,7 +98,7 @@ class PlanesControllerTest {
     @Test
     @WithMockUser(roles = "USER")
     void getAllPlanes_DebeRetornarListaDePlanes() throws Exception {
-        when(planesService.getAllPlanes(any())).thenReturn(List.of(planesResponse));
+        when(planesService.getAllPlanes()).thenReturn(List.of(planesResponse));
 
         mockMvc.perform(get("/api/v3/planes")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token-valido")
@@ -112,7 +111,7 @@ class PlanesControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void updatePlan_CuandoAdmin_DebeActualizarYRetornarPlan() throws Exception {
-        when(planesService.updatePlan(eq(1L), any(PlanesRequest.class), any())).thenReturn(planesResponse);
+        when(planesService.updatePlan(eq(1L), any(PlanesRequest.class))).thenReturn(planesResponse);
 
         mockMvc.perform(put("/api/v3/planes/1")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token-valido")

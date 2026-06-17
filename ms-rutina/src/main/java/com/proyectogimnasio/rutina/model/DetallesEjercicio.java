@@ -12,7 +12,7 @@ public class DetallesEjercicio {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_rutina")
+    @JoinColumn(name = "id_ejercicio")
     private Ejercicio ejercicio;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_rutina")

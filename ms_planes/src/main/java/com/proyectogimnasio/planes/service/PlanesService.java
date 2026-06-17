@@ -28,7 +28,7 @@ public class PlanesService {
     private final SuscripcionRepository suscripcionRepository;
     private final ClienteClient client;
 
-    public PlanesResponse addPlan(PlanesRequest p, String token) {
+    public PlanesResponse addPlan(PlanesRequest p) {
         log.info("Crear Planes", keyValue("nombre", p.getNombrePlan()));
         Planes planes1 = new Planes();
         planes1.setNombrePlan(p.getNombrePlan());
@@ -37,14 +37,14 @@ public class PlanesService {
         planes1.setBeneficios(p.getBeneficios());
 
         Planes savePlan = planesRepository.save(planes1);
-        return mapToResponsePlan(savePlan, token);
+        return mapToResponsePlan(savePlan);
     }
 
-    public PagosResponse addPago(PagosRequest pa, String token) {
+    public PagosResponse addPago(PagosRequest pa) {
         log.info("Crear Pago", keyValue("tipo", pa.getTipoPago()));
 
 
-        var cliente = client.getCliente(pa.getIdCliente(), token);
+        var cliente = client.getCliente(pa.getIdCliente());
         if (cliente == null) {
             log.warn("Cliente no existe", keyValue("idCliente", pa.getIdCliente()));
             throw new EntityNotFoundException("El cliente especificado no existe en el sistema");
@@ -61,31 +61,31 @@ public class PlanesService {
 
         Pagos savePago = pagosRepository.save(pagos1);
         log.info("Metodo de pago creado correctamente", keyValue("id", savePago.getId()));
-        return mapToResponsePago(savePago, token);
+        return mapToResponsePago(savePago);
     }
 
-    public PlanesResponse findByIdPlan(Long id, String token) {
+    public PlanesResponse findByIdPlan(Long id) {
         log.info("Obtener id de Planes", keyValue("id", id));
         Planes planes1 = planesRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Plan no Existe"));
-        return mapToResponsePlan(planes1, token);
+        return mapToResponsePlan(planes1);
     }
 
-    public PagosResponse findByIdPago(Long id, String token) {
+    public PagosResponse findByIdPago(Long id) {
         log.info("Buscar metodo de pago", keyValue("idPago", id));
         Pagos pago = pagosRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Metodo de pago no encontrado"));
-        return mapToResponsePago(pago, token);
+        return mapToResponsePago(pago);
     }
 
-    public List<PlanesResponse> getAllPlanes(String token) {
-        return planesRepository.findAll().stream().map(planes -> mapToResponsePlan(planes, token)).toList();
+    public List<PlanesResponse> getAllPlanes() {
+        return planesRepository.findAll().stream().map(this::mapToResponsePlan).toList();
     }
 
-    public List<PagosResponse> getAllPagos(String token) {
-        return pagosRepository.findAll().stream().map(pagos -> mapToResponsePago(pagos, token)).toList();
+    public List<PagosResponse> getAllPagos() {
+        return pagosRepository.findAll().stream().map(this::mapToResponsePago).toList();
     }
 
-    public PlanesResponse updatePlan(Long id, PlanesRequest p, String token) {
+    public PlanesResponse updatePlan(Long id, PlanesRequest p) {
         log.info("Actualizar Planes", keyValue("idPlan", id));
         Planes planes1 = planesRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Plan no encontrado"));
 
@@ -97,14 +97,14 @@ public class PlanesService {
 
         Planes updatePlan = planesRepository.save(planes1);
         log.info("Plan actualizado correctamente", keyValue("idPlan", updatePlan.getId()));
-        return mapToResponsePlan(updatePlan, token);
+        return mapToResponsePlan(updatePlan);
     }
 
-    public PagosResponse updatePago(Long id, PagosRequest pa, String token) {
+    public PagosResponse updatePago(Long id, PagosRequest pa) {
         Pagos pagos1 = pagosRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("No se ha encontrado el pago"));
         log.info("Actualizar Pago", keyValue("idPago", id));
 
-        var cliente = client.getCliente(pa.getIdCliente(), token);
+        var cliente = client.getCliente(pa.getIdCliente());
         if (cliente == null) {
             log.warn("Cliente no encontrado", keyValue("idCliente", pa.getIdCliente()));
             throw new EntityNotFoundException("Cliente no encontrado");
@@ -120,7 +120,7 @@ public class PlanesService {
 
         Pagos updatePago = pagosRepository.save(pagos1);
         log.info("Metodo de pago actualizado correctamente", keyValue("idPago", updatePago.getId()));
-        return mapToResponsePago(updatePago, token);
+        return mapToResponsePago(updatePago);
     }
 
     public void deletePlan(Long id) {
@@ -139,10 +139,10 @@ public class PlanesService {
         pagosRepository.deleteById(id);
     }
     @Transactional
-    public SuscripcionResponse crearSuscripcion(SuscripcionRequest request, String token) {
+    public SuscripcionResponse crearSuscripcion(SuscripcionRequest request) {
         log.info("Iniciando creación de suscripción automática", keyValue("idCliente", request.getIdCliente()));
 
-        var cliente = client.getCliente(request.getIdCliente(), token);
+        var cliente = client.getCliente(request.getIdCliente());
         if (cliente == null) {
             throw new EntityNotFoundException("El cliente especificado no existe en el sistema.");
         }
@@ -171,24 +171,24 @@ public class PlanesService {
         Suscripcion saveSuscripcion = suscripcionRepository.save(suscripcion);
         log.info("Suscripción procesada y guardada correctamente", keyValue("idSuscripcion", saveSuscripcion.getId()));
 
-        return mapToResponseSuscripcion(saveSuscripcion, token);
+        return mapToResponseSuscripcion(saveSuscripcion);
     }
-    public List<SuscripcionResponse> getAllSuscripciones(String token) {
+    public List<SuscripcionResponse> getAllSuscripciones() {
         log.info("Obteniendo listado de todas las suscripciones");
         return suscripcionRepository.findAll().stream()
-                .map(suscripcion -> mapToResponseSuscripcion(suscripcion, token))
+                .map(this::mapToResponseSuscripcion)
                 .toList();
     }
 
-    public SuscripcionResponse getSuscripcionByCliente(Long idCliente, String token) {
+    public SuscripcionResponse getSuscripcionByCliente(Long idCliente) {
         log.info("Buscando suscripción del cliente", keyValue("idCliente", idCliente));
         Suscripcion suscripcion = suscripcionRepository.findByIdCliente(idCliente)
                 .orElseThrow(() -> new EntityNotFoundException("El cliente no tiene ninguna suscripción registrada"));
-        return mapToResponseSuscripcion(suscripcion, token);
+        return mapToResponseSuscripcion(suscripcion);
     }
 
     @Transactional
-    public SuscripcionResponse updateSuscripcion(Long id, String nuevoEstado, String token) {
+    public SuscripcionResponse updateSuscripcion(Long id, String nuevoEstado) {
         log.info("Actualizando estado de suscripción", keyValue("idSuscripcion", id), keyValue("nuevoEstado", nuevoEstado));
 
         Suscripcion suscripcion = suscripcionRepository.findById(id)
@@ -201,7 +201,7 @@ public class PlanesService {
         }
 
         Suscripcion actualizada = suscripcionRepository.save(suscripcion);
-        return mapToResponseSuscripcion(actualizada, token);
+        return mapToResponseSuscripcion(actualizada);
     }
 
     @Transactional
@@ -212,30 +212,30 @@ public class PlanesService {
         }
         suscripcionRepository.deleteById(id);
     }
-    private SuscripcionResponse mapToResponseSuscripcion(Suscripcion s, String token) {
-        ClienteResponse datosCliente = null;
+    private SuscripcionResponse mapToResponseSuscripcion(Suscripcion s) {
+        ClienteResponse datosCliente;
         try {
-            datosCliente = client.getCliente(s.getIdCliente(), token);
+            // Rompemos el aislamiento SOLO para leer y construir la respuesta visual
+            datosCliente = client.getCliente(s.getIdCliente());
         } catch (Exception e) {
-            log.error("No se pudieron obtener los datos detallados del cliente externo", e);
+            log.error("Fallo de comunicación al enriquecer datos de cliente", e);
+            // Tolerancia a fallos: el aislamiento protege al servicio de Pagos
             datosCliente = new ClienteResponse();
-            datosCliente.setNombres("Desconocido (Error de comunicación)");
+            datosCliente.setNombres("Desconocido (Fallo de red)");
             datosCliente.setApellidos("");
         }
 
-        // 2. Construimos la respuesta completa
         return SuscripcionResponse.builder()
                 .id(s.getId())
                 .idCliente(s.getIdCliente())
-                .plan(mapToResponsePlan(s.getPlan(), token))
-                .pago(mapToResponsePago(s.getPago(), token))
-                .fechaInicio(s.getFechaInicio())
-                .fechaFin(s.getFechaFin())
+                .plan(mapToResponsePlan(s.getPlan()))
+                .pago(mapToResponsePago(s.getPago()))
+                .cliente(datosCliente)
                 .estado(s.getEstado())
                 .build();
-    }
+        }
 
-    private PlanesResponse mapToResponsePlan(Planes p, String token) {
+    private PlanesResponse mapToResponsePlan(Planes p) {
         return PlanesResponse.builder()
                 .id(p.getId())
                 .nombrePlan(p.getNombrePlan())
@@ -245,7 +245,7 @@ public class PlanesService {
                 .build();
     }
 
-    private PagosResponse mapToResponsePago(Pagos pa, String token) {
+    private PagosResponse mapToResponsePago(Pagos pa) {
         return PagosResponse.builder()
                 .id(pa.getId())
                 .tipoPago(pa.getTipoPago())

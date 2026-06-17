@@ -1,4 +1,5 @@
 package com.proyectogimnasio.rutina.security;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -7,10 +8,8 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
-
 @Component
 public class JwtUtil {
-
     private final Key key;
 
     public JwtUtil(@Value("${jwt.secret}") String secret) {
@@ -41,5 +40,4 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody();
     }
-
 }

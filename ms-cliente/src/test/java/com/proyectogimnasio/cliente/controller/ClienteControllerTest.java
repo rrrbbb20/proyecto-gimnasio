@@ -81,7 +81,7 @@ public class ClienteControllerTest {
                 .idPlan(1L)
                 .build();
 
-        when(service.add(any(ClienteRequest.class), anyString())).thenReturn(responseMock);
+        when(service.add(any(ClienteRequest.class))).thenReturn(responseMock);
 
         // Act & Assert
         mockMvc.perform(post("/api/v3/clientes")
@@ -93,7 +93,7 @@ public class ClienteControllerTest {
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.nombres").value("Cristobal"));
 
-        verify(service, times(1)).add(any(ClienteRequest.class), anyString());
+        verify(service, times(1)).add(any(ClienteRequest.class));
     }
 
     @Test
@@ -112,7 +112,7 @@ public class ClienteControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isForbidden());
 
-        verify(service, never()).add(any(ClienteRequest.class), anyString());
+        verify(service, never()).add(any(ClienteRequest.class));
     }
 
     @Test
@@ -125,7 +125,7 @@ public class ClienteControllerTest {
                 .nombres("Vicentito")
                 .build();
 
-        when(service.findById(eq(idCliente), anyString())).thenReturn(responseMock);
+        when(service.findById(eq(idCliente))).thenReturn(responseMock);
 
         // Act & Assert
         mockMvc.perform(get("/api/v3/clientes/{id}", idCliente)
@@ -134,7 +134,7 @@ public class ClienteControllerTest {
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.nombres").value("Vicentito"));
 
-        verify(service, times(1)).findById(eq(idCliente), anyString());
+        verify(service, times(1)).findById(eq(idCliente));
     }
 
     @Test
@@ -145,7 +145,7 @@ public class ClienteControllerTest {
                 ClienteResponse.builder().id(1L).nombres("Vicentito").build()
         );
 
-        when(service.getAll(anyString())).thenReturn(listaMock);
+        when(service.getAll()).thenReturn(listaMock);
 
         // Act & Assert
         mockMvc.perform(get("/api/v3/clientes")
@@ -154,7 +154,7 @@ public class ClienteControllerTest {
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data[0].nombres").value("Vicentito"));
 
-        verify(service, times(1)).getAll(anyString());
+        verify(service, times(1)).getAll();
     }
 
     @Test
@@ -181,7 +181,7 @@ public class ClienteControllerTest {
                 .idPlan(2L)
                 .build();
 
-        when(service.update(eq(idCliente), any(ClienteRequest.class), anyString())).thenReturn(responseMock);
+        when(service.update(eq(idCliente), any(ClienteRequest.class))).thenReturn(responseMock);
 
         // Act & Assert
         mockMvc.perform(put("/api/v3/clientes/{id}", idCliente)
@@ -194,7 +194,7 @@ public class ClienteControllerTest {
                 .andExpect(jsonPath("$.data.nombres").value("Cristobal Modificado"))
                 .andExpect(jsonPath("$.data.idPlan").value(2L));
 
-        verify(service, times(1)).update(eq(idCliente), any(ClienteRequest.class), anyString());
+        verify(service, times(1)).update(eq(idCliente), any(ClienteRequest.class));
     }
 
 }

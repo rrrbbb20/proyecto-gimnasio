@@ -72,17 +72,17 @@ class PagosControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void debeAgregarPagoCuandoAdminYRequestValido() throws Exception {
-        when(pagosService.addPago(any(PagosRequest.class), any())).thenReturn(responseMock);
+        when(pagosService.addPago(any(PagosRequest.class))).thenReturn(responseMock);
 
         mockMvc.perform(post("/api/v2/pagos")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token-valido")
-                        .param("token", "Bearer token-valido") // El controlador espera 'token' como argumento de método
+                        .param("token", "Bearer token-valido")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestValido)))
-                .andExpect(status().isCreated()) // Match con ResponseEntity.status(201)
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.message").value("Plan creado")) // Match con el string del controlador
+                .andExpect(jsonPath("$.message").value("Plan creado"))
                 .andExpect(jsonPath("$.data.id").value(1L));
     }
 
@@ -102,7 +102,7 @@ class PagosControllerTest {
     @Test
     @WithMockUser(roles = "USER")
     public void debeObtenerPagoPorIdConEnlacesHateoas() throws Exception {
-        when(pagosService.findByIdPago(anyLong(), any())).thenReturn(responseMock);
+        when(pagosService.findByIdPago(anyLong())).thenReturn(responseMock);
 
         mockMvc.perform(get("/api/v2/pagos/1")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token-valido")
@@ -111,7 +111,6 @@ class PagosControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value("Metodo de Pago obtenido"))
-                // En HATEOAS con EntityModel, los links se renderizan bajo la propiedad '_links' por defecto de Spring HATEOAS
                 .andExpect(jsonPath("$.data._links.self.href").exists())
                 .andExpect(jsonPath("$.data._links.all.href").exists())
                 .andExpect(jsonPath("$.data._links.update.href").exists())
@@ -121,10 +120,10 @@ class PagosControllerTest {
     @Test
     @WithMockUser(roles = "USER")
     public void debeListarTodosLosPagos() throws Exception {
-        when(pagosService.getAllPagos(anyString())).thenReturn(List.of(responseMock));
+        when(pagosService.getAllPagos()).thenReturn(List.of(responseMock));
 
         mockMvc.perform(get("/api/v2/pagos")
-                        .header("Authorization", "Bearer token-valido") // Requerido por @RequestHeader("Authorization")
+                        .header("Authorization", "Bearer token-valido")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
@@ -135,7 +134,7 @@ class PagosControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     public void debeActualizarPagoCuandoAdminYRequestValido() throws Exception {
-        when(pagosService.updatePago(anyLong(), any(PagosRequest.class), any())).thenReturn(responseMock);
+        when(pagosService.updatePago(anyLong(), any(PagosRequest.class))).thenReturn(responseMock);
 
         mockMvc.perform(put("/api/v2/pagos/1")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token-valido")

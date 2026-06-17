@@ -30,17 +30,17 @@ public class PlanesController {
     )
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Cliente Creado"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "No autenticado o token inválido"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "No autenticado  inválido"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Acceso denegado")
     })
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<PlanesResponse>> addPlan(@Valid @RequestBody PlanesRequest p, String token){
+    public ResponseEntity<ApiResponse<PlanesResponse>> addPlan(@Valid @RequestBody PlanesRequest p){
 
         return ResponseEntity.status(201).body(
                 ApiResponse.<PlanesResponse>builder().success(true)
                         .message("Plan creado")
-                        .data(planesService.addPlan(p, token)).build()
+                        .data(planesService.addPlan(p)).build()
 
         );
 
@@ -57,13 +57,13 @@ public class PlanesController {
     })
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public ResponseEntity<ApiResponse<EntityModel<PlanesResponse>>> obtenerPlan(@PathVariable Long id, String token){
-        PlanesResponse plan = planesService.findByIdPlan(id, token);
+    public ResponseEntity<ApiResponse<EntityModel<PlanesResponse>>> obtenerPlan(@PathVariable Long id){
+        PlanesResponse plan = planesService.findByIdPlan(id);
         EntityModel<PlanesResponse> recurso = EntityModel.of(plan);
 
-        recurso.add(linkTo(methodOn(PlanesController.class).obtenerPlan(id, token)).withSelfRel());
-        recurso.add(linkTo(methodOn(PlanesController.class).getAllPlanes(token)).withRel("all"));
-        recurso.add(linkTo(methodOn(PlanesController.class).updatePlan(id, null, token)).withRel("update"));
+        recurso.add(linkTo(methodOn(PlanesController.class).obtenerPlan(id)).withSelfRel());
+        recurso.add(linkTo(methodOn(PlanesController.class).getAllPlanes()).withRel("all"));
+        recurso.add(linkTo(methodOn(PlanesController.class).updatePlan(id, null)).withRel("update"));
         recurso.add(linkTo(methodOn(PlanesController.class).deletePlan(id)).withRel("delete"));
 
         return ResponseEntity.ok(
@@ -85,11 +85,11 @@ public class PlanesController {
     })
     @GetMapping
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public ResponseEntity<ApiResponse<List<PlanesResponse>>> getAllPlanes(String token){
+    public ResponseEntity<ApiResponse<List<PlanesResponse>>> getAllPlanes(){
 
         return ResponseEntity.status(200).body(
                 ApiResponse.<List<PlanesResponse>>builder().success(true)
-                        .data(planesService.getAllPlanes(token)).build()
+                        .data(planesService.getAllPlanes()).build()
         );
 
     }
@@ -105,12 +105,12 @@ public class PlanesController {
     })
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<PlanesResponse>> updatePlan(@PathVariable Long id, @Valid @RequestBody PlanesRequest p, String token) {
+    public ResponseEntity<ApiResponse<PlanesResponse>> updatePlan(@PathVariable Long id, @Valid @RequestBody PlanesRequest p) {
 
         return ResponseEntity.ok(
 
                 ApiResponse.<PlanesResponse>builder().success(true)
-                        .data(planesService.updatePlan(id,p, token)).build()
+                        .data(planesService.updatePlan(id,p)).build()
 
         );
 

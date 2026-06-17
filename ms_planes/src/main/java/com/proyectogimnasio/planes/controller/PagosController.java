@@ -37,12 +37,12 @@ public class PagosController {
     })
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<PagosResponse>> addPago(@Valid @RequestBody PagosRequest p, String token){
+    public ResponseEntity<ApiResponse<PagosResponse>> addPago(@Valid @RequestBody PagosRequest p){
 
         return ResponseEntity.status(201).body(
                 ApiResponse.<PagosResponse>builder().success(true)
                         .message("Plan creado")
-                        .data(pagosService.addPago(p, token)).build()
+                        .data(pagosService.addPago(p)).build()
 
         );
 
@@ -59,13 +59,13 @@ public class PagosController {
     })
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public ResponseEntity<ApiResponse<EntityModel<PagosResponse>>> obtenerPago(@PathVariable Long id, String token){
-        PagosResponse pago = pagosService.findByIdPago(id, token);
+    public ResponseEntity<ApiResponse<EntityModel<PagosResponse>>> obtenerPago(@PathVariable Long id){
+        PagosResponse pago = pagosService.findByIdPago(id);
         EntityModel<PagosResponse> recurso = EntityModel.of(pago);
 
-        recurso.add(linkTo(methodOn(PagosController.class).obtenerPago(id, token)).withSelfRel());
-        recurso.add(linkTo(methodOn(PagosController.class).getAllPagos(token)).withRel("all"));
-        recurso.add(linkTo(methodOn(PagosController.class).updatePago(id, null, token)).withRel("update"));
+        recurso.add(linkTo(methodOn(PagosController.class).obtenerPago(id)).withSelfRel());
+        recurso.add(linkTo(methodOn(PagosController.class).getAllPagos()).withRel("all"));
+        recurso.add(linkTo(methodOn(PagosController.class).updatePago(id, null)).withRel("update"));
         recurso.add(linkTo(methodOn(PagosController.class).deletePago(id)).withRel("delete"));
 
         return ResponseEntity.ok(
@@ -87,11 +87,11 @@ public class PagosController {
     })
     @GetMapping
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public ResponseEntity<ApiResponse<List<PagosResponse>>> getAllPagos(@RequestHeader("Authorization")String token){
+    public ResponseEntity<ApiResponse<List<PagosResponse>>> getAllPagos(){
 
         return ResponseEntity.status(200).body(
                 ApiResponse.<List<PagosResponse>>builder().success(true)
-                        .data(pagosService.getAllPagos(token)).build()
+                        .data(pagosService.getAllPagos()).build()
         );
 
     }
@@ -107,12 +107,12 @@ public class PagosController {
     })
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<PagosResponse>> updatePago(@PathVariable Long id, @Valid @RequestBody PagosRequest p, String token) {
+    public ResponseEntity<ApiResponse<PagosResponse>> updatePago(@PathVariable Long id, @Valid @RequestBody PagosRequest p) {
 
         return ResponseEntity.ok(
 
                 ApiResponse.<PagosResponse>builder().success(true)
-                        .data(pagosService.updatePago(id,p, token)).build()
+                        .data(pagosService.updatePago(id,p)).build()
 
         );
 

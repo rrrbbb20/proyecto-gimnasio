@@ -24,10 +24,10 @@ public class ClienteService {
     private final PlanesClient client;
 
     @Transactional
-    public ClienteResponse add(ClienteRequest c, String token){
+    public ClienteResponse add(ClienteRequest c){
         log.info("Añadir Cliente e iniciar proceso de suscripción", keyValue("cliente", c.getNombres()));
 
-        var plan = client.getPlan(c.getIdPlan(), token);
+        var plan = client.getPlan(c.getIdPlan());
         if(plan == null){
             log.warn("Plan no existe en el catálogo", keyValue("idPlan", c.getIdPlan()));
             throw new EntityNotFoundException("Plan no encontrado");
@@ -52,7 +52,7 @@ public class ClienteService {
             );
 
 
-            client.activarSuscripcion(suscripcionPayload, token);
+            client.activarSuscripcion(suscripcionPayload);
             log.info("Suscripción y pago procesados con éxito en microservicio remoto");
 
         } catch (Exception e) {
@@ -67,29 +67,29 @@ public class ClienteService {
     }
 
 
-    public ClienteResponse findById(Long id, String token){
+    public ClienteResponse findById(Long id){
         Cliente cliente = repo.findById(id).orElseThrow(() -> new EntityNotFoundException("Cliente no encontrado"));
         ClienteResponse response = mapToResponse(cliente);
         try {
-            response.setDetallesPlan(client.getPlan(cliente.getIdPlan(), token));
+            response.setDetallesPlan(client.getPlan(cliente.getIdPlan()));
         } catch (Exception e) {
             log.error("Error al traer plan", e);
         }
         return response;
     }
 
-    public List<ClienteResponse> getAll(String token){
+    public List<ClienteResponse> getAll(){
         return repo.findAll().stream()
                 .map(cliente -> {
                     ClienteResponse res = mapToResponse(cliente);
-                    try { res.setDetallesPlan(client.getPlan(cliente.getIdPlan(), token)); } catch (Exception e) {}
+                    try { res.setDetallesPlan(client.getPlan(cliente.getIdPlan())); } catch (Exception e) {}
                     return res;
                 }).toList();
     }
 
-    public ClienteResponse update(Long id, ClienteRequest c, String token){
+    public ClienteResponse update(Long id, ClienteRequest c){
         Cliente cliente1 = repo.findById(id).orElseThrow(() -> new EntityNotFoundException("Cliente no encontrado"));
-        var plan = client.getPlan(c.getIdPlan(), token);
+        var plan = client.getPlan(c.getIdPlan());
         if(plan == null) throw new EntityNotFoundException("Plan no encontrado");
 
         cliente1.setNombres(c.getNombres());

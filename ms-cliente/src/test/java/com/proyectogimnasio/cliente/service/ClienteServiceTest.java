@@ -52,16 +52,16 @@ public class ClienteServiceTest {
         PlanesResponse planMock = new PlanesResponse();
 
         when(repo.findById(1L)).thenReturn(Optional.of(cliente));
-        when(client.getPlan(eq(1L), anyString())).thenReturn(planMock);
+        when(client.getPlan(eq(1L))).thenReturn(planMock);
 
         // Act
-        ClienteResponse resultado = service.findById(1L, "Bearer token");
+        ClienteResponse resultado = service.findById(1L);
 
         // Assert
         assertNotNull(resultado);
         assertEquals(1L, resultado.getId());
         verify(repo).findById(1L);
-        verify(client).getPlan(eq(1L), anyString());
+        verify(client).getPlan(eq(1L));
     }
 
     @Test
@@ -70,7 +70,7 @@ public class ClienteServiceTest {
         when(repo.findById(1L)).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(EntityNotFoundException.class, () -> service.findById(1L, "Bearer token"));
+        assertThrows(EntityNotFoundException.class, () -> service.findById(1L));
         verify(repo).findById(1L);
     }
 
@@ -89,19 +89,19 @@ public class ClienteServiceTest {
         PlanesResponse planMock = new PlanesResponse();
         Cliente clienteGuardado = new Cliente(10L, "Juan", "Perez", "12345678-9", "juan@gmail.com", LocalDate.of(1995, 5, 12), 1L);
 
-        when(client.getPlan(eq(1L), anyString())).thenReturn(planMock);
+        when(client.getPlan(eq(1L))).thenReturn(planMock);
         when(repo.save(any(Cliente.class))).thenReturn(clienteGuardado);
-        when(client.activarSuscripcion(any(), anyString())).thenReturn(new Object());
+        when(client.activarSuscripcion(any())).thenReturn(new Object());
 
         // Act
-        ClienteResponse resultado = service.add(dto, "Bearer token");
+        ClienteResponse resultado = service.add(dto);
 
         // Assert
         assertNotNull(resultado);
         assertEquals(10L, resultado.getId());
-        verify(client).getPlan(eq(1L), anyString());
+        verify(client).getPlan(eq(1L));
         verify(repo).save(any(Cliente.class));
-        verify(client).activarSuscripcion(any(), anyString());
+        verify(client).activarSuscripcion(any());
     }
 
     @Test
@@ -115,12 +115,12 @@ public class ClienteServiceTest {
         PlanesResponse planMock = new PlanesResponse();
         Cliente clienteGuardado = new Cliente(10L, "Juan", "Perez", "12345678-9", "juan@gmail.com", LocalDate.of(1995, 5, 12), 1L);
 
-        when(client.getPlan(eq(1L), anyString())).thenReturn(planMock);
+        when(client.getPlan(eq(1L))).thenReturn(planMock);
         when(repo.save(any(Cliente.class))).thenReturn(clienteGuardado);
-        when(client.activarSuscripcion(any(), anyString())).thenThrow(new RuntimeException("Error de red o pago rechazado"));
+        when(client.activarSuscripcion(any())).thenThrow(new RuntimeException("Error de red o pago rechazado"));
 
         // Act & Assert
-        assertThrows(RuntimeException.class, () -> service.add(dto, "Bearer token"));
+        assertThrows(RuntimeException.class, () -> service.add(dto));
     }
 
     @Test
@@ -130,10 +130,10 @@ public class ClienteServiceTest {
                 new Cliente(1L, "A", "B", "1", "a@a.com", LocalDate.now().minusYears(20), 1L)
         );
         when(repo.findAll()).thenReturn(listaMock);
-        when(client.getPlan(anyLong(), anyString())).thenReturn(new PlanesResponse());
+        when(client.getPlan(anyLong())).thenReturn(new PlanesResponse());
 
         // Act
-        List<ClienteResponse> resultado = service.getAll("Bearer token");
+        List<ClienteResponse> resultado = service.getAll();
 
         // Assert
         assertEquals(1, resultado.size());
@@ -154,11 +154,11 @@ public class ClienteServiceTest {
 
         PlanesResponse planMock = new PlanesResponse();
         when(repo.findById(1L)).thenReturn(Optional.of(existente));
-        when(client.getPlan(eq(1L), anyString())).thenReturn(planMock);
+        when(client.getPlan(eq(1L))).thenReturn(planMock);
         when(repo.save(any(Cliente.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Act
-        ClienteResponse resultado = service.update(1L, dto, "Bearer token");
+        ClienteResponse resultado = service.update(1L, dto);
 
         // Assert
         assertEquals(1L, resultado.getId());

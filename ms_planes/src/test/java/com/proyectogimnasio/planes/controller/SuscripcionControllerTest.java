@@ -66,7 +66,7 @@ class SuscripcionControllerTest {
     @Test
     @WithMockUser(roles = "USER")
     void activarSuscripcion_CuandoRequestValido_DebeRetornar201YSuscripcion() throws Exception {
-        when(planesService.crearSuscripcion(any(SuscripcionRequest.class), anyString())).thenReturn(responseMock);
+        when(planesService.crearSuscripcion(any(SuscripcionRequest.class))).thenReturn(responseMock);
 
         mockMvc.perform(post("/api/v1/suscripciones")
                         .header(HttpHeaders.AUTHORIZATION, tokenValido)
@@ -84,7 +84,7 @@ class SuscripcionControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void obtenerTodas_CuandoAdmin_DebeRetornarListado() throws Exception {
-        when(planesService.getAllSuscripciones(anyString())).thenReturn(List.of(responseMock));
+        when(planesService.getAllSuscripciones()).thenReturn(List.of(responseMock));
 
         mockMvc.perform(get("/api/v1/suscripciones")
                         .header(HttpHeaders.AUTHORIZATION, tokenValido))
@@ -105,7 +105,7 @@ class SuscripcionControllerTest {
     @Test
     @WithMockUser(roles = "USER")
     void obtenerPorCliente_CuandoRolUser_DebeRetornarSuscripcion() throws Exception {
-        when(planesService.getSuscripcionByCliente(eq(1L), anyString())).thenReturn(responseMock);
+        when(planesService.getSuscripcionByCliente(eq(1L))).thenReturn(responseMock);
 
         mockMvc.perform(get("/api/v1/suscripciones/cliente/1")
                         .header(HttpHeaders.AUTHORIZATION, tokenValido))
@@ -118,7 +118,7 @@ class SuscripcionControllerTest {
     @WithMockUser(roles = "ADMIN")
     void cambiarEstado_CuandoAdmin_DebeActualizarYRetornarSuscripcion() throws Exception {
         responseMock.setEstado("CANCELADA");
-        when(planesService.updateSuscripcion(eq(10L), eq("CANCELADA"), anyString())).thenReturn(responseMock);
+        when(planesService.updateSuscripcion(eq(10L), eq("CANCELADA"))).thenReturn(responseMock);
 
         mockMvc.perform(put("/api/v1/suscripciones/10/estado")
                         .header(HttpHeaders.AUTHORIZATION, tokenValido)

@@ -18,4 +18,5 @@ public class SuscripcionResponse {
     private LocalDate fechaInicio;
     private LocalDate fechaFin;
     private String estado;
+    private ClienteResponse cliente;
 }

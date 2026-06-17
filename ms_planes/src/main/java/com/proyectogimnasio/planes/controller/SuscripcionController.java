@@ -34,9 +34,9 @@ public class SuscripcionController {
     })
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN','USER')")
-    public ResponseEntity<ApiResponse<SuscripcionResponse>> activarSuscripcion(@Valid @RequestBody SuscripcionRequest request, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<ApiResponse<SuscripcionResponse>> activarSuscripcion(@Valid @RequestBody SuscripcionRequest request) {
 
-        SuscripcionResponse response = planesService.crearSuscripcion(request, token);
+        SuscripcionResponse response = planesService.crearSuscripcion(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 ApiResponse.<SuscripcionResponse>builder()
                         .success(true)
@@ -57,11 +57,11 @@ public class SuscripcionController {
     })
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<List<SuscripcionResponse>>> obtenerTodas(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<ApiResponse<List<SuscripcionResponse>>> obtenerTodas() {
         return ResponseEntity.ok(
                 ApiResponse.<List<SuscripcionResponse>>builder()
                         .success(true)
-                        .data(planesService.getAllSuscripciones(token))
+                        .data(planesService.getAllSuscripciones())
                         .build()
         );
     }
@@ -78,11 +78,11 @@ public class SuscripcionController {
     })
     @GetMapping("/cliente/{idCliente}")
     @PreAuthorize("hasAnyRole('ADMIN','USER')")
-    public ResponseEntity<ApiResponse<SuscripcionResponse>> obtenerPorCliente(@PathVariable Long idCliente, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<ApiResponse<SuscripcionResponse>> obtenerPorCliente(@PathVariable Long idCliente) {
         return ResponseEntity.ok(
                 ApiResponse.<SuscripcionResponse>builder()
                         .success(true)
-                        .data(planesService.getSuscripcionByCliente(idCliente, token))
+                        .data(planesService.getSuscripcionByCliente(idCliente))
                         .build()
         );
     }
@@ -99,13 +99,13 @@ public class SuscripcionController {
     })
     @PutMapping("/{id}/estado")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<SuscripcionResponse>> cambiarEstado(@PathVariable Long id, @RequestParam String nuevoEstado, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<ApiResponse<SuscripcionResponse>> cambiarEstado(@PathVariable Long id, @RequestParam String nuevoEstado) {
 
         return ResponseEntity.ok(
                 ApiResponse.<SuscripcionResponse>builder()
                         .success(true)
                         .message("Estado actualizado correctamente")
-                        .data(planesService.updateSuscripcion(id, nuevoEstado, token))
+                        .data(planesService.updateSuscripcion(id, nuevoEstado))
                         .build()
         );
     }
@@ -122,7 +122,7 @@ public class SuscripcionController {
     })
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> eliminarSuscripcion(@PathVariable Long id, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<ApiResponse<Void>> eliminarSuscripcion(@PathVariable Long id) {
         planesService.deleteSuscripcion(id);
         return ResponseEntity.ok(
                 ApiResponse.<Void>builder()
