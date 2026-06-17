@@ -100,6 +100,72 @@ services:
           memory: 256M
     networks:
       - backend-network
+  clase:
+    build: ./ms-clase
+    container_name: clase
+    restart: unless-stopped
+    ports:
+      - "8094:8094"
+    environment:
+      DB_HOST: mysql-clase
+      DB_PORT: 3306
+      DB_NAME: ms-clase
+      DB_USER: root
+      DB_PASSWORD: root
+      JWT_SECRET: "1234567890123456789012345678901234567890"
+      EUREKA_URL: http://ms-eureka:8761/eureka/
+    depends_on:
+      mysql-clase:
+        condition: service_healthy
+      ms-eureka:
+        condition: service_healthy
+    networks:
+      - backend-network
+
+  entrenador:
+      build: ./ms-entrenador
+      container_name: entrenador
+      restart: unless-stopped
+      ports:
+        - "8093:8093"
+      environment:
+        DB_HOST: mysql-entrenador
+        DB_PORT: 3306
+        DB_NAME: db_entrenador
+        DB_USER: root
+        DB_PASSWORD: root
+        JWT_SECRET: "1234567890123456789012345678901234567890"
+        EUREKA_URL: http://ms-eureka:8761/eureka/
+      depends_on:
+        mysql-entrenador:
+          condition: service_healthy
+        ms-eureka:
+          condition: service_healthy
+      networks:
+        - backend-network
+
+  inscripcion-clase:
+      build: ./ms-inscripcion-clase
+      container_name: inscripcion-clase
+      restart: unless-stopped
+      ports:
+        - "8092:8092"
+      environment:
+        DB_HOST: mysql-inscripcionclase
+        DB_PORT: 3306
+        DB_NAME: ms-inscripcion_clase
+        DB_USER: root
+        DB_PASSWORD: root
+        JWT_SECRET: "1234567890123456789012345678901234567890"
+        EUREKA_URL: http://ms-eureka:8761/eureka/
+      depends_on:
+        mysql-inscripcionclase:
+          condition: service_healthy
+        ms-eureka:
+          condition: service_healthy
+      networks:
+        - backend-network
+
 
   # ---- MICROSERVICIO AUTH ----
   auth:
@@ -248,6 +314,65 @@ services:
           memory: 350M
     networks:
       - backend-network
+  mysql-clase:
+    image: mysql:8
+    container_name: mysql-clase
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ms-clase
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql_clase_data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot" ]
+      interval: 5s
+      timeout: 5s
+      retries: 6
+      start_period: 40s
+    networks:
+      - backend-network
+
+  mysql-entrenador:
+      image: mysql:8
+      container_name: mysql-entrenador
+      restart: unless-stopped
+      environment:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_DATABASE: db_entrenador
+      ports:
+        - "3311:3306"
+      volumes:
+        - mysql_entrenador_data:/var/lib/mysql
+      healthcheck:
+        test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot" ]
+        interval: 5s
+        timeout: 5s
+        retries: 6
+        start_period: 40s
+      networks:
+        - backend-network
+
+  mysql-inscripcionclase:
+      image: mysql:8
+      container_name: mysql-inscripcionclase
+      restart: unless-stopped
+      environment:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_DATABASE: ms-inscripcion_clase
+      ports:
+        - "3312:3306"
+      volumes:
+        - mysql_inscripcion_data:/var/lib/mysql
+      healthcheck:
+        test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot" ]
+        interval: 5s
+        timeout: 5s
+        retries: 6
+        start_period: 40s
+      networks:
+        - backend-network
 
 networks:
   backend-network:
@@ -258,3 +383,6 @@ volumes:
   mysql_rutinas_data:
   mysql_planes_data:
   mysql_cliente_data:
+  mysql_clase_data:
+  mysql_entrenador_data:
+  mysql_inscripcion_data:

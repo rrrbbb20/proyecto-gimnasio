@@ -11,6 +11,21 @@ spring:
               predicates:
                 - Path=/auth/**
 
+            - id: ms-entrenador
+              uri: lb://ms-entrenador
+              predicates:
+                - Path=/api/v1/entrenadores/**
+
+            - id: ms-clase
+              uri: lb://ms-clase
+              predicates:
+                - Path=/api/v1/clases/**
+
+            - id: ms-inscripcion-clase
+              uri: lb://ms-inscripcion-clase
+              predicates:
+                - Path=/api/v1/inscripcion-clases/**
+
             - id: ms-cliente
               uri: http://cliente:8083
               predicates:
@@ -53,6 +68,12 @@ springdoc:
         url: /api/v3/planes/v3/api-docs
       - name: ms-rutina
         url: /api/v3/rutinas/v3/api-docs
+      - name: ms-entrenador
+        url: /api/v1/entrenadores/v3/api-docs
+      - name: ms-clase
+        url: /api/v1/clases/v3/api-docs
+      - name: ms-inscripcion-clase
+        url: /api/v1/inscripcion-clases/v3/api-docs
 
 server:
   port: 8099
