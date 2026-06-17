@@ -20,7 +20,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
-@RequestMapping("/api/v2/pagos")
+@RequestMapping("/api/v3/pagos")
 @RequiredArgsConstructor
 public class PagosController {
     private final PlanesService pagosService;
