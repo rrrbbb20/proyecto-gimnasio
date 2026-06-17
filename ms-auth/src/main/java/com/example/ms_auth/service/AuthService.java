@@ -26,13 +26,16 @@ public class AuthService {
     private final AuthenticationManager authManager;
     private final JwtUtil jwtUtil;
 
-    // 🔹 REGISTER
     public AuthResponse register(RegisterRequest req) {
 
         Usuario user = new Usuario();
         user.setUsername(req.getUsername());
         user.setPassword(encoder.encode(req.getPassword()));
-        user.setRole("ROLE_USER");
+        if ("admin".equals(req.getUsername())) {
+            user.setRole("ROLE_ADMIN");
+        } else {
+            user.setRole("ROLE_USER");
+        }
 
         usuarioRepo.save(user);
 
@@ -42,7 +45,6 @@ public class AuthService {
         return new AuthResponse(access, refresh);
     }
 
-    // 🔹 LOGIN
     public AuthResponse login(LoginRequest req) {
 
         authManager.authenticate(
@@ -57,7 +59,6 @@ public class AuthService {
         return new AuthResponse(access, refresh);
     }
 
-    // 🔹 REFRESH
     public AuthResponse refresh(String refreshToken) {
 
         RefreshToken token = refreshRepo.findByToken(refreshToken)
