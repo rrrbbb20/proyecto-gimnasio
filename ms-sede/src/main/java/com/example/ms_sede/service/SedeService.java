@@ -36,6 +36,16 @@ public class SedeService {
             throw new RuntimeException("encargado no existe");
         }
 
+        if (sedeRepository.existsByIdEncargado(dto.getIdEncargado())) {
+            throw new IllegalStateException(
+                    "El encargado ya esta ocupado en otra sede");
+        }
+
+
+        if (sedeRepository.existsById(dto.getId())) {
+            throw new RuntimeException("La sede ya existe");
+        }
+
         Sede sede = sedeRepository.save(
                 new Sede(null,dto.getNombre(),dto.getDireccion(),dto.getHoraApertura()
                         ,dto.getHoraCierre(),dto.getIdEncargado())
@@ -77,6 +87,10 @@ public class SedeService {
 
     public void eliminarSede(Long id) {
         log.warn("Eliminando Sede de ID {}", keyValue("id", id));
+        if (!sedeRepository.existsById(id)) {
+            throw new EntityNotFoundException(
+                    "No se puede eliminar sede, no encontrado");
+        }
         sedeRepository.deleteById(id);
     }
 
