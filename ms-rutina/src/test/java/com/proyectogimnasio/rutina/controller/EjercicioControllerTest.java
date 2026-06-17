@@ -57,7 +57,7 @@ class EjercicioControllerTest {
                 .repeticiones(12)
                 .build();
 
-        when(service.addEjercicio(any(EjercicioRequest.class), any())).thenReturn(responseMock);
+        when(service.addEjercicio(any(EjercicioRequest.class))).thenReturn(responseMock);
         ApiResponse<EjercicioResponse> apiResponse = ApiResponse.<EjercicioResponse>builder()
                 .success(true)
                 .message("Ejercicio creado en el catálogo")
@@ -88,7 +88,7 @@ class EjercicioControllerTest {
                 .repeticiones(20)
                 .build();
 
-        when(service.findEjercicio(anyLong(), any())).thenReturn(responseMock);
+        when(service.findEjercicio(anyLong())).thenReturn(responseMock);
 
         // Act & Assert
         mockMvc.perform(get("/api/v3/ejercicios/1")
@@ -112,7 +112,7 @@ class EjercicioControllerTest {
                 new EjercicioResponse(1L, "A", "Zona A", 10),
                 new EjercicioResponse(2L, "B", "Zona B", 12)
         );
-        when(service.getEjercicios(any())).thenReturn(listaMock);
+        when(service.getEjercicios()).thenReturn(listaMock);
 
         // Act & Assert
         mockMvc.perform(get("/api/v3/ejercicios")
@@ -138,7 +138,7 @@ class EjercicioControllerTest {
                 .repeticiones(15)
                 .build();
 
-        when(service.updateEjercicio(anyLong(), any(EjercicioRequest.class), any())).thenReturn(responseMock);
+        when(service.updateEjercicio(anyLong(), any(EjercicioRequest.class))).thenReturn(responseMock);
 
         // Act & Assert
         mockMvc.perform(put("/api/v3/ejercicios/1")
@@ -163,6 +163,6 @@ class EjercicioControllerTest {
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.message").value("Ejercicio Eliminado")); // Coincide con tu ApiResponse real
+                .andExpect(jsonPath("$.message").value("Ejercicio Eliminado"));
     }
 }

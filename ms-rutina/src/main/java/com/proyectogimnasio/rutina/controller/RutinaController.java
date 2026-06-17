@@ -35,12 +35,12 @@ public class RutinaController {
     })
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<RutinaResponse>> addRutinas(@Valid @RequestBody RutinaRequest r, String token){
+    public ResponseEntity<ApiResponse<RutinaResponse>> addRutinas(@Valid @RequestBody RutinaRequest r){
 
         return ResponseEntity.status(201).body(
                 ApiResponse.<RutinaResponse>builder().success(true)
                         .message("Rutina armada y creada exitosamente")
-                        .data(service.addRutina(r, token)).build()
+                        .data(service.addRutina(r)).build()
 
         );
 
@@ -57,13 +57,13 @@ public class RutinaController {
     })
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public ResponseEntity<ApiResponse<EntityModel<RutinaResponse>>> findRutinas(@PathVariable Long id, String token){
-        RutinaResponse rutina = service.findRutina(id, token);
+    public ResponseEntity<ApiResponse<EntityModel<RutinaResponse>>> findRutinas(@PathVariable Long id){
+        RutinaResponse rutina = service.findRutina(id);
         EntityModel<RutinaResponse> recurso = EntityModel.of(rutina);
 
-        recurso.add(linkTo(methodOn(RutinaController.class).findRutinas(id, token)).withSelfRel());
-        recurso.add(linkTo(methodOn(RutinaController.class).getRutinas(token)).withRel("all"));
-        recurso.add(linkTo(methodOn(RutinaController.class).updateRutinas(id, null, token)).withRel("update"));
+        recurso.add(linkTo(methodOn(RutinaController.class).findRutinas(id)).withSelfRel());
+        recurso.add(linkTo(methodOn(RutinaController.class).getRutinas()).withRel("all"));
+        recurso.add(linkTo(methodOn(RutinaController.class).updateRutinas(id, null)).withRel("update"));
         recurso.add(linkTo(methodOn(RutinaController.class).deleteRutinas(id)).withRel("delete"));
 
         return ResponseEntity.ok(
@@ -85,11 +85,11 @@ public class RutinaController {
     })
     @GetMapping
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public ResponseEntity<ApiResponse<List<RutinaResponse>>> getRutinas(String token){
+    public ResponseEntity<ApiResponse<List<RutinaResponse>>> getRutinas(){
 
         return ResponseEntity.status(200).body(
                 ApiResponse.<List<RutinaResponse>>builder().success(true)
-                        .data(service.getRutinas(token)).build()
+                        .data(service.getRutinas()).build()
         );
 
     }
@@ -105,12 +105,12 @@ public class RutinaController {
     })
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<RutinaResponse>> updateRutinas(@PathVariable Long id, @Valid @RequestBody RutinaRequest r, String token) {
+    public ResponseEntity<ApiResponse<RutinaResponse>> updateRutinas(@PathVariable Long id, @Valid @RequestBody RutinaRequest r) {
 
         return ResponseEntity.ok(
 
                 ApiResponse.<RutinaResponse>builder().success(true)
-                        .data(service.updateRutina(id,r, token)).build()
+                        .data(service.updateRutina(id,r)).build()
 
         );
 

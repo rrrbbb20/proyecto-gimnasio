@@ -63,7 +63,7 @@ public class RutinaControllerTest {
                 .detalles(new ArrayList<>())
                 .build();
 
-        when(service.addRutina(any(RutinaRequest.class), any())).thenReturn(responseMock);
+        when(service.addRutina(any(RutinaRequest.class))).thenReturn(responseMock);
         ApiResponse<RutinaResponse> apiResponse = ApiResponse.<RutinaResponse>builder()
                 .success(true)
                 .message("Rutina armada y creada exitosamente")
@@ -104,7 +104,7 @@ public class RutinaControllerTest {
                 ))
                 .build();
 
-        when(service.findRutina(anyLong(), any())).thenReturn(mockResponse);
+        when(service.findRutina(anyLong())).thenReturn(mockResponse);
 
         // Act & Assert
         mockMvc.perform(get("/api/v3/rutinas/1")
@@ -142,7 +142,7 @@ public class RutinaControllerTest {
         RutinaResponse r1 = RutinaResponse.builder().id(1L).nombreRutina("Rutina Cardio").descripcionRutina("Bajar grasa").detalles(new ArrayList<>()).build();
         RutinaResponse r2 = RutinaResponse.builder().id(2L).nombreRutina("Rutina Fuerza").descripcionRutina("Ganar poder").detalles(new ArrayList<>()).build();
 
-        when(service.getRutinas(any())).thenReturn(List.of(r1, r2));
+        when(service.getRutinas()).thenReturn(List.of(r1, r2));
         // Act & Assert
         mockMvc.perform(get("/api/v3/rutinas")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token-valido"))
@@ -167,7 +167,7 @@ public class RutinaControllerTest {
                 .detalles(new ArrayList<>())
                 .build();
 
-        when(service.updateRutina(anyLong(), any(RutinaRequest.class), any())).thenReturn(responseMock);
+        when(service.updateRutina(anyLong(), any(RutinaRequest.class))).thenReturn(responseMock);
 
         // Act & Assert
         mockMvc.perform(put("/api/v3/rutinas/1")

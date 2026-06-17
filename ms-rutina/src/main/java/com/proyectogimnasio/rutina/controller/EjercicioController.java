@@ -34,12 +34,12 @@ public class EjercicioController {
     })
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<EjercicioResponse>> addEjercicios(@Valid @RequestBody EjercicioRequest e,String token){
+    public ResponseEntity<ApiResponse<EjercicioResponse>> addEjercicios(@Valid @RequestBody EjercicioRequest e){
 
         return ResponseEntity.status(201).body(
                 ApiResponse.<EjercicioResponse>builder().success(true)
                         .message("Ejercicio creado en el catálogo")
-                        .data(service.addEjercicio(e, token)).build()
+                        .data(service.addEjercicio(e)).build()
 
         );
 
@@ -56,12 +56,12 @@ public class EjercicioController {
     })
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public ResponseEntity<ApiResponse<EntityModel<EjercicioResponse>>> findEjercicios(@PathVariable("id") Long id, String token){
-        EjercicioResponse detalles = service.findEjercicio(id, token);
+    public ResponseEntity<ApiResponse<EntityModel<EjercicioResponse>>> findEjercicios(@PathVariable("id") Long id){
+        EjercicioResponse detalles = service.findEjercicio(id);
         EntityModel<EjercicioResponse> recurso = EntityModel.of(detalles);
 
-        recurso.add(linkTo(methodOn(EjercicioController.class).findEjercicios(id, token)).withSelfRel());
-        recurso.add(linkTo(methodOn(EjercicioController.class).getEjercicios(token)).withRel("all"));
+        recurso.add(linkTo(methodOn(EjercicioController.class).findEjercicios(id)).withSelfRel());
+        recurso.add(linkTo(methodOn(EjercicioController.class).getEjercicios()).withRel("all"));
         recurso.add(linkTo(methodOn(EjercicioController.class).deleteEjercicios(id)).withRel("delete"));
 
         return ResponseEntity.ok(
@@ -83,11 +83,11 @@ public class EjercicioController {
     })
     @GetMapping
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public ResponseEntity<ApiResponse<List<EjercicioResponse>>> getEjercicios(String token){
+    public ResponseEntity<ApiResponse<List<EjercicioResponse>>> getEjercicios(){
 
         return ResponseEntity.status(200).body(
                 ApiResponse.<List<EjercicioResponse>>builder().success(true)
-                        .data(service.getEjercicios(token)).build()
+                        .data(service.getEjercicios()).build()
         );
 
     }
@@ -103,12 +103,12 @@ public class EjercicioController {
     })
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<EjercicioResponse>> updateEjercicios(@PathVariable("id") Long id, @Valid @RequestBody EjercicioRequest e, String token) {
+    public ResponseEntity<ApiResponse<EjercicioResponse>> updateEjercicios(@PathVariable("id") Long id, @Valid @RequestBody EjercicioRequest e) {
 
         return ResponseEntity.ok(
 
                 ApiResponse.<EjercicioResponse>builder().success(true)
-                        .data(service.updateEjercicio(id,e, token)).build()
+                        .data(service.updateEjercicio(id,e)).build()
 
         );
 
