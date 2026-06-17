@@ -142,10 +142,7 @@ public class PlanesService {
     public SuscripcionResponse crearSuscripcion(SuscripcionRequest request) {
         log.info("Iniciando creación de suscripción automática", keyValue("idCliente", request.getIdCliente()));
 
-        var cliente = client.getCliente(request.getIdCliente());
-        if (cliente == null) {
-            throw new EntityNotFoundException("El cliente especificado no existe en el sistema.");
-        }
+
 
         Planes plan = planesRepository.findById(request.getIdPlan())
                 .orElseThrow(() -> new EntityNotFoundException("El plan especificado no existe en el catálogo."));
