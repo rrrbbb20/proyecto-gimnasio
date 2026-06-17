@@ -7,47 +7,42 @@ spring:
         webmvc:
           routes:
             - id: ms-auth
-              uri: lb://ms-auth
+              uri: http://auth:8082
               predicates:
                 - Path=/auth/**
 
-            - id: ms-entrenador
-              uri: lb://ms-entrenador
-              predicates:
-                - Path=/api/v1/entrenadores/**
-
-            - id: ms-clase
-              uri: lb://ms-clase
-              predicates:
-                - Path=/api/v1/clases/**
-
-            - id: ms-inscripcion-clase
-              uri: lb://ms-inscripcion-clase
-              predicates:
-                - Path=/api/v1/inscripcion-clases/**
-
             - id: ms-cliente
-              uri: lb://ms-cliente
+              uri: http://cliente:8083
               predicates:
                 - Path=/api/v3/clientes/**
 
-            - id: ms-rutina
-              uri: lb://ms-rutina
-              predicates:
-                - Path=/api/v3/rutinas/**
-                - Path=/api/v3/ejercicios/**
-
-            - id: ms-planes
-              uri: lb://ms-planes
+            - id: ms-planes-catalogo
+              uri: http://planes:8087
               predicates:
                 - Path=/api/v3/planes/**
-                - Path=/api/v2/pagos/**
+
+            - id: ms-planes-pagos
+              uri: http://planes:8087
+              predicates:
+                - Path=/api/v3/pagos/**
+
+            - id: ms-planes-suscripciones
+              uri: http://planes:8087
+              predicates:
                 - Path=/api/v3/suscripciones/**
+
+            - id: ms-rutina-rutinas
+              uri: http://rutina:8088
+              predicates:
+                - Path=/api/v3/rutinas/**
+            - id: ms-rutina-ejercicios
+              uri: http://rutina:8088
+              predicates:
+                - Path=/api/v3/ejercicios/**
 
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
-  # Corrección de mapeo: Las URLs deben ser interceptadas válidamente por los 'Path' de arriba
   microservices:
     definitions:
       - name: ms-auth
