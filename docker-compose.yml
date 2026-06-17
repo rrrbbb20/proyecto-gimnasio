@@ -187,11 +187,11 @@ services:
       DB_PASSWORD: root
       JWT_SECRET: "1234567890123456789012345678901234567890"
       EUREKA_URL: http://ms-eureka:8761/eureka/
-      JAVA_OPTS: "-Xmx192m -Xms128m"
+      JAVA_OPTS: "-Xmx256m -Xms128m"
     deploy:
       resources:
         limits:
-          memory: 256M
+          memory: 350M
     networks:
       - backend-network
 
