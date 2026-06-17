@@ -376,7 +376,7 @@ services:
 
 networks:
   backend-network:
-    driver: bridge
+    driver: bridges
 
 volumes:
   mysql_auth_data:
