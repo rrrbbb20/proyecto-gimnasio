@@ -14,7 +14,7 @@ public class EncargadoClient {
 
     private final WebClient webClient;
 
-    private final String BASE_URL = "http://localhost:8090/api/v1/encargado/";
+    private final String BASE_URL = "http://encargado:8090/api/v1/encargado/";
 
     public EncargadoResponse obtenerEncargado(Long id, String token) {
 

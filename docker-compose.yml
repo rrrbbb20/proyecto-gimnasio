@@ -12,128 +12,132 @@ services:
     networks:
       - backend-network
     healthcheck:
-      test: [ "CMD","mysqladmin","ping","-h","localhost" ]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 20s
       retries: 10
 
-
-  cliente:
-    build: ./ms-cliente
-    container_name: cliente
+  ms-eureka:
+    build: ./ms-eureka
+    container_name: ms-eureka
+    restart: unless-stopped
     ports:
-      - "8083:8083"
-    depends_on:
-      - mysql-cliente
-      - ms-eureka
+      - "8761:8761"
+    networks:
+      - backend-network
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -q --spider http://localhost:8761/actuator/health || exit 1" ]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+
+  ms-gateway:
+    build: ./ms-gateway
+    container_name: ms-gateway
+    restart: unless-stopped
+    ports:
+      - "8099:8099"
     environment:
-      DB_HOST: mysql-cliente
-      DB_PORT: 3306
-      DB_NAME: db_cliente
-      DB_USER: root
-      DB_PASSWORD: root
-      JWT_SECRET: "1234567890123456789012345678901234567890"
       EUREKA_URL: http://ms-eureka:8761/eureka/
+    depends_on:
+      ms-eureka:
+        condition: service_healthy
     networks:
       - backend-network
 
-  encargado:
-    build: ./ms-encargado
-    container_name: encargado
-    ports:
-      - "8090:8090"
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/db_encargado?allowPublicKeyRetrieval=true&useSSL=false
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
-      JWT_SECRET: 1234567890123456789012345678901234567890
-    networks:
-      - backend-network
-  inventario:
-    build: ./ms-inventario
-    container_name: inventario
-    ports:
-      - "8086:8086"
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/db_inventario?allowPublicKeyRetrieval=true&useSSL=false
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
-      JWT_SECRET: 1234567890123456789012345678901234567890
-    networks:
-      - backend-network
+  # ─── Bases de datos individuales ──────────────────────────────────
 
-  mantenimiento:
-    build: ./ms-mantenimiento
-    container_name: mantenimiento
-    ports:
-      - "8089:8089"
-    depends_on:
-      db:
-        condition: service_healthy
+  mysql-auth:
+    image: mysql:8
+    container_name: mysql-auth
+    restart: unless-stopped
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/db_mantenimiento?allowPublicKeyRetrieval=true&useSSL=false
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
-      JWT_SECRET: 1234567890123456789012345678901234567890
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ms-user
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_auth_data:/var/lib/mysql
     networks:
       - backend-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
 
-  rutina:
-    build: ./ms-rutina
-    container_name: rutina
-    ports:
-      - "8088:8088"
-    depends_on:
-      - mysql-planes
-      - ms-eureka
+  mysql-encargado:
+    image: mysql:8
+    container_name: mysql-encargado
+    restart: unless-stopped
     environment:
-      DB_HOST: mysql-rutina
-      DB_PORT: 3306
-      DB_NAME: db_rutina
-      DB_USER: root
-      DB_PASSWORD: root
-      JWT_SECRET: "1234567890123456789012345678901234567890"
-      EUREKA_URL: http://ms-eureka:8761/eureka/
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: db_encargado
+    ports:
+      - "3316:3306"
+    volumes:
+      - mysql_encargado_data:/var/lib/mysql
     networks:
       - backend-network
-  sede:
-    build: ./ms-sede
-    container_name: sede
-    ports:
-      - "8084:8084"
-    depends_on:
-      db:
-        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  mysql-inventario:
+    image: mysql:8
+    container_name: mysql-inventario
+    restart: unless-stopped
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/db_sede?allowPublicKeyRetrieval=true&useSSL=false
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
-      JWT_SECRET: 1234567890123456789012345678901234567890
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: db_inventario
+    ports:
+      - "3317:3306"
+    volumes:
+      - mysql_inventario_data:/var/lib/mysql
     networks:
       - backend-network
-  planes:
-    build: ./ms_planes
-    container_name: planes
-    ports:
-      - "8087:8087"
-    depends_on:
-      - mysql-planes
-      - ms-eureka
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  mysql-sede:
+    image: mysql:8
+    container_name: mysql-sede
+    restart: unless-stopped
     environment:
-      DB_HOST: mysql-planes
-      DB_PORT: 3306
-      DB_NAME: db_planes
-      DB_USER: root
-      DB_PASSWORD: root
-      JWT_SECRET: "1234567890123456789012345678901234567890"
-      EUREKA_URL: http://ms-eureka:8761/eureka/
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: db_sede
+    ports:
+      - "3318:3306"
+    volumes:
+      - mysql_sede_data:/var/lib/mysql
     networks:
       - backend-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  mysql-mantenimiento:
+    image: mysql:8
+    container_name: mysql-mantenimiento
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: db_mantenimiento
+    ports:
+      - "3319:3306"
+    volumes:
+      - mysql_mantenimiento_data:/var/lib/mysql
+    networks:
+      - backend-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # ─── Microservicios ───────────────────────────────────────────────
 
   auth:
     build: ./ms-auth
@@ -150,240 +154,97 @@ services:
       JWT_SECRET: "1234567890123456789012345678901234567890"
       EUREKA_URL: http://ms-eureka:8761/eureka/
     depends_on:
-      - mysql-auth
-      - ms-eureka
+      mysql-auth:
+        condition: service_healthy
+      ms-eureka:
+        condition: service_healthy
     networks:
       - backend-network
 
-  clase:
-    build: ./ms-clase
-    container_name: clase
-    restart: unless-stopped
+  encargado:
+    build: ./ms-encargado
+    container_name: encargado
     ports:
-      - "8094:8094"
+      - "8090:8090"
     environment:
-      DB_HOST: mysql-clase
-      DB_PORT: 3306
-      DB_NAME: ms-clase
-      DB_USER: root
-      DB_PASSWORD: root
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-encargado:3306/db_encargado?allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
       JWT_SECRET: "1234567890123456789012345678901234567890"
       EUREKA_URL: http://ms-eureka:8761/eureka/
     depends_on:
-      - mysql-clase
-      - ms-eureka
+      mysql-encargado:
+        condition: service_healthy
+      ms-eureka:
+        condition: service_healthy
     networks:
       - backend-network
 
-  entrenador:
-    build: ./ms-entrenador
-    container_name: entrenador
-    restart: unless-stopped
+  inventario:
+    build: ./ms-inventario
+    container_name: inventario
     ports:
-      - "8093:8093"
+      - "8086:8086"
     environment:
-      DB_HOST: mysql-entrenador
-      DB_PORT: 3306
-      DB_NAME: db_entrenador
-      DB_USER: root
-      DB_PASSWORD: root
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-inventario:3306/db_inventario?allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
       JWT_SECRET: "1234567890123456789012345678901234567890"
       EUREKA_URL: http://ms-eureka:8761/eureka/
     depends_on:
-      - mysql-entrenador
-      - ms-eureka
+      mysql-inventario:
+        condition: service_healthy
+      ms-eureka:
+        condition: service_healthy
     networks:
       - backend-network
 
-  inscripcion-clase:
-    build: ./ms-inscripcion-clase
-    container_name: inscripcion-clase
-    restart: unless-stopped
+  sede:
+    build: ./ms-sede
+    container_name: sede
     ports:
-      - "8092:8092"
+      - "8084:8084"
     environment:
-      DB_HOST: mysql-inscripcionclase
-      DB_PORT: 3306
-      DB_NAME: ms-inscripcion_clase
-      DB_USER: root
-      DB_PASSWORD: root
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-sede:3306/db_sede?allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
       JWT_SECRET: "1234567890123456789012345678901234567890"
       EUREKA_URL: http://ms-eureka:8761/eureka/
     depends_on:
-      - mysql-inscripcionclase
-      - ms-eureka
+      mysql-sede:
+        condition: service_healthy
+      ms-eureka:
+        condition: service_healthy
     networks:
       - backend-network
-  ms-eureka:
-    build: ./ms-eureka
-    container_name: ms-eureka
-    restart: unless-stopped
+
+  mantenimiento:
+    build: ./ms-mantenimiento
+    container_name: mantenimiento
     ports:
-      - "8761:8761"
-    networks:
-      - backend-network
-  ms-gateway:
-    build: ./ms-gateway
-    container_name: ms-gateway
-    restart: unless-stopped
-    ports:
-      - "8099:8099"
+      - "8089:8089"
     environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-mantenimiento:3306/db_mantenimiento?allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      JWT_SECRET: "1234567890123456789012345678901234567890"
       EUREKA_URL: http://ms-eureka:8761/eureka/
     depends_on:
-      - ms-eureka
-    networks:
-      - backend-network
-
-  mysql-auth:
-    image: mysql:8
-    container_name: mysql-auth
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: ms-user
-    ports:
-      - "3307:3306"
-    volumes:
-      - mysql_auth_data:/var/lib/mysql
-    networks:
-      - backend-network
-
-  mysql-clase:
-    image: mysql:8
-    container_name: mysql-clase
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: ms-clase
-    ports:
-      - "3308:3306"
-    volumes:
-      - mysql_clase_data:/var/lib/mysql
-    networks:
-      - backend-network
-
-  mysql-entrenador:
-    image: mysql:8
-    container_name: mysql-entrenador
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: db_entrenador
-    ports:
-      - "3311:3306"
-    volumes:
-      - mysql_entrenador_data:/var/lib/mysql
-    networks:
-      - backend-network
-
-  mysql-inscripcionclase:
-    image: mysql:8
-    container_name: mysql-inscripcionclase
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: ms-inscripcion_clase
-    ports:
-      - "3312:3306"
-    volumes:
-      - mysql_inscripcion_data:/var/lib/mysql
-    networks:
-      - backend-network
-  mysql-cliente:
-    image: mysql:8
-    container_name: mysql-cliente
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: ms-cliente
-    ports:
-      - "3313:3306"
-    volumes:
-      - mysql_cliente_data:/var/lib/mysql
-    networks:
-      - backend-network
-  mysql-planes:
-    image: mysql:8
-    container_name: mysql-planes
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: ms-planes
-    ports:
-      - "3314:3306"
-    volumes:
-      - mysql_planes_data:/var/lib/mysql
-    networks:
-      - backend-network
-  mysql-rutinas:
-    image: mysql:8
-    container_name: mysql-rutinas
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: ms-rutinas
-    ports:
-      - "3315:3306"
-    volumes:
-      - mysql_rutinas_data:/var/lib/mysql
-    networks:
-      - backend-network
-
-  mysql-encargado:
-    image: mysql:8
-    container_name: mysql-encargado
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: ms-encargado
-    ports:
-      - "3316:3306"
-    volumes:
-      - mysql_encargado_data:/var/lib/mysql
-    networks:
-      - backend-network
-
-  mysql-inventario:
-    image: mysql:8
-    container_name: mysql-inventario
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: ms-inventario
-    ports:
-      - "3317:3306"
-    volumes:
-      - mysql_inventario_data:/var/lib/mysql
-    networks:
-      - backend-network
-
-  mysql-sede:
-    image: mysql:8
-    container_name: mysql-sede
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: ms-sede
-    ports:
-      - "3318:3306"
-    volumes:
-      - mysql_sede_data:/var/lib/mysql
+      mysql-mantenimiento:
+        condition: service_healthy
+      ms-eureka:
+        condition: service_healthy
     networks:
       - backend-network
 
 networks:
   backend-network:
     driver: bridge
+
 volumes:
   proyectogimnasio_db_data:
   mysql_auth_data:
-  mysql_clase_data:
-  mysql_entrenador_data:
-  mysql_inscripcion_data:
-  mysql_rutinas_data:
-  mysql_planes_data:
-  mysql_cliente_data:
   mysql_encargado_data:
   mysql_sede_data:
   mysql_inventario_data:
+  mysql_mantenimiento_data:

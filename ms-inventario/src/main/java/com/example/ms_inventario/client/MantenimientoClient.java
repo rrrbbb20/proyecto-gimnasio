@@ -14,7 +14,7 @@ public class MantenimientoClient {
 
     private final WebClient webClient;
 
-    private final String BASE_URL = "http://localhost:8089/api/v1/mantenimiento/";
+    private final String BASE_URL = "http://mantenimiento:8089/api/v1/mantenimiento/";
 
     public MantenimientoResponse obtenerMantenimiento(Long id, String token) {
 

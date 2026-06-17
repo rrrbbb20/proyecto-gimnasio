@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: ms-gateway
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: ms-auth
+              uri: lb://ms-auth
+              predicates:
+                - Path=/auth/**
+
+            - id: ms-sede
+              uri: lb://ms-sede
+              predicates:
+                - Path=/api/v1/sede/**
+
+            - id: ms-encargado
+              uri: lb://ms-encargado
+              predicates:
+                - Path=/api/v1/encargado/**
+
+            - id: ms-inventario
+              uri: lb://ms-inventario
+              predicates:
+                - Path=/api/v2/inventario/**
+
+            - id: ms-mantenimiento
+              uri: lb://ms-mantenimiento
+              predicates:
+                - Path=/api/v1/mantenimiento/**
+
+server:
+  port: 8099
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: true

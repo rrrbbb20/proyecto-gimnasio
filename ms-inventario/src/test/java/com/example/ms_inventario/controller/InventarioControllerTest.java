@@ -40,14 +40,12 @@ public class InventarioControllerTest {
     @MockitoBean
     private com.example.ms_inventario.security.JwtUtil jwtUtil;
 
-    // ─── Helper: MantenimientoResponse de prueba ─────────────────────────────
+    //Helpers
     private MantenimientoResponse mantenimientoMock() {
         MantenimientoResponse m = new MantenimientoResponse();
         m.setId(10L);
         return m;
     }
-
-    // ─── Helper: InventarioResponse de prueba ────────────────────────────────
     private InventarioResponse responseMock() {
         return InventarioResponse.builder()
                 .id(1L)
@@ -58,8 +56,6 @@ public class InventarioControllerTest {
                 .infoMantenimiento(mantenimientoMock())
                 .build();
     }
-
-    // ─── Helper: InventarioRequest de prueba ─────────────────────────────────
     private InventarioRequest requestMock() {
         InventarioRequest req = new InventarioRequest();
         req.setNombre("Pelota");
@@ -70,9 +66,7 @@ public class InventarioControllerTest {
         return req;
     }
 
-    // ════════════════════════════════════════════════════════════════
     // GET /api/v2/inventario
-    // ════════════════════════════════════════════════════════════════
 
     @Test
     public void debeListarInventarios() throws Exception {
@@ -96,11 +90,7 @@ public class InventarioControllerTest {
                 .andExpect(jsonPath("$.data[0].precio")
                         .value(29.99));
     }
-
-    // ════════════════════════════════════════════════════════════════
     // GET /api/v2/inventario/{id}
-    // ════════════════════════════════════════════════════════════════
-
     @Test
     public void debeBuscarInventarioPorId() throws Exception {
 
@@ -121,11 +111,7 @@ public class InventarioControllerTest {
                 .andExpect(jsonPath("$.data.nombre")
                         .value("Pelota"));
     }
-
-    // ════════════════════════════════════════════════════════════════
     // POST /api/v2/inventario
-    // ════════════════════════════════════════════════════════════════
-
     @Test
     public void debeCrearInventario() throws Exception {
 
@@ -154,10 +140,7 @@ public class InventarioControllerTest {
                         .value("Pelota de fútbol"));
     }
 
-    // ════════════════════════════════════════════════════════════════
     // PUT /api/v2/inventario/{id}
-    // ════════════════════════════════════════════════════════════════
-
     @Test
     public void debeActualizarInventario() throws Exception {
 
@@ -204,9 +187,7 @@ public class InventarioControllerTest {
                         .value(15.00));
     }
 
-    // ════════════════════════════════════════════════════════════════
     // DELETE /api/v2/inventario/{id}
-    // ════════════════════════════════════════════════════════════════
 
     @Test
     public void debeEliminarInventario() throws Exception {
