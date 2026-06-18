@@ -140,12 +140,8 @@ public class PlanesService {
     }
     @Transactional
     public SuscripcionResponse crearSuscripcion(SuscripcionRequest request) {
-        log.info("Iniciando creación de suscripción automática", keyValue("idCliente", request.getIdCliente()));
-
-
-
         Planes plan = planesRepository.findById(request.getIdPlan())
-                .orElseThrow(() -> new EntityNotFoundException("El plan especificado no existe en el catálogo."));
+                .orElseThrow(() -> new EntityNotFoundException("Plan no encontrado"));
 
         Pagos pago = new Pagos();
         pago.setTipoPago(request.getPago().getTipoPago());
@@ -155,7 +151,8 @@ public class PlanesService {
         pago.setDireccionFacturacion(request.getPago().getDireccionFacturacion());
         pago.setCodigoPostal(request.getPago().getCodigoPostal());
         pago.setIdCliente(request.getIdCliente());
-        pagosRepository.save(pago);
+
+        pago = pagosRepository.save(pago);
 
         Suscripcion suscripcion = new Suscripcion();
         suscripcion.setIdCliente(request.getIdCliente());
@@ -165,10 +162,9 @@ public class PlanesService {
         suscripcion.setFechaFin(LocalDate.now().plusMonths(1));
         suscripcion.setEstado("ACTIVA");
 
-        Suscripcion saveSuscripcion = suscripcionRepository.save(suscripcion);
-        log.info("Suscripción procesada y guardada correctamente", keyValue("idSuscripcion", saveSuscripcion.getId()));
+        Suscripcion suscripcionGuardada = suscripcionRepository.save(suscripcion);
 
-        return mapToResponseSuscripcion(saveSuscripcion);
+        return mapToResponseSuscripcion(suscripcionGuardada);
     }
     public List<SuscripcionResponse> getAllSuscripciones() {
         log.info("Obteniendo listado de todas las suscripciones");
@@ -212,11 +208,9 @@ public class PlanesService {
     private SuscripcionResponse mapToResponseSuscripcion(Suscripcion s) {
         ClienteResponse datosCliente;
         try {
-            // Rompemos el aislamiento SOLO para leer y construir la respuesta visual
             datosCliente = client.getCliente(s.getIdCliente());
         } catch (Exception e) {
             log.error("Fallo de comunicación al enriquecer datos de cliente", e);
-            // Tolerancia a fallos: el aislamiento protege al servicio de Pagos
             datosCliente = new ClienteResponse();
             datosCliente.setNombres("Desconocido (Fallo de red)");
             datosCliente.setApellidos("");
@@ -228,6 +222,8 @@ public class PlanesService {
                 .plan(mapToResponsePlan(s.getPlan()))
                 .pago(mapToResponsePago(s.getPago()))
                 .cliente(datosCliente)
+                .fechaInicio(s.getFechaInicio())
+                .fechaFin(s.getFechaFin())
                 .estado(s.getEstado())
                 .build();
         }
