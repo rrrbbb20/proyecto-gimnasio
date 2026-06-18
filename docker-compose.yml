@@ -94,6 +94,7 @@ services:
       JWT_SECRET: "1234567890123456789012345678901234567890"
       EUREKA_URL: http://ms-eureka:8761/eureka/
       JAVA_OPTS: "-Xmx192m -Xms128m"
+      CLIENTE_SERVICE_URL: http://cliente:8083
     deploy:
       resources:
         limits:

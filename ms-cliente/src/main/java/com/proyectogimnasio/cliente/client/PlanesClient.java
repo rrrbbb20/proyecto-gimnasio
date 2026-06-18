@@ -36,4 +36,15 @@ public class PlanesClient {
                 .bodyToMono(Object.class)
                 .block();
     }
+    public Object getSuscripcionPorCliente(Long idCliente) {
+        try {
+            return webClient.get()
+                    .uri(baseUrl + "/api/v3/suscripciones/cliente/" + idCliente)
+                    .retrieve()
+                    .bodyToMono(Object.class)
+                    .block();
+        } catch (Exception e) {
+            return null; // Si el cliente no tiene suscripción activa o falla, devuelve null seguro
+        }
+    }
 }

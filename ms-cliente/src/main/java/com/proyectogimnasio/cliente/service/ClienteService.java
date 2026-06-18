@@ -27,12 +27,13 @@ public class ClienteService {
     public ClienteResponse add(ClienteRequest c){
         log.info("Añadir Cliente e iniciar proceso de suscripción", keyValue("cliente", c.getNombres()));
 
+        // 1. Obtener el plan base del catálogo
         var plan = client.getPlan(c.getIdPlan());
         if(plan == null){
-            log.warn("Plan no existe en el catálogo", keyValue("idPlan", c.getIdPlan()));
             throw new EntityNotFoundException("Plan no encontrado");
         }
 
+        // 2. Guardar el cliente para obtener su ID
         Cliente cliente1 = new Cliente();
         cliente1.setNombres(c.getNombres());
         cliente1.setApellidos(c.getApellidos());
@@ -40,29 +41,37 @@ public class ClienteService {
         cliente1.setCorreo(c.getCorreo());
         cliente1.setIdPlan(c.getIdPlan());
         cliente1.setFechaNac(c.getFechaNac());
+        Cliente clienteGuardado = repo.save(cliente1);
 
-        Cliente saveCliente = repo.save(cliente1);
-        log.info("Cliente guardado en BD local", keyValue("idCliente", saveCliente.getId()));
+        // 3. Crear la suscripción y enviar los datos de pago a ms-planes
+        Map<String, Object> suscripcionRequest = Map.of(
+                "idCliente", clienteGuardado.getId(),
+                "idPlan", clienteGuardado.getIdPlan(),
+                "pago", c.getPago()
+        );
 
         try {
-            Map<String, Object> suscripcionPayload = Map.of(
-                    "idCliente", saveCliente.getId(),
-                    "idPlan", c.getIdPlan(),
-                    "pago", c.getPago()
-            );
+            // Llamamos a ms-planes. Este endpoint devuelve un ApiResponse con la SuscripcionResponse completa
+            Object respuestaSuscripcion = client.activarSuscripcion(suscripcionRequest);
 
+            // Extraemos de forma segura el objeto de pago que generó ms-planes
+            if (respuestaSuscripcion instanceof Map) {
+                Map<?, ?> body = (Map<?, ?>) respuestaSuscripcion;
+                Map<?, ?> data = (Map<?, ?>) body.get("data"); // Entramos al "data" del ApiResponse
 
-            client.activarSuscripcion(suscripcionPayload);
-            log.info("Suscripción y pago procesados con éxito en microservicio remoto");
-
+                if (data != null && data.get("pago") != null) {
+                    // Asignamos el objeto de pago real (que ya contiene el ID de la base de datos de planes)
+                    plan.setIdPago(data.get("pago"));
+                }
+            }
         } catch (Exception e) {
-            log.error("Error crítico: No se pudo activar la suscripción o el pago fue rechazado", e);
-
-            throw new RuntimeException("El registro del cliente ha sido cancelado porque el método de pago falló o no pudo ser procesado.");
+            log.error("Error al activar la suscripción o recuperar el pago", e);
+            plan.setIdPago(null);
         }
 
-        ClienteResponse response = mapToResponse(saveCliente);
-        response.setDetallesPlan(plan);
+        // 4. Mapear y responder
+        ClienteResponse response = mapToResponse(clienteGuardado);
+        response.setDetallesPlan(plan); // 'plan' ahora lleva el objeto pago enriquecido
         return response;
     }
 
@@ -82,7 +91,25 @@ public class ClienteService {
         return repo.findAll().stream()
                 .map(cliente -> {
                     ClienteResponse res = mapToResponse(cliente);
-                    try { res.setDetallesPlan(client.getPlan(cliente.getIdPlan())); } catch (Exception e) {}
+
+                    // 1. Obtener datos estáticos del catálogo
+                    var plan = client.getPlan(cliente.getIdPlan());
+
+                    if (plan != null) {
+                        // 2. Consultar el nuevo endpoint que acabamos de crear en ms-planes
+                        Object respuestaSuscripcion = client.getSuscripcionPorCliente(cliente.getId());
+
+                        if (respuestaSuscripcion instanceof Map) {
+                            Map<?, ?> body = (Map<?, ?>) respuestaSuscripcion;
+                            Map<?, ?> data = (Map<?, ?>) body.get("data"); // Entramos al "data" de la ApiResponse
+
+                            if (data != null && data.get("pago") != null) {
+                                // Seteamos el objeto de pago completo que tiene el id_pago de la BD
+                                plan.setIdPago(data.get("pago"));
+                            }
+                        }
+                        res.setDetallesPlan(plan);
+                    }
                     return res;
                 }).toList();
     }
