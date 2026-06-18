@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,20 +35,23 @@ public class EjercicioController {
     })
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<List<EjercicioResponse>>> addEjercicios(@Valid @RequestBody List<EjercicioRequest> ejerciciosRequest){
+    public ResponseEntity<ApiResponse<CollectionModel<EntityModel<EjercicioResponse>>>> addEjercicios(@Valid @RequestBody List<EjercicioRequest> ejerciciosRequest){
 
-        List<EjercicioResponse> ejerciciosCreados = ejerciciosRequest.stream()
+        List<EntityModel<EjercicioResponse>> ejerciciosCreados = ejerciciosRequest.stream()
                 .map(service::addEjercicio)
+                .map(this::crearRecursoEjercicio)
                 .toList();
 
+        CollectionModel<EntityModel<EjercicioResponse>> coleccionRecursos = CollectionModel.of(ejerciciosCreados);
+        coleccionRecursos.add(linkTo(methodOn(EjercicioController.class).getEjercicios()).withRel("all"));
+
         return ResponseEntity.status(201).body(
-                ApiResponse.<List<EjercicioResponse>>builder()
+                ApiResponse.<CollectionModel<EntityModel<EjercicioResponse>>>builder()
                         .success(true)
                         .message("Ejercicios creados exitosamente en el catálogo masivo")
-                        .data(ejerciciosCreados)
+                        .data(coleccionRecursos)
                         .build()
         );
-
     }
     @Operation(
             summary = "Obtener ejercicio por ID",
@@ -63,11 +67,7 @@ public class EjercicioController {
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<ApiResponse<EntityModel<EjercicioResponse>>> findEjercicios(@PathVariable("id") Long id){
         EjercicioResponse detalles = service.findEjercicio(id);
-        EntityModel<EjercicioResponse> recurso = EntityModel.of(detalles);
-
-        recurso.add(linkTo(methodOn(EjercicioController.class).findEjercicios(id)).withSelfRel());
-        recurso.add(linkTo(methodOn(EjercicioController.class).getEjercicios()).withRel("all"));
-        recurso.add(linkTo(methodOn(EjercicioController.class).deleteEjercicios(id)).withRel("delete"));
+        EntityModel<EjercicioResponse> recurso = crearRecursoEjercicio(detalles);
 
         return ResponseEntity.ok(
                 ApiResponse.<EntityModel<EjercicioResponse>>builder()
@@ -88,13 +88,22 @@ public class EjercicioController {
     })
     @GetMapping
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public ResponseEntity<ApiResponse<List<EjercicioResponse>>> getEjercicios(){
+    public ResponseEntity<ApiResponse<CollectionModel<EntityModel<EjercicioResponse>>>> getEjercicios(){
+        List<EjercicioResponse> ejercicios = service.getEjercicios();
+
+        List<EntityModel<EjercicioResponse>> ejerciciosConLinks = ejercicios.stream()
+                .map(this::crearRecursoEjercicio)
+                .toList();
+
+        CollectionModel<EntityModel<EjercicioResponse>> coleccionRecursos = CollectionModel.of(ejerciciosConLinks);
+        coleccionRecursos.add(linkTo(methodOn(EjercicioController.class).getEjercicios()).withSelfRel());
 
         return ResponseEntity.status(200).body(
-                ApiResponse.<List<EjercicioResponse>>builder().success(true)
-                        .data(service.getEjercicios()).build()
+                ApiResponse.<CollectionModel<EntityModel<EjercicioResponse>>>builder()
+                        .success(true)
+                        .data(coleccionRecursos)
+                        .build()
         );
-
     }
     @Operation(
             summary = "Actualizar ejercicio por ID ",
@@ -108,15 +117,16 @@ public class EjercicioController {
     })
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<EjercicioResponse>> updateEjercicios(@PathVariable("id") Long id, @Valid @RequestBody EjercicioRequest e) {
+    public ResponseEntity<ApiResponse<EntityModel<EjercicioResponse>>> updateEjercicios(@PathVariable("id") Long id, @Valid @RequestBody EjercicioRequest e) {
+        EjercicioResponse ejercicioActualizado = service.updateEjercicio(id, e);
+        EntityModel<EjercicioResponse> recurso = crearRecursoEjercicio(ejercicioActualizado);
 
         return ResponseEntity.ok(
-
-                ApiResponse.<EjercicioResponse>builder().success(true)
-                        .data(service.updateEjercicio(id,e)).build()
-
+                ApiResponse.<EntityModel<EjercicioResponse>>builder()
+                        .success(true)
+                        .data(recurso)
+                        .build()
         );
-
     }
     @Operation(
             summary = "Eliminar ejercicio por ID",
@@ -137,6 +147,17 @@ public class EjercicioController {
 
                 ApiResponse.<Void>builder().success(true).message("Ejercicio Eliminado").build()
         );
+    }
+    private EntityModel<EjercicioResponse> crearRecursoEjercicio(EjercicioResponse ejercicio) {
+        EntityModel<EjercicioResponse> recurso = EntityModel.of(ejercicio);
+        Long id = ejercicio.getId();
+
+        recurso.add(linkTo(methodOn(EjercicioController.class).findEjercicios(id)).withSelfRel());
+        recurso.add(linkTo(methodOn(EjercicioController.class).getEjercicios()).withRel("all"));
+        recurso.add(linkTo(methodOn(EjercicioController.class).updateEjercicios(id, null)).withRel("update"));
+        recurso.add(linkTo(methodOn(EjercicioController.class).deleteEjercicios(id)).withRel("delete"));
+
+        return recurso;
     }
 
 }
