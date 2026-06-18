@@ -54,6 +54,26 @@ spring:
               uri: http://rutina:8088
               predicates:
                 - Path=/api/v3/ejercicios/**
+                -
+            - id: ms-sede
+              uri: lb://ms-sede
+              predicates:
+                - Path=/api/v1/sede/**
+
+            - id: ms-encargado
+              uri: lb://ms-encargado
+              predicates:
+                - Path=/api/v1/encargado/**
+
+            - id: ms-inventario
+              uri: lb://ms-inventario
+              predicates:
+                - Path=/api/v2/inventario/**
+
+            - id: ms-mantenimiento
+              uri: lb://ms-mantenimiento
+              predicates:
+                - Path=/api/v1/mantenimiento/**
 
 springdoc:
   swagger-ui:
@@ -74,6 +94,14 @@ springdoc:
         url: /api/v1/clases/v3/api-docs
       - name: ms-inscripcion-clase
         url: /api/v1/inscripcion-clases/v3/api-docs
+      - name: ms-sede
+        url: /api/v1/sede/v3/api-docs
+      - name: ms-encargado
+        url: /api/v1/encargado/v3/api-docs
+      - name: ms-inventario
+        url: /api/v2/inventario/v3/api-docs
+      - name: ms-mantenimiento
+        url: /api/v1/mantenimiento/v3/api-docs
 
 server:
   port: 8099
