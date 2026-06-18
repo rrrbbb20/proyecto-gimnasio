@@ -26,26 +26,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class WebClientConfig {
 
 
-        @Bean
-        public WebClient webClient() {
-            return WebClient.builder()
-                    .filter((request, next) -> {
-                        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-
-                        if (attributes != null) {
-                            HttpServletRequest currentRequest = attributes.getRequest();
-                            String authHeader = currentRequest.getHeader(HttpHeaders.AUTHORIZATION);
-
-                            if (authHeader != null && !authHeader.isEmpty()) {
-                                ClientRequest filteredRequest = ClientRequest.from(request)
-                                        .header(HttpHeaders.AUTHORIZATION, authHeader)
-                                        .build();
-                                return next.exchange(filteredRequest);
-                            }
-                        }
-                        return next.exchange(request);
-                    })
-                    .build();
-        }
+    @Bean
+    public WebClient webClient() {
+        return WebClient.builder().build();
     }
+}
 

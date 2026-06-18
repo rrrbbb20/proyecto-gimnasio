@@ -14,7 +14,7 @@ public class EntrenadorClient {
 
     private final WebClient webClient;
 
-    private final String BASE_URL = "lb://ms-entrenador/api/v1/entrenadores/";
+    private final String BASE_URL = "http://entrenador:8093/api/v1/entrenadores/";
 
     public EntrenadorResponse getEntrenador(Long id, String token) {
 

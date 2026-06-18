@@ -8,9 +8,10 @@ import java.time.LocalTime;
 @Data
 public class ClienteResponse {
     private Long id;
-    private String nombreCompletoCliente;
+    private String nombres;
+    private String apellidos;
     private String run;
-    private LocalDate fechaNacCliente;
-    private String tipoPlan;
-
+    private String correo;
+    private LocalDate fechaNac;
+    private Long idPlan;
 }
