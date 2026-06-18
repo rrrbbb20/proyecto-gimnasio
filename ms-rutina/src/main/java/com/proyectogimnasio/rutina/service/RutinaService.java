@@ -4,7 +4,6 @@ import com.proyectogimnasio.rutina.dto.*;
 import com.proyectogimnasio.rutina.model.DetallesEjercicio;
 import com.proyectogimnasio.rutina.model.Ejercicio;
 import com.proyectogimnasio.rutina.model.Rutina;
-import com.proyectogimnasio.rutina.repository.DetallesEjercicioRepository;
 import com.proyectogimnasio.rutina.repository.EjercicioRepository;
 import com.proyectogimnasio.rutina.repository.RutinaRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -13,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,7 +24,7 @@ import static net.logstash.logback.argument.StructuredArguments.keyValue;
 public class RutinaService {
     private final EjercicioRepository ejercicioRepository;
     private final RutinaRepository rutinaRepository;
-    private final DetallesEjercicioRepository detallesEjercicioRepository;
+
 
     @Transactional
     public RutinaResponse addRutina(RutinaRequest request) {

@@ -1,10 +1,8 @@
 package com.proyectogimnasio.rutina.service;
 
 import com.proyectogimnasio.rutina.dto.*;
-import com.proyectogimnasio.rutina.model.DetallesEjercicio;
 import com.proyectogimnasio.rutina.model.Ejercicio;
 import com.proyectogimnasio.rutina.model.Rutina;
-import com.proyectogimnasio.rutina.repository.DetallesEjercicioRepository;
 import com.proyectogimnasio.rutina.repository.EjercicioRepository;
 import com.proyectogimnasio.rutina.repository.RutinaRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -14,7 +12,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -32,8 +29,7 @@ class RutinaServiceTest {
     @Mock
     private RutinaRepository rutinaRepository;
 
-    @Mock
-    private DetallesEjercicioRepository detallesEjercicioRepository;
+
 
     @InjectMocks
     private RutinaService service;
