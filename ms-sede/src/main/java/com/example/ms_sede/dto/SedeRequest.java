@@ -5,7 +5,6 @@ import lombok.Data;
 
 @Data
 public class SedeRequest {
-    private Long id;
 
     @NotBlank(message = "El nombre de la sede es obligatorio")
     private String nombre;
