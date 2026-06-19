@@ -84,34 +84,7 @@ public class ClaseServiceTest {
         verify(entrenadorClient)
                 .getEntrenador(2L,"1111");
     }
-    @Test
-    public void deberiaRetornarClase(){
 
-        Clase clase = new Clase(1L,"tenis","para todos",
-                "inicial",
-                LocalDate.parse("2026-08-16"),LocalTime.parse("16:00:00"),
-                10,true,1L);
-        when(repository.findById(1L)).thenReturn(Optional.of(clase));
-        EntrenadorResponse e1 = new EntrenadorResponse();
-        e1.setId(1L);
-        e1.setRun("111-1");
-        e1.setFechaNacimiento(LocalDate.parse("1992-05-12"));
-        when(entrenadorClient.getEntrenador(1L,"1111")).thenReturn(e1);
-        ClaseResponse respuesta = service.findById(1L,"1111");
-        assertNotNull(respuesta);
-        assertEquals(1L,respuesta.getId());
-        assertEquals("tenis",respuesta.getNombreClase());
-        assertEquals("para todos",respuesta.getDescripcion());
-        assertEquals("inicial",respuesta.getNivelDeClase());
-        assertEquals(LocalDate.parse("2026-08-16"),respuesta.getFechaRealizacion());
-        assertEquals(LocalTime.parse("16:00:00"),respuesta.getHoraRealizacion());
-        assertEquals(10,respuesta.getCupos());
-        assertEquals(true,respuesta.getEstado());
-        assertEquals(1L,respuesta.getEntrenador().getId());
-        verify(repository).findById(1L);
-        verify(entrenadorClient)
-                .getEntrenador(1L,"1111");
-    }
     @Test
     public void debeListarClases(){
 

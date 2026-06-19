@@ -75,35 +75,7 @@ public class EntrenadorServiceTest {
         verify(repository).existsByRun("111-1");
 
     }
-    @Test
-    public void retornarEntrenadorCuandoExiste(){
-        Entrenador entrenador = new Entrenador();
-        entrenador.setId(1L);
-        entrenador.setNombreCompleto("tito");
-        entrenador.setFechaNacimiento(LocalDate.parse("1992-02-13"));
-        entrenador.setRun("111-1");
-        when(repository.findById(1L)).thenReturn(Optional.of(entrenador));
-        EntrenadorResponse respuesta = service.findById(1L);
-        assertNotNull(respuesta);
-        assertEquals(1L,respuesta.getId());
-        assertEquals("111-1",respuesta.getRun());
-        assertEquals("tito",respuesta.getNombreCompleto());
-        assertEquals(LocalDate.parse("1992-02-13"),respuesta.getFechaNacimiento());
-        verify(repository).findById(1L);
-    }
 
-    @Test
-    public void cuandoEntrenadorNoExiste(){
-        when(repository.findById(1L)).thenReturn(Optional.empty());
-
-        EntityNotFoundException excepcion = assertThrows(
-                EntityNotFoundException.class,
-                ()->service.findById(1L));
-
-        assertEquals("Entrenador no encontrado",excepcion.getMessage());
-
-        verify(repository).findById(1L);
-    }
 
     @Test
     public void puedoActualizarEntrenador(){

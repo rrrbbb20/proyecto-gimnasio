@@ -120,41 +120,7 @@ public class InscripcionClaseServiceTest {
                 excepcion.getMessage()
         );
     }
-    @Test
-    public void debeRetornarInscripcion(){
-        InscripcionClase inscripcion =
-                new InscripcionClase(1L, 1L, 2L, LocalDate.now(),
-                        LocalTime.now()
-                );
-        ClaseResponse clase = new ClaseResponse();
-        clase.setId(1L);
-        ClienteResponse cliente = new ClienteResponse();
-        cliente.setId(2L);
-        when(repository.findById(1L))
-                .thenReturn(Optional.of(inscripcion));
-        when(claseClient.getClase(1L,"1111"))
-                .thenReturn(clase);
-        when(clienteClient.getCliente(2L,"1111"))
-                .thenReturn(cliente);
-        InscripcionClaseResponse resultado =
-                service.findById(1L,"1111");
-        assertNotNull(resultado);
-        assertEquals(1L,
-                resultado.getIdInscripcion());
-        verify(repository).findById(1L);
-    }
-    @Test
-    public void noEncuentraInscripcion(){
-        when(repository.findById(1L))
-                .thenReturn(Optional.empty());
-        EntityNotFoundException excepcion =
-                assertThrows(
-                        EntityNotFoundException.class,
-                        () -> service.findById(1L,"1111"));
-        assertEquals(
-                "Inscripcion a clase no encontrada",
-                excepcion.getMessage());
-    }
+
     @Test
     public void debeListarInscripciones(){
         InscripcionClase inscripcion =

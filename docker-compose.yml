@@ -493,7 +493,7 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: db_entrenador
+      MYSQL_DATABASE: ms-entrenador
     ports:
       - "3311:3306"
     volumes:
