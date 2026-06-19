@@ -44,15 +44,10 @@ public class SedeServiceTest {
         sRequest.setDireccion("E.Yanes");
         sRequest.setHoraCierre(1900);
         sRequest.setHoraApertura(800);
-        //creo el sede request que se ingresa por el service
         Sede sede = new Sede(1L,"Antonio Varias",
                 "E.Yanes",800,1900,1L);
-        //creo la sede que al ser creado el repositorio deberia retornar
         when(repository.save(any(Sede.class))).thenReturn(sede);
-        //cuando en el repositorio se guarde cualquier Sede se
-        //retorna la sede creado anteriormente
         SedeResponse respuesta = service.add(sRequest,null);
-        // se toma un sederesponse que es lo que devuelve el service
         assertNotNull(respuesta);
         //comprueba solo que el objeto no es null
         assertEquals(1L,respuesta.getId());
