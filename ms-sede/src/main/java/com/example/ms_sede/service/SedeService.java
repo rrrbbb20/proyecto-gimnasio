@@ -41,11 +41,6 @@ public class SedeService {
                     "El encargado ya esta ocupado en otra sede");
         }
 
-
-        if (sedeRepository.existsById(dto.getId())) {
-            throw new RuntimeException("La sede ya existe");
-        }
-
         Sede sede = sedeRepository.save(
                 new Sede(null,dto.getNombre(),dto.getDireccion(),dto.getHoraApertura()
                         ,dto.getHoraCierre(),dto.getIdEncargado())
@@ -95,7 +90,7 @@ public class SedeService {
     }
 
     private SedeResponse mapToResponse(Sede s, String token) {
-        var encargado = encargadoClient.obtenerEncargado(s.getId(), token);
+        var encargado = encargadoClient.obtenerEncargado(s.getIdEncargado(), token);
         return SedeResponse.builder()
                 .id(s.getId())
                 .nombre(s.getNombre())
