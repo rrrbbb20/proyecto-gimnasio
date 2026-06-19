@@ -24,22 +24,33 @@ import org.mockito.junit.jupiter.MockitoExtension;
 public class EncargadoServiceTest {
 
 
+    //Creacionde repo falso
     @Mock
     private EncargadoRepository repository;
 
+    //Instanciamos e inyectamos el mock
     @InjectMocks
     private EncargadoService service;
 
     @Test
     void cuandoAgregaEncargado() {
 
+        //Simula la informacion que llegaria desde controller
         EncargadoRequest request = new EncargadoRequest();
         request.setNombreCompleto("Juan Diaz");
         request.setRun("111-1");
         request.setDireccion("Santiago");
         request.setFechaNacimiento(
                 LocalDate.parse("1992-02-13"));
+        //{
+        //    "nombreCompleto": "Juan Diaz",
+        //        "run": "111-1",
+        //        "direccion": "Santiago",
+        //        "fechaNacimiento": "1992-02-13"
+        //}
 
+
+        //creo el objeto que devolverá el repositorio
         Encargado encargado = new Encargado(
                 1L,
                 "Juan Diaz",
@@ -51,6 +62,8 @@ public class EncargadoServiceTest {
         when(repository.save(any(Encargado.class)))
                 .thenReturn(encargado);
 
+
+        //aqui se ejecuta el código del servicio.
         EncargadoResponse respuesta =
                 service.add(request);
 
@@ -65,7 +78,6 @@ public class EncargadoServiceTest {
         assertEquals(
                 LocalDate.parse("1992-02-13"),
                 respuesta.getFechaNacimiento());
-
         verify(repository)
                 .save(any(Encargado.class));
     }

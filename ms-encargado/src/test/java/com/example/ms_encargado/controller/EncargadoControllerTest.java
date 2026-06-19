@@ -32,9 +32,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc(addFilters = false)
 class EncargadoControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
 
+    @Autowired
+    private MockMvc mockMvc;  //para simular peticiones HTTP sin levantar un servidor real.
+
+
+    //json a objetos
     private final ObjectMapper objectMapper =
             new ObjectMapper()
                     .registerModule(
@@ -43,12 +46,14 @@ class EncargadoControllerTest {
     @MockitoBean
     private EncargadoService service;
 
+    //autenticacion
     @MockitoBean
     private JwtUtil jwtUtil;
 
     @Test
     void debeListarEncargados() throws Exception {
 
+        //Simulamos la respuesta
         EncargadoResponse encargado =
                 EncargadoResponse.builder()
                         .id(1L)
@@ -62,6 +67,8 @@ class EncargadoControllerTest {
         when(service.getAll())
                 .thenReturn(List.of(encargado));
 
+
+        //Simula la peticion
         mockMvc.perform(
                         get("/api/v1/encargado")
                                 .header("Authorization", "Bearer token-prueba")
