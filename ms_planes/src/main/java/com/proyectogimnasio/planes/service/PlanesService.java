@@ -206,22 +206,13 @@ public class PlanesService {
         suscripcionRepository.deleteById(id);
     }
     private SuscripcionResponse mapToResponseSuscripcion(Suscripcion s) {
-        ClienteResponse datosCliente;
-        try {
-            datosCliente = client.getCliente(s.getIdCliente());
-        } catch (Exception e) {
-            log.error("Fallo de comunicación al enriquecer datos de cliente", e);
-            datosCliente = new ClienteResponse();
-            datosCliente.setNombres("Desconocido (Fallo de red)");
-            datosCliente.setApellidos("");
-        }
+
 
         return SuscripcionResponse.builder()
                 .id(s.getId())
                 .idCliente(s.getIdCliente())
                 .plan(mapToResponsePlan(s.getPlan()))
                 .pago(mapToResponsePago(s.getPago()))
-                .cliente(datosCliente)
                 .fechaInicio(s.getFechaInicio())
                 .fechaFin(s.getFechaFin())
                 .estado(s.getEstado())

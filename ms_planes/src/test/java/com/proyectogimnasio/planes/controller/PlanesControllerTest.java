@@ -2,6 +2,7 @@ package com.proyectogimnasio.planes.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.proyectogimnasio.planes.config.SecurityConfig;
 import com.proyectogimnasio.planes.dto.PlanesRequest;
 import com.proyectogimnasio.planes.dto.PlanesResponse;
 import com.proyectogimnasio.planes.security.JwtUtil;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -27,7 +29,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(PlanesController.class)
-class PlanesControllerTest {
+@org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
+public class PlanesControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -39,6 +42,7 @@ class PlanesControllerTest {
 
     private PlanesRequest planesRequest;
     private PlanesResponse planesResponse;
+
 
     @MockitoBean
     private JwtUtil jwtUtil;
@@ -91,8 +95,8 @@ class PlanesControllerTest {
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value("Plan obtenido"))
                 .andExpect(jsonPath("$.data.id").value(1L))
-                .andExpect(jsonPath("$.data._links.self.href").exists())
-                .andExpect(jsonPath("$.data._links.all.href").exists());
+                .andExpect(jsonPath("$.data.links[?(@.rel == 'self')].href").exists())
+                .andExpect(jsonPath("$.data.links[?(@.rel == 'all')].href").exists());
     }
 
     @Test
@@ -105,8 +109,7 @@ class PlanesControllerTest {
                         .param("token", "Bearer token-valido"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data[0].nombrePlan").value("Plan Premium"));
-    }
+                .andExpect(jsonPath("$.data.content[0].nombrePlan").value("Plan Premium"));    }
 
     @Test
     @WithMockUser(roles = "ADMIN")

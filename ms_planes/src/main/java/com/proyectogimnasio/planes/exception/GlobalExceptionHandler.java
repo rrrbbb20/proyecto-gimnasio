@@ -59,5 +59,14 @@ public class GlobalExceptionHandler {
                         .build()
         );
     }
+    @ExceptionHandler(org.springframework.security.authorization.AuthorizationDeniedException.class)
+    public ResponseEntity<ApiResponse<Object>> handleAccessDenied(org.springframework.security.authorization.AuthorizationDeniedException ex) {
+        return ResponseEntity.status(403).body(
+                ApiResponse.builder()
+                        .success(false)
+                        .message("Acceso denegado: No tienes permisos para realizar esta acción.")
+                        .build()
+        );
+    }
 
 }

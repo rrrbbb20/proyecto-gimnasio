@@ -60,13 +60,12 @@ public class ClienteService {
                 Map<?, ?> data = (Map<?, ?>) body.get("data"); // Entramos al "data" del ApiResponse
 
                 if (data != null && data.get("pago") != null) {
-                    // Asignamos el objeto de pago real (que ya contiene el ID de la base de datos de planes)
                     plan.setIdPago(data.get("pago"));
                 }
             }
         } catch (Exception e) {
             log.error("Error al activar la suscripción o recuperar el pago", e);
-            plan.setIdPago(null);
+            throw new RuntimeException("Error de red o pago rechazado", e);
         }
 
         // 4. Mapear y responder

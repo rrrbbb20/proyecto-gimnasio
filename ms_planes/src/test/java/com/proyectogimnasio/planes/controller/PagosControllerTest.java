@@ -74,7 +74,7 @@ class PagosControllerTest {
     public void debeAgregarPagoCuandoAdminYRequestValido() throws Exception {
         when(pagosService.addPago(any(PagosRequest.class))).thenReturn(responseMock);
 
-        mockMvc.perform(post("/api/v2/pagos")
+        mockMvc.perform(post("/api/v3/pagos")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token-valido")
                         .param("token", "Bearer token-valido")
                         .with(csrf())
@@ -82,7 +82,7 @@ class PagosControllerTest {
                         .content(objectMapper.writeValueAsString(requestValido)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.message").value("Plan creado"))
+                .andExpect(jsonPath("$.message").value("Método de pago creado exitosamente"))
                 .andExpect(jsonPath("$.data.id").value(1L));
     }
 
@@ -91,7 +91,7 @@ class PagosControllerTest {
     public void debeDevolverBadRequestCuandoCamposSonNulos() throws Exception {
         PagosRequest requestInvalido = new PagosRequest();
 
-        mockMvc.perform(post("/api/v2/pagos")
+        mockMvc.perform(post("/api/v3/pagos")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token-valido")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -104,17 +104,17 @@ class PagosControllerTest {
     public void debeObtenerPagoPorIdConEnlacesHateoas() throws Exception {
         when(pagosService.findByIdPago(anyLong())).thenReturn(responseMock);
 
-        mockMvc.perform(get("/api/v2/pagos/1")
+        mockMvc.perform(get("/api/v3/pagos/1")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token-valido")
                         .param("token", "Bearer token-valido")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value("Metodo de Pago obtenido"))
-                .andExpect(jsonPath("$.data._links.self.href").exists())
-                .andExpect(jsonPath("$.data._links.all.href").exists())
-                .andExpect(jsonPath("$.data._links.update.href").exists())
-                .andExpect(jsonPath("$.data._links.delete.href").exists());
+                .andExpect(jsonPath("$.data.links[0].rel").value("self"))
+                .andExpect(jsonPath("$.data.links[0].href").value("http://localhost/api/v3/pagos/1"))
+
+                .andExpect(jsonPath("$.data.links[?(@.rel == 'self')].href").value("http://localhost/api/v3/pagos/1"));
     }
 
     @Test
@@ -122,13 +122,13 @@ class PagosControllerTest {
     public void debeListarTodosLosPagos() throws Exception {
         when(pagosService.getAllPagos()).thenReturn(List.of(responseMock));
 
-        mockMvc.perform(get("/api/v2/pagos")
+        mockMvc.perform(get("/api/v3/pagos")
                         .header("Authorization", "Bearer token-valido")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data").isArray())
-                .andExpect(jsonPath("$.data[0].id").value(1L));
+                .andExpect(jsonPath("$.data.content").isArray())
+                .andExpect(jsonPath("$.data.content[0].id").value(1L));
     }
 
     @Test
@@ -136,7 +136,7 @@ class PagosControllerTest {
     public void debeActualizarPagoCuandoAdminYRequestValido() throws Exception {
         when(pagosService.updatePago(anyLong(), any(PagosRequest.class))).thenReturn(responseMock);
 
-        mockMvc.perform(put("/api/v2/pagos/1")
+        mockMvc.perform(put("/api/v3/pagos/1")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token-valido")
                         .param("token", "Bearer token-valido")
                         .with(csrf())
@@ -152,7 +152,7 @@ class PagosControllerTest {
     public void debeEliminarPagoCuandoAdmin() throws Exception {
         doNothing().when(pagosService).deletePago(anyLong());
 
-        mockMvc.perform(delete("/api/v2/pagos/1")
+        mockMvc.perform(delete("/api/v3/pagos/1")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

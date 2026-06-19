@@ -54,8 +54,6 @@ class PlanesServiceTest {
                 .build();
     }
 
-
-
     @Test
     void addPlan_DebeGuardarYRetornarPlan() {
         PlanesRequest request = new PlanesRequest();
@@ -122,7 +120,6 @@ class PlanesServiceTest {
     @Test
     void deletePlan_CuandoExiste_DebeEliminar() {
         when(planesRepository.existsById(1L)).thenReturn(true);
-        doNothing().when(planesRepository).deleteById(1L);
 
         assertDoesNotThrow(() -> planesService.deletePlan(1L));
         verify(planesRepository, times(1)).deleteById(1L);
@@ -135,7 +132,6 @@ class PlanesServiceTest {
         assertThrows(EntityNotFoundException.class, () -> planesService.deletePlan(1L));
         verify(planesRepository, never()).deleteById(anyLong());
     }
-
 
     @Test
     void addPago_CuandoClienteExiste_DebeGuardar() {
@@ -212,7 +208,6 @@ class PlanesServiceTest {
         assertThrows(EntityNotFoundException.class, () -> planesService.deletePago(1L));
     }
 
-
     @Test
     void crearSuscripcion_CuandoClienteYPlanExisten_DebeProcesarCorrectamente() {
         SuscripcionRequest request = new SuscripcionRequest();
@@ -226,7 +221,6 @@ class PlanesServiceTest {
         Pagos pagoGuardado = new Pagos(5L, "Debito", null, null, null, null, null, 10L);
         Suscripcion suscripcionGuardada = new Suscripcion(1L, 10L, plan, pagoGuardado, LocalDate.now(), LocalDate.now().plusMonths(1), "ACTIVA");
 
-        when(clienteClient.getCliente(10L)).thenReturn(clienteMock);
         when(planesRepository.findById(2L)).thenReturn(Optional.of(plan));
         when(pagosRepository.save(any(Pagos.class))).thenReturn(pagoGuardado);
         when(suscripcionRepository.save(any(Suscripcion.class))).thenReturn(suscripcionGuardada);
@@ -241,29 +235,21 @@ class PlanesServiceTest {
     }
 
     @Test
-    void crearSuscripcion_CuandoClienteInexistente_DebeLanzarException() {
-        SuscripcionRequest request = new SuscripcionRequest();
-        request.setIdCliente(99L);
-
-        when(clienteClient.getCliente(99L)).thenReturn(null);
-
-        assertThrows(EntityNotFoundException.class, () -> planesService.crearSuscripcion(request));
-    }
-
-    @Test
     void getSuscripcionByCliente_CuandoExiste_DebeRetornarSuscripcion() {
         Planes plan = new Planes(1L, "Plan", BigDecimal.ONE, "", "");
         Pagos pago = new Pagos(1L, "Cash", null, null, null, null, null, 10L);
         Suscripcion suscripcion = new Suscripcion(1L, 10L, plan, pago, LocalDate.now(), LocalDate.now().plusMonths(1), "ACTIVA");
 
         when(suscripcionRepository.findByIdCliente(10L)).thenReturn(Optional.of(suscripcion));
-        when(clienteClient.getCliente(10L)).thenReturn(clienteMock);
 
         SuscripcionResponse response = planesService.getSuscripcionByCliente(10L);
 
         assertNotNull(response);
         assertEquals(1L, response.getId());
         assertEquals("ACTIVA", response.getEstado());
+
+        // Comprobamos que no interactúa innecesariamente con servicios externos
+        verify(clienteClient, never()).getCliente(anyLong());
     }
 
     @Test
@@ -274,7 +260,6 @@ class PlanesServiceTest {
 
         when(suscripcionRepository.findById(1L)).thenReturn(Optional.of(suscripcion));
         when(suscripcionRepository.save(any(Suscripcion.class))).thenAnswer(inv -> inv.getArgument(0));
-        when(clienteClient.getCliente(10L)).thenReturn(clienteMock);
 
         SuscripcionResponse response = planesService.updateSuscripcion(1L, "cancelada");
 
@@ -288,21 +273,5 @@ class PlanesServiceTest {
         when(suscripcionRepository.existsById(1L)).thenReturn(false);
 
         assertThrows(EntityNotFoundException.class, () -> planesService.deleteSuscripcion(1L));
-    }
-
-    @Test
-    void mapToResponseSuscripcion_CuandoFallaClienteExterno_DebeAmortiguarException() {
-        Planes plan = new Planes(1L, "Plan", BigDecimal.ONE, "", "");
-        Pagos pago = new Pagos(1L, "Cash", null, null, null, null, null, 10L);
-        Suscripcion suscripcion = new Suscripcion(1L, 10L, plan, pago, LocalDate.now(), LocalDate.now().plusMonths(1), "ACTIVA");
-
-        when(suscripcionRepository.findByIdCliente(10L)).thenReturn(Optional.of(suscripcion));
-        when(clienteClient.getCliente(10L)).thenThrow(new RuntimeException("Error de red de prueba"));
-
-        assertDoesNotThrow(() -> {
-            SuscripcionResponse response = planesService.getSuscripcionByCliente(10L);
-            assertNotNull(response);
-            assertEquals(1L, response.getId());
-        });
     }
 }

@@ -27,5 +27,3 @@ eureka:
 cliente:
   service:
     url: ${CLIENTE_SERVICE_URL:http://ms-cliente:8083}
-
-debug: true

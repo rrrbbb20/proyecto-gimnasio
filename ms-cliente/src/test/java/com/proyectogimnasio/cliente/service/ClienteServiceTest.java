@@ -117,9 +117,12 @@ public class ClienteServiceTest {
 
         when(client.getPlan(eq(1L))).thenReturn(planMock);
         when(repo.save(any(Cliente.class))).thenReturn(clienteGuardado);
+
+        // Simulamos que el microservicio externo falla (pago rechazado o caída de red)
         when(client.activarSuscripcion(any())).thenThrow(new RuntimeException("Error de red o pago rechazado"));
 
         // Act & Assert
+        // Ahora que el servicio lanza el error con 'throw', el assertThrows lo capturará con éxito.
         assertThrows(RuntimeException.class, () -> service.add(dto));
     }
 

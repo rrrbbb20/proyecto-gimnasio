@@ -27,4 +27,3 @@ eureka:
 planes:
   service:
     url: ${PLANES_SERVICE_URL:http://ms-planes}
-debug: true

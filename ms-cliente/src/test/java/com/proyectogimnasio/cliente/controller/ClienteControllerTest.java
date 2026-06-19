@@ -28,6 +28,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ClienteController.class)
+@org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 public class ClienteControllerTest {
 
     @Autowired
@@ -99,9 +100,14 @@ public class ClienteControllerTest {
     @Test
     @WithMockUser(roles = "USER")
     void debeRetornarForbiddenAlAgregarClienteCuandoRolEsUser() throws Exception {
-        // Arrange
+        // Arrange: Rellenar los campos obligatorios para engañar a la validación
         ClienteRequest request = new ClienteRequest();
         request.setNombres("Cristobal");
+        request.setApellidos("Silva");
+        request.setRun("12345678-9");
+        request.setCorreo("cristobal@email.com");
+        request.setFechaNac(LocalDate.of(1995, 5, 5));
+        request.setIdPlan(1L);
         request.setPago(getPagoMock());
 
         // Act & Assert
@@ -110,7 +116,7 @@ public class ClienteControllerTest {
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isForbidden()); // Ahora sí llegará aquí y dará 403
 
         verify(service, never()).add(any(ClienteRequest.class));
     }
@@ -142,7 +148,7 @@ public class ClienteControllerTest {
     void debeListarTodosLosClientesCuandoRolEsUser() throws Exception {
         // Arrange
         List<ClienteResponse> listaMock = List.of(
-                ClienteResponse.builder().id(1L).nombres("Vicentito").build()
+                ClienteResponse.builder().id(1L).nombres("vicentito").build()
         );
 
         when(service.getAll()).thenReturn(listaMock);
@@ -150,9 +156,9 @@ public class ClienteControllerTest {
         // Act & Assert
         mockMvc.perform(get("/api/v3/clientes")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token-valido"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data[0].nombres").value("Vicentito"));
+                .andExpect(jsonPath("$.data.content").isArray())
+                .andExpect(jsonPath("$.data.content.length()").value(1))
+                .andExpect(jsonPath("$.data.content[0].nombres").value("vicentito"));
 
         verify(service, times(1)).getAll();
     }

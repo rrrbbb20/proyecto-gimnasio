@@ -68,7 +68,7 @@ class SuscripcionControllerTest {
     void activarSuscripcion_CuandoRequestValido_DebeRetornar201YSuscripcion() throws Exception {
         when(planesService.crearSuscripcion(any(SuscripcionRequest.class))).thenReturn(responseMock);
 
-        mockMvc.perform(post("/api/v1/suscripciones")
+        mockMvc.perform(post("/api/v3/suscripciones")
                         .header(HttpHeaders.AUTHORIZATION, tokenValido)
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
@@ -86,7 +86,7 @@ class SuscripcionControllerTest {
     void obtenerTodas_CuandoAdmin_DebeRetornarListado() throws Exception {
         when(planesService.getAllSuscripciones()).thenReturn(List.of(responseMock));
 
-        mockMvc.perform(get("/api/v1/suscripciones")
+        mockMvc.perform(get("/api/v3/suscripciones")
                         .header(HttpHeaders.AUTHORIZATION, tokenValido))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
@@ -97,7 +97,7 @@ class SuscripcionControllerTest {
     @Test
     @WithMockUser(roles = "USER")
     void obtenerTodas_CuandoUserNoAutorizado_DebeRetornar403() throws Exception {
-        mockMvc.perform(get("/api/v1/suscripciones")
+        mockMvc.perform(get("/api/v3/suscripciones")
                         .header(HttpHeaders.AUTHORIZATION, tokenValido))
                 .andExpect(status().isForbidden());
     }
@@ -107,7 +107,7 @@ class SuscripcionControllerTest {
     void obtenerPorCliente_CuandoRolUser_DebeRetornarSuscripcion() throws Exception {
         when(planesService.getSuscripcionByCliente(eq(1L))).thenReturn(responseMock);
 
-        mockMvc.perform(get("/api/v1/suscripciones/cliente/1")
+        mockMvc.perform(get("/api/v3/suscripciones/cliente/1")
                         .header(HttpHeaders.AUTHORIZATION, tokenValido))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
@@ -120,7 +120,7 @@ class SuscripcionControllerTest {
         responseMock.setEstado("CANCELADA");
         when(planesService.updateSuscripcion(eq(10L), eq("CANCELADA"))).thenReturn(responseMock);
 
-        mockMvc.perform(put("/api/v1/suscripciones/10/estado")
+        mockMvc.perform(put("/api/v3/suscripciones/10/estado")
                         .header(HttpHeaders.AUTHORIZATION, tokenValido)
                         .param("nuevoEstado", "CANCELADA")
                         .with(csrf()))
@@ -133,7 +133,7 @@ class SuscripcionControllerTest {
     @Test
     @WithMockUser(roles = "USER")
     void cambiarEstado_CuandoUserNoAutorizado_DebeRetornar403() throws Exception {
-        mockMvc.perform(put("/api/v1/suscripciones/10/estado")
+        mockMvc.perform(put("/api/v3/suscripciones/10/estado")
                         .header(HttpHeaders.AUTHORIZATION, tokenValido)
                         .param("nuevoEstado", "CANCELADA")
                         .with(csrf()))
@@ -145,7 +145,7 @@ class SuscripcionControllerTest {
     void eliminarSuscripcion_CuandoAdmin_DebeRetornarOkConMensaje() throws Exception {
         doNothing().when(planesService).deleteSuscripcion(anyLong());
 
-        mockMvc.perform(delete("/api/v1/suscripciones/10")
+        mockMvc.perform(delete("/api/v3/suscripciones/10")
                         .header(HttpHeaders.AUTHORIZATION, tokenValido)
                         .with(csrf()))
                 .andExpect(status().isOk())
@@ -156,7 +156,7 @@ class SuscripcionControllerTest {
     @Test
     @WithMockUser(roles = "USER")
     void eliminarSuscripcion_CuandoUserNoAutorizado_DebeRetornar403() throws Exception {
-        mockMvc.perform(delete("/api/v1/suscripciones/10")
+        mockMvc.perform(delete("/api/v3/suscripciones/10")
                         .header(HttpHeaders.AUTHORIZATION, tokenValido)
                         .with(csrf()))
                 .andExpect(status().isForbidden());
