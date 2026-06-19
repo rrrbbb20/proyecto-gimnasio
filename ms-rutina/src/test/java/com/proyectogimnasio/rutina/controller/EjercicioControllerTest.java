@@ -58,23 +58,19 @@ class EjercicioControllerTest {
                 .build();
 
         when(service.addEjercicio(any(EjercicioRequest.class))).thenReturn(responseMock);
-        ApiResponse<EjercicioResponse> apiResponse = ApiResponse.<EjercicioResponse>builder()
-                .success(true)
-                .message("Ejercicio creado en el catálogo")
-                .data(responseMock)
-                .error(null) // Lo seteamos explícitamente como null para que use tu atributo exacto
-                .build();
 
         // Act & Assert
         mockMvc.perform(post("/api/v3/ejercicios")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token-valido")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))
+                        .content(objectMapper.writeValueAsString(List.of(request))) // Arreglo JSON correcto
                         .with(csrf()))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.message").value("Ejercicio creado en el catálogo"))
-                .andExpect(jsonPath("$.data.nombreEjercicio").value("Cruce de Poleas"));
+                .andExpect(jsonPath("$.message").value("Ejercicios creados exitosamente en el catálogo masivo"))
+                // CAMBIO AQUÍ: Al ser una lista, la respuesta de $.data será un arreglo,
+                // por lo que usamos la sintaxis de índices de JSONPath [0]
+                .andExpect(jsonPath("$.data.content[0].nombreEjercicio").value("Cruce de Poleas"));
     }
 
     @Test
@@ -119,8 +115,8 @@ class EjercicioControllerTest {
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token-valido"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data[0].nombreEjercicio").value("A"))
-                .andExpect(jsonPath("$.data[1].nombreEjercicio").value("B"));
+                .andExpect(jsonPath("$.data.content[0].nombreEjercicio").value("A"))
+                .andExpect(jsonPath("$.data.content[1].nombreEjercicio").value("B"));
     }
     @Test
     @WithMockUser(roles = "ADMIN")

@@ -148,8 +148,8 @@ public class RutinaControllerTest {
                         .header(HttpHeaders.AUTHORIZATION, "Bearer token-valido"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data[0].nombreRutina").value("Rutina Cardio"))
-                .andExpect(jsonPath("$.data[1].nombreRutina").value("Rutina Fuerza"));
+                .andExpect(jsonPath("$.data.content[0].nombreRutina").value("Rutina Cardio"))
+                .andExpect(jsonPath("$.data.content[1].nombreRutina").value("Rutina Fuerza"));
     }
     @Test
     @WithMockUser(roles = "ADMIN")

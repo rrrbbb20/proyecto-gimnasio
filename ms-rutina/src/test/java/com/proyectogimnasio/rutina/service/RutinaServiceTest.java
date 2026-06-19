@@ -178,7 +178,7 @@ class RutinaServiceTest {
         assertEquals("Rutina Nueva", resultado.getNombreRutina());
         assertEquals("Desc Nueva", resultado.getDescripcionRutina());
 
-        verify(rutinaRepository).saveAndFlush(any(Rutina.class));
+        verify(rutinaRepository, times(1)).save(any(Rutina.class));
         verify(rutinaRepository).save(any(Rutina.class));
     }
 
